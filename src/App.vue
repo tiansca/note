@@ -50,7 +50,7 @@ export default {
   },
   watch:{
       globalBgColor(){
-          console.log(this.globalBgColor)
+//          console.log(this.globalBgColor)
       },
       '$route' (to, from) {
           console.log(to.path)
@@ -59,7 +59,7 @@ export default {
         }else{
           this.transitionName = 'slide-left';
         }
-        console.log(this.transitionName)
+//        console.log(this.transitionName)
       }
   },
   mounted(){

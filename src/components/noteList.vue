@@ -18,7 +18,7 @@
       <font-awesome-icon :icon="['fas', 'plus']"></font-awesome-icon>
     </span>
     <div class="noteListBox" v-if="ready">
-      <div class="noteItem" v-for="note in noteArr" :style="{backgroundColor:note.rgbColor}" @click="goDetail(false,note)">
+      <div class="noteItem" v-for="note in noteArr" :style="{backgroundColor:note.rgbColor}" @click="goDetaill(false,note)">
         <div class="note-title">{{note.title}}</div>
         <div class="note-time">
           <span>{{note.time | formatDate}}
@@ -55,7 +55,7 @@
             this.$store.commit('setShowMore')
           },
         listShowType(){
-              console.log('aaaaaaaaa')
+//              console.log('aaaaaaaaa')
         },
         goDetaill(add,note){
             if(add == 'add'){
@@ -82,17 +82,17 @@
         setTimeout(()=>{
           for(var a = 0; a < this.noteArr.length; a++){
             var content = this.noteArr[a].content.split(/[\s\n]/)[0];
-            console.log(content)
+//            console.log(content)
             this.noteArr[a].title = content;
             var rgbColor = this.hexToRgb(this.noteArr[a].color);
-            console.log(rgbColor)
+//            console.log(rgbColor)
             if(rgbColor && this.noteArr[a].color != '#333333'){
               this.noteArr[a].rgbColor = "rgba(" + rgbColor.r + ',' + rgbColor.g + ',' + rgbColor.b + ', 0.15' + ")";
             }else {
               this.noteArr[a].rgbColor = "#fff"
             }
 //
-            console.log(this.noteArr[a].rgbColor)
+//            console.log(this.noteArr[a].rgbColor)
           }
           this.ready = true
         })

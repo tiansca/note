@@ -92,11 +92,11 @@
           return this.$store.state.colors;
         },
         labelArr(){
-            console.log(this.$store.state.labelArr)
+//            console.log(this.$store.state.labelArr)
             return this.$store.state.labelArr
         },
         noteArr(){
-            console.log(this.$store.state.noteArr)
+//            console.log(this.$store.state.noteArr)
             return this.$store.state.noteArr
         }
       },
@@ -149,7 +149,6 @@
           for(var a = 0; a < this.labelArr.length; a++){
               if(this.labelArr[a].value == this.aNote.label){
                   this.aNote.color = this.labelArr[a].color;
-                  console.log(this.aNote)
                   break
               }
           }
@@ -213,7 +212,6 @@
                 return;
             }
             this.aNote.time = (new Date()).valueOf();
-            console.log(this.aNote);
             //判断note是否已经存在
             var isExist = false;
             var currIndex = ''
@@ -224,7 +222,6 @@
                 }
             }
             if(isExist){
-                console.log('存在');
                 this.noteArr[currIndex] = this.aNote;
                 this.$store.commit('setNoteArr', this.noteArr);
             }else {
@@ -243,7 +240,17 @@
       mounted(){
         if(this.$route.query.id){
           //查找note
-          this.openType = 'edit'
+          this.openType = 'edit';
+          console.log(this.$route.query.id)
+          setTimeout(()=>{
+            for(var a = 0; a < this.noteArr.length; a++){
+              if(this.noteArr[a].id == this.$route.query.id){
+                  this.aNote = this.noteArr[a];
+                  console.log(this.aNote)
+                  break
+              }
+            }
+          });
         }else {
           //新建node
           this.openType = 'add';
