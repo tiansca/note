@@ -21,8 +21,9 @@
       <div class="noteItem" v-for="note in noteArr" :style="{backgroundColor:note.rgbColor}" @click="goDetaill(false,note)">
         <div class="note-title">{{note.title}}</div>
         <div class="note-time">
-          <span>{{note.time | formatDate}}
-          </span></div>
+          <span>{{note.time | formatDate}}</span>
+          <span v-show="note.collect"><font-awesome-icon :icon="['fas', 'star']" style="color: #FFDC35;font-size: 16px"></font-awesome-icon></span>
+        </div>
       </div>
     </div>
   </div>

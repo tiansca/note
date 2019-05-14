@@ -12,8 +12,8 @@
       </span>
       <mt-button icon="more" slot="right" style="overflow: visible;" @click="showMore">
         <div class="moreList" v-show="isShowMore">
-          <div class="moreItem" @click="listShowType">收藏</div>
-          <div class="moreItem">删除</div>
+          <div class="moreItem" @click="toggleCollect">{{aNote.collect?'取消收藏':'收藏笔记'}}</div>
+          <div class="moreItem">删除笔记</div>
         </div>
       </mt-button>
     </mt-header>
@@ -114,10 +114,12 @@
               time:(new Date()).valueOf(),
               collect:false,
               content:'',
-              color:'#333'
+              color:'#333',
+              updateTime:(new Date()).valueOf()
             },
             oldLabel:'',
-            openType:'add'
+            openType:'add',
+            oldContent:''
           }
       },
       methods:{
@@ -129,8 +131,15 @@
           this.$store.commit('setGlobalBg',0);
           this.$store.commit('setShowMore')
         },
-        listShowType(){
-          console.log('切换视图')
+        toggleCollect(){
+          this.aNote.collect = !this.aNote.collect;
+          this.aNote.updateTime = (new Date()).valueOf();
+          for(var a = 0; a < this.noteArr.length; a++){
+            if(this.noteArr[a].id == this.aNote.id){
+              this.noteArr[a] = this.aNote;
+            }
+          }
+          this.$store.commit('setNoteArr', this.noteArr);
         },
 //        打开弹窗
         showLabel(){
@@ -211,10 +220,14 @@
             if(this.openType == 'add' && this.aNote.content == ''){
                 return;
             }
+            if(this.oldContent == this.aNote.content){
+                return;
+            }
             this.aNote.time = (new Date()).valueOf();
+            this.updateTime = (new Date()).valueOf();
             //判断note是否已经存在
             var isExist = false;
-            var currIndex = ''
+            var currIndex = '';
             for(var a = 0; a < this.noteArr.length; a++){
                 if(this.noteArr[a].id == this.aNote.id){
                     isExist = true;
@@ -228,7 +241,8 @@
                 var newNoteArr = [this.aNote].concat(this.noteArr);
                 this.$store.commit('setNoteArr', newNoteArr);
             }
-            this.title = '笔记'
+            this.title = '笔记';
+            this.oldContent = this.aNote.content
         },
         back(){
             if(this.title == '编辑笔记'){
@@ -245,8 +259,9 @@
           setTimeout(()=>{
             for(var a = 0; a < this.noteArr.length; a++){
               if(this.noteArr[a].id == this.$route.query.id){
-                  this.aNote = this.noteArr[a];
-                  console.log(this.aNote)
+                  this.aNote = {...this.noteArr[a]};
+                  console.log(this.aNote);
+                  this.oldContent = this.aNote.content;
                   break
               }
             }
