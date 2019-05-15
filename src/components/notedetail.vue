@@ -315,6 +315,7 @@
     width: calc(100% - 24px);
     height: calc(100% - 100px);
     overflow: auto;
+    color:#464646
   }
   .addInput{
     border: none;
@@ -331,4 +332,5 @@
   .detail-top{
     margin: 12px 0;
   }
+
 </style>

@@ -9,7 +9,7 @@
       <!--</router-link>-->
       <mt-button icon="more" slot="right" style="overflow: visible;" @click="showMore">
         <div class="moreList" v-show="isShowMore">
-          <div class="moreItem" @click="listShowType">列表视图</div>
+          <div class="moreItem" @click="listShowType">{{showType?'宫格视图':'列表视图'}}</div>
           <div class="moreItem" @click="setShowCheck">批量删除</div>
         </div>
       </mt-button>
@@ -23,7 +23,7 @@
       </div>
       <div  v-for="note in usableNote" :class="showType?'longItem':'shortItem'">
         <div class="noteItem" :style="{backgroundColor:note.rgbColor}" @click="goDetaill(false,note)" :class="showCheck?'show-check-item':''">
-          <div class="note-title">{{note.title}}</div>
+          <div class="note-title">{{showType?note.title:note.content}}</div>
           <div class="note-time">
             <span>{{note.time | formatDate}}</span>
             <span v-show="note.collect"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>
@@ -68,13 +68,16 @@
         },
         usableNote(){
           return this.$store.getters.usableNote;
+        },
+        showType(){
+          return this.$store.state.showType;
         }
       },
       data(){
           return{
             msg:'note list',
             ready:false,
-            showType:true,
+            // showType:true,
             showCheck:false,
             deleteArr:[],
             selectAll:false,
@@ -90,8 +93,7 @@
             this.$store.commit('setShowMore')
           },
         listShowType(){
-//              console.log('aaaaaaaaa');
-          this.showType=!this.showType
+            this.$store.commit('setShowType')
         },
         goDetaill(add,note){
             if(this.showCheck){
@@ -283,5 +285,26 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  /* 宫格视图 */
+  .shortItem{
+    width: 42%;
+    height: 133px;
+    display: inline-block;
+    margin:12px 4%;
+    position: relative;
+  }
+  .shortItem .noteItem{
+    height: 100%;
+  }
+  .shortItem .noteItem .note-title{
+    height: 108px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    white-space:normal;
+    line-height: 26px;
   }
 </style>

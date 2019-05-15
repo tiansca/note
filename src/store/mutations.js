@@ -31,6 +31,9 @@ const mutations = {
   setNoteArr(state,n){
     state.noteArr = n;
     localStorage.setItem('noteArr', JSON.stringify(n))
+  },
+  setShowType(state){
+    state.showType = !state.showType
   }
 }
 

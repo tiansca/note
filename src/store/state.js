@@ -23,7 +23,8 @@ const state = {
       '#A5A552',
       '#AE57A4'],
     labelArr:[],
-    noteArr:[]
+    noteArr:[],
+    showType:true,
 }
 
 export default state

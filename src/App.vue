@@ -126,8 +126,7 @@ body,html{
 }
 .slide-fade-enter, .slide-fade-leave-to
   /* .slide-fade-leave-active for below version 2.1.8 */ {
-  transform: translateX(-70%);
-  opacity: 0;
+  transform: translateX(-100%);
 }
 .moreList{
   position: absolute;
