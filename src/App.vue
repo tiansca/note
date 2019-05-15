@@ -94,16 +94,20 @@ body,html{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.mintui-more,.mintui-back{
+  font-size: 20px!important;
+}
   .mint-header{
     background-color: #f8f8f8!important;
     color: #1c1c1c!important;
-    font-size: 18px!important;
+    font-size: 20px!important;
     font-weight: 600!important;
   }
 .mint-header-title {
   position: absolute!important;
   left: 40px!important;
   top: 0!important;
+  font-size: 18px!important;
 }
   .globalBg{
     background-color: rgba(0,0,0,0.2);
@@ -131,17 +135,18 @@ body,html{
   right: 0;
   z-index: 2;
   background-color: #fff;
-  padding:8px;
+  padding:8px 15px;
   box-shadow: 0 0 8px 0 rgba(0,0,0,0.2);
   font-size: 14px;
   color: #333;
+  border-radius: 4px;
 }
   .moreItem{
-    padding-top:5px;
+    padding-top:8px;
   }
   .moreItem:first-of-type{
     border-bottom: 0.5px solid #999;
-    padding-bottom:5px;
+    padding-bottom:8px;
     padding-top:0;
   }
 /*页面切换动画*/

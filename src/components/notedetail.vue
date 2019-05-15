@@ -328,4 +328,7 @@
   .label-icon{
     padding:14px 5px;
   }
+  .detail-top{
+    margin: 12px 0;
+  }
 </style>
