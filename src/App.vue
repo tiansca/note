@@ -95,15 +95,15 @@ body,html{
   -moz-osx-font-smoothing: grayscale;
 }
   .mint-header{
-    background-color: #f8f8f8;
-    color: #1c1c1c;
-    font-size: 18px;
-    font-weight: 600;
+    background-color: #f8f8f8!important;
+    color: #1c1c1c!important;
+    font-size: 18px!important;
+    font-weight: 600!important;
   }
 .mint-header-title {
-  position: absolute;
-  left: 40px;
-  top: 0;
+  position: absolute!important;
+  left: 40px!important;
+  top: 0!important;
 }
   .globalBg{
     background-color: rgba(0,0,0,0.2);
@@ -134,6 +134,7 @@ body,html{
   padding:8px;
   box-shadow: 0 0 8px 0 rgba(0,0,0,0.2);
   font-size: 14px;
+  color: #333;
 }
   .moreItem{
     padding-top:5px;
