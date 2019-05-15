@@ -2,8 +2,8 @@
  * Created by administrator on 2019/4/24.
  */
 const getters = {
-  getActiveIndex:state=>{
-    return state.activeIndex;
+  usableNote(state){
+    return state.noteArr.filter(note=>note.status==1)
   }
 }
 

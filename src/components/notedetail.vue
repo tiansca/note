@@ -13,7 +13,7 @@
       <mt-button icon="more" slot="right" style="overflow: visible;" @click="showMore">
         <div class="moreList" v-show="isShowMore">
           <div class="moreItem" @click="toggleCollect">{{aNote.collect?'取消收藏':'收藏笔记'}}</div>
-          <div class="moreItem">删除笔记</div>
+          <div class="moreItem" @click="removeNote">删除笔记</div>
         </div>
       </mt-button>
     </mt-header>
@@ -24,7 +24,7 @@
           <font-awesome-icon :icon="['fas', 'bookmark']" style="color: #fff;font-size: 15.5px;position: absolute;top: 1px; left: 1px"></font-awesome-icon>
         </span>
         <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 18px;position: relative;" v-if="aNote.label !=0" :style="{color:aNote.color}"></font-awesome-icon>
-        <span style="margin-left: 20px;font-size: 14px" :style="{marginLeft:(aNote.label==0?'20px':'0')}">添加标签</span>
+        <span style="margin-left: 20px;font-size: 14px" :style="{marginLeft:(aNote.label==0?'20px':'0')}">{{aNote.label==0?'添加标签':aNote.labelName}}</span>
         <span style="margin-top: -3px;display: inline-block;position: relative;vertical-align: top;">
           <font-awesome-icon :icon="['fas', 'sort-down']" style="color: #333;font-size: 16px;position: absolute;top: 1px;left: 2px"></font-awesome-icon>
         </span>
@@ -33,7 +33,7 @@
       <span style="float: right;line-height: 20px;color:#999;margin-right: 12px;font-size: 14px;margin-top: 3px;">{{aNote.time | formatDate(1)}}</span>
 
     </div>
-    <textarea v-model="aNote.content" @focus="textFocus" @blur="textBlur">
+    <textarea v-model="aNote.content" @focus="textFocus" @blur="textBlur" ref="inputVal">
 
     </textarea>
 
@@ -67,14 +67,14 @@
         </div>
 
         <div v-show="labelArr && labelArr.length == 0">暂无标签</div>
-        <div style="color:#26a2ff;line-height: 24px;padding-left: 26px" @click="addLabel" v-show="!addLabelIng">新建</div>
+        <div style="color:#0d8794;line-height: 24px;padding-left: 26px" @click="addLabel" v-show="!addLabelIng">新建</div>
         <div style="width: 84%; margin: 5px 17px;display: flex;justify-content: center;align-items: center;" v-show="addLabelIng">
           <span @click="cancelAddLabel"><font-awesome-icon :icon="['fas', 'times']" style="color: #333;font-size: 20px;"></font-awesome-icon></span>
           <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 15px;margin-left: 5px;" :style="{color:addLabelColor}"></font-awesome-icon>
           <input type="text" style="width: 70%" class="addInput" v-model="addLabelName">
           <span @click="commitAddLabel"><font-awesome-icon :icon="['fas', 'check']" style="color: #333;font-size: 20px;"></font-awesome-icon></span>
         </div>
-        <div @click="closePopup" style="text-align: center;color:#26a2ff;margin:12px 0">取消</div>
+        <div @click="closePopup" style="text-align: center;color:#0d8794;margin:12px 0">取消</div>
       </div>
     </mt-popup>
   </div>
@@ -115,7 +115,9 @@
               collect:false,
               content:'',
               color:'#333',
-              updateTime:(new Date()).valueOf()
+              updateTime:(new Date()).valueOf(),
+              status:1,
+              labelName:'未标签'
             },
             oldLabel:'',
             openType:'add',
@@ -155,17 +157,22 @@
         labelChange(){
           this.labelPopupVisible = false;
           this.addLabelIng = false;
+          //查找颜色
           for(var a = 0; a < this.labelArr.length; a++){
               if(this.labelArr[a].value == this.aNote.label){
                   this.aNote.color = this.labelArr[a].color;
+                  this.aNote.labelName = this.labelArr[a].label;
                   break
               }
           }
+          this.aNote.updateTime = (new Date()).valueOf();
+          this.$store.commit('setNoteArr', this.noteArr);
         },
         //打开新建标签
         addLabel(){
             this.addLabelIng = true;
-            this.addLabelColor = this.colors[this.labelArr.length - 1];
+            var colorIndex = this.labelArr.length%15==0?0:this.labelArr.length%15-1
+            this.addLabelColor = this.colors[colorIndex];
         },
         //提交新建标签
         commitAddLabel(){
@@ -221,6 +228,7 @@
                 return;
             }
             if(this.oldContent == this.aNote.content){
+                this.title = '笔记';
                 return;
             }
             this.aNote.time = (new Date()).valueOf();
@@ -249,6 +257,14 @@
                 this.saveNote();
             }
             this.$router.replace({path:'/noteList'});
+        },
+        //删除笔记
+        removeNote(){
+          this.aNote.status = 0;
+          this.aNote.updateTime = (new Date()).valueOf();
+          this.$store.commit('setNoteArr', this.noteArr);
+          this.$router.replace({path:'/noteList'});
+          this.$store.commit('setShowMore')
         }
       },
       mounted(){
@@ -257,13 +273,18 @@
           this.openType = 'edit';
           console.log(this.$route.query.id)
           setTimeout(()=>{
+            var isFund = false;
             for(var a = 0; a < this.noteArr.length; a++){
               if(this.noteArr[a].id == this.$route.query.id){
-                  this.aNote = {...this.noteArr[a]};
+                  this.aNote = this.noteArr[a];
                   console.log(this.aNote);
                   this.oldContent = this.aNote.content;
+                  isFund = true;
                   break
               }
+            }
+            if(!isFund){
+              this.$router.replace({path:'/noteList'});
             }
           });
         }else {
@@ -272,6 +293,7 @@
           setTimeout(()=>{
             this.aNote.id = this.noteArr.length + 1;
           });
+          this.$refs.inputVal.focus()
         }
 
       },
