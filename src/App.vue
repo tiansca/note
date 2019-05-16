@@ -36,7 +36,7 @@ export default {
   methods:{
     toggleSlide(){
       this.$store.commit('setSlide');
-      this.$store.commit('setGlobalBg',n);
+      this.$store.commit('setGlobalBg',1);
     },
     toggleGlobalBg(n){
       this.$store.commit('setGlobalBg',n);
@@ -79,6 +79,12 @@ export default {
       //设置笔记列表
       if(localStorage.getItem('noteArr')){
         this.$store.commit('setNoteArr',JSON.parse(localStorage.getItem('noteArr')))
+      }
+
+      //视图模式
+      if(localStorage.getItem('showType')){
+          this.$store.commit('setShowType');
+          this.$store.commit('setShowType');
       }
   }
 }
@@ -152,7 +158,7 @@ body,html{
 .Router {
   position: absolute;
   width: 100%;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   top: 0;
 }
 .slide-left-enter,

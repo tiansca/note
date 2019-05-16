@@ -25,6 +25,7 @@ const state = {
     labelArr:[],
     noteArr:[],
     showType:true,
+    filterType:'all',//all:全部   collect：收藏   其他数字：标签id
 }
 
 export default state

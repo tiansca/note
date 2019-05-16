@@ -231,6 +231,9 @@
                 this.title = '笔记';
                 return;
             }
+            if(this.aNote.content == ''){
+                this.removeNote();
+            }
             this.aNote.time = (new Date()).valueOf();
             this.updateTime = (new Date()).valueOf();
             //判断note是否已经存在
@@ -254,6 +257,9 @@
         },
         back(){
             if(this.title == '编辑笔记'){
+                if(this.aNote.content == '' && !!this.oldContent){
+                    this.aNote.content = this.oldContent;
+                }
                 this.saveNote();
             }
             this.$router.replace({path:'/noteList'});
@@ -264,7 +270,6 @@
           this.aNote.updateTime = (new Date()).valueOf();
           this.$store.commit('setNoteArr', this.noteArr);
           this.$router.replace({path:'/noteList'});
-          this.$store.commit('setShowMore')
         }
       },
       mounted(){

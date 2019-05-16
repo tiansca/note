@@ -1,6 +1,6 @@
 <template>
   <div style="background-color: #f8f8f8;height: 100%">
-    <mt-header title="全部笔记">
+    <mt-header :title="filterTitle">
       <!--<router-link to="/noteList" slot="left">-->
         <!--<mt-button icon="back"> </mt-button>-->
       <span slot="left" @click="toggleSlide">
@@ -21,8 +21,8 @@
       <div v-if="usableNote.length == 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
         笔记列表为空
       </div>
-      <div  v-for="note in usableNote" :class="showType?'longItem':'shortItem'">
-        <div class="noteItem" :style="{backgroundColor:note.rgbColor}" @click="goDetaill(false,note)" :class="showCheck?'show-check-item':''">
+      <div  v-for="note in noteList" :class="showType?'longItem':'shortItem'" @touchstart="touchstart(false,note)" @touchend="touchend(false,note)">
+        <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
           <div class="note-title">{{showType?note.title:note.content}}</div>
           <div class="note-time">
             <span>{{note.time | formatDate}}</span>
@@ -71,7 +71,13 @@
         },
         showType(){
           return this.$store.state.showType;
-        }
+        },
+        collectNote(){
+          return this.$store.getters.collectNote;
+        },
+        filterType(){
+          return this.$store.state.filterType;
+        },
       },
       data(){
           return{
@@ -81,6 +87,10 @@
             showCheck:false,
             deleteArr:[],
             selectAll:false,
+            clickTime:'',
+            timer:'',
+            filterTitle:'全部笔记',
+            noteList:[]
           }
       },
       methods:{
@@ -121,7 +131,6 @@
         },
         setShowCheck(){
             this.showCheck = !this.showCheck;
-            console.log(this.showCheck)
         },
         checkNote(note){
             /*tiansc*/
@@ -145,16 +154,16 @@
             this.showCheck = false;
             if(this.selectAll){
                 this.selectAll = false;
-                for(var a = 0; a < this.usableNote.length; a++){
-                  this.usableNote[a].check = false;
+                for(var a = 0; a < this.noteList.length; a++){
+                  this.noteList[a].check = false;
                 }
                 this.deleteArr = []
             }else {
                 this.selectAll = true;
-                for(var a = 0; a < this.usableNote.length; a++){
-                  this.usableNote[a].check = true;
+                for(var a = 0; a < this.noteList.length; a++){
+                  this.noteList[a].check = true;
                 }
-                this.deleteArr = this.usableNote.concat()
+                this.deleteArr = this.noteList.concat()
             }
             this.showCheck = true
         },
@@ -172,10 +181,44 @@
                 this.$store.commit('setNoteArr', this.noteArr);
             }
             this.showCheck = false
+        },
+      // 长按
+        touchstart(){
+            this.clicKTime = (new Date()).valueOf();
+            console.log(this.clicKTime);
+            this.timer = setTimeout(()=> {
+              this.setShowCheck()
+            },600)
+        },
+        touchend(isAdd, note){
+            console.log((new Date()).valueOf() - this.clicKTime);
+            if((new Date()).valueOf() - this.clicKTime < 200){
+                this.goDetaill(isAdd, note)
+            }
+            if((new Date()).valueOf() - this.clicKTime < 600){
+              clearTimeout(this.timer)
+            }
+        },
+        filterNote(){
+          switch (this.filterType){
+            case 'all':
+              this.filterTitle='全部笔记';
+              this.noteList = this.usableNote;
+              break;
+            case 'collect':
+              this.filterTitle = '我的收藏';
+              this.noteList = this.collectNote;
+              break;
+          }
         }
       },
       mounted(){
+        console.log(this.$store.getters.collectNote)
         setTimeout(()=>{
+            console.log(this.isShowMore)
+          if(this.isShowMore){
+            this.$store.commit('setShowMore')
+          }
           for(var a = 0; a < this.noteArr.length; a++){
             var content = this.noteArr[a].content.split(/[\s\n]/)[0];
 //            console.log(content)
@@ -187,22 +230,28 @@
             }else {
               this.noteArr[a].rgbColor = "#fff"
             }
+            this.noteList = this.usableNote;
 //
 //            console.log(this.noteArr[a].rgbColor)
           }
-          this.ready = true
-        })
+          this.ready = true;
+          this.filterNote();
+        });
+
       },
       watch:{
         showCheck(){
             /*tiansc*/
             if(this.showCheck == false){
                 this.selectAll = false;
-                for(var a = 0; a < this.usableNote.length; a++){
-                  this.usableNote[a].check = false;
+                for(var a = 0; a < this.noteList.length; a++){
+                  this.noteList[a].check = false;
                 }
                 this.deleteArr = []
             }
+        },
+        filterType(){
+          this.filterNote();
         }
       }
   }
@@ -306,5 +355,10 @@
     -webkit-box-orient: vertical;
     white-space:normal;
     line-height: 26px;
+  }
+  .shortItem .item-checkbox{
+    position: absolute;
+    bottom: -6px;
+    right: 12px;
   }
 </style>
