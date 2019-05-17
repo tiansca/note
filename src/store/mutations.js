@@ -33,8 +33,17 @@ const mutations = {
     localStorage.setItem('noteArr', JSON.stringify(n))
   },
   setShowType(state,n){
-    state.showType = !state.showType;
+    if(state.showType){
+      state.showType = 0;
+    }else {
+      state.showType = 1;
+    }
     localStorage.setItem('showType', state.showType);
+  },
+  setShowType1(state,n){
+    state.showType = n;
+    console.log(n)
+    localStorage.setItem('showType', n);
   },
   setFilterType(state, n){
     state.filterType = n;

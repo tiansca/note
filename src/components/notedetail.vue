@@ -204,7 +204,8 @@
           var newLabelArr =[{
             value:String(this.labelArr.length),
             label:this.addLabelName,
-            color:this.addLabelColor
+            color:this.addLabelColor,
+            status:1
           }].concat(this.labelArr)
           this.$store.commit('setLabelArr',newLabelArr);
           this.addLabelIng = false;
@@ -300,10 +301,17 @@
           });
           this.$refs.inputVal.focus()
         }
-
+        //监听返回
+        if (window.history && window.history.pushState) {
+          history.pushState(null, null, document.URL);
+          window.addEventListener('popstate', this.back, false);
+        }
       },
       watch:{
 
+      },
+      destroyed(){
+        window.removeEventListener('popstate', this.back, false);
       }
   }
 </script>

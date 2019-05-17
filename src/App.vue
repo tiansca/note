@@ -70,7 +70,8 @@ export default {
           var labelArr = [{
               value:'0',
               label:'未标签',
-              color:'#333'
+              color:'#333',
+              status:1
           }];
 //          localStorage.setItem('labelArr', JSON.stringify(labelArr));
           this.$store.commit('setLabelArr',labelArr)
@@ -83,8 +84,7 @@ export default {
 
       //视图模式
       if(localStorage.getItem('showType')){
-          this.$store.commit('setShowType');
-          this.$store.commit('setShowType');
+          this.$store.commit('setShowType1',localStorage.getItem('showType'));
       }
   }
 }
@@ -140,18 +140,19 @@ body,html{
   right: 0;
   z-index: 2;
   background-color: #fff;
-  padding:8px 15px;
+  padding:15px 15px;
   box-shadow: 0 0 8px 0 rgba(0,0,0,0.2);
   font-size: 14px;
   color: #333;
   border-radius: 4px;
 }
   .moreItem{
-    padding-top:8px;
+    padding-top:12px;
+    padding-right:24px;
   }
   .moreItem:first-of-type{
     border-bottom: 0.5px solid #999;
-    padding-bottom:8px;
+    padding-bottom:12px;
     padding-top:0;
   }
 /*页面切换动画*/

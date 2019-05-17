@@ -10,14 +10,20 @@ const getters = {
       return note.status == 1 && note.collect == true
     })
   },
-  labelNote(state, n){
-    if(n){
-      return state.noteArr.filter((note)=>{
-        return note.status == 1 && note.label == n;
-      })
-    }else {
-      return state.noteArr
-    }
+  labelNote:(state)=>(n)=>{
+    console.log(n)
+      if(n){
+        return state.noteArr.filter((note)=>{
+          return note.status == 1 && note.label == n;
+        })
+      }else {
+        return state.noteArr.filter((note)=>{
+          return note.status == 1;
+        })
+      }
+  },
+  usableLabel(state){
+    return state.labelArr.filter(label=>label.status==1)
   }
 }
 

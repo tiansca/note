@@ -24,7 +24,7 @@ const state = {
       '#AE57A4'],
     labelArr:[],
     noteArr:[],
-    showType:true,
+    showType:1,
     filterType:'all',//all:全部   collect：收藏   其他数字：标签id
 }
 

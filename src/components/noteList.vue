@@ -18,20 +18,20 @@
       <font-awesome-icon :icon="['fas', 'plus']"></font-awesome-icon>
     </span>
     <div class="noteListBox" v-if="ready">
-      <div v-if="usableNote.length == 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
+      <div v-if="noteList.length == 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
         笔记列表为空
       </div>
-      <div  v-for="note in noteList" :class="showType?'longItem':'shortItem'" @touchstart="touchstart(false,note)" @touchend="touchend(false,note)">
+      <div  v-for="note in noteList" :class="showType==1?'longItem':'shortItem'" @touchstart="touchstart(false,note)" @touchend="touchend(false,note)">
         <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
-          <div class="note-title">{{showType?note.title:note.content}}</div>
+          <div class="note-title">{{showType==1?note.title:note.content}}</div>
           <div class="note-time">
             <span>{{note.time | formatDate}}</span>
             <span v-show="note.collect"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>
           </div>
         </div>
-        <span class="item-checkbox" v-show="showCheck" @click="checkNote(note)">
+        <span class="item-checkbox" v-show="showCheck">
           <font-awesome-icon :icon="['fas', 'check-square']" style="display:inline-block;width: 24px;height: 24px; color: #0d8794" v-if="note.check"></font-awesome-icon>
-          <font-awesome-icon :icon="['fas', 'square']" style="color: #fff;border-radius: 2px;border:1px solid #0d8794;display: inline-block;width: 20px;height: 20px" v-else></font-awesome-icon>
+          <font-awesome-icon :icon="['fas', 'square']" :style="{color:(showType==1?'#fff':'rgba(225,225,225,0)')}" style="border-radius: 2px;border:1px solid #0d8794;display: inline-block;width: 20px;height: 20px" v-else></font-awesome-icon>
         </span>
       </div>
     </div>
@@ -78,6 +78,9 @@
         filterType(){
           return this.$store.state.filterType;
         },
+        usableLabel(){
+          return this.$store.getters.usableLabel;
+        }
       },
       data(){
           return{
@@ -179,8 +182,12 @@
                     }
                 }
                 this.$store.commit('setNoteArr', this.noteArr);
+                console.log(this.usableNote);
+                this.usableNote = this.usableNote.concat()
+                this.$forceUpdate();
             }
-            this.showCheck = false
+            this.showCheck = false;
+            this.filterNote()
         },
       // 长按
         touchstart(){
@@ -200,22 +207,25 @@
             }
         },
         filterNote(){
-          switch (this.filterType){
-            case 'all':
-              this.filterTitle='全部笔记';
-              this.noteList = this.usableNote;
-              break;
-            case 'collect':
-              this.filterTitle = '我的收藏';
-              this.noteList = this.collectNote;
-              break;
+          if(this.filterType == 'all'){
+            this.filterTitle='全部笔记';
+            this.noteList = this.usableNote;
+          }else if(this.filterType == 'collect'){
+            this.filterTitle = '我的收藏';
+            this.noteList = this.collectNote;
+          }else {
+            for(var a = 0; a < this.usableLabel.length; a++){
+              if(this.filterType == this.usableLabel[a].value){
+                this.filterTitle = this.usableLabel[a].label;
+                this.noteList = this.$store.getters.labelNote(this.filterType)
+              }
+            }
           }
         }
       },
       mounted(){
-        console.log(this.$store.getters.collectNote)
         setTimeout(()=>{
-            console.log(this.isShowMore)
+            console.log(this.showType)
           if(this.isShowMore){
             this.$store.commit('setShowMore')
           }
@@ -223,6 +233,19 @@
             var content = this.noteArr[a].content.split(/[\s\n]/)[0];
 //            console.log(content)
             this.noteArr[a].title = content;
+            var hasLabel = false;
+            if(this.usableLabel){
+              for(var b = 0; b < this.usableLabel.length; b++){
+                if(this.noteArr[a].label == this.usableLabel[b].value){
+                  hasLabel = true;
+                }
+              }
+            }
+            if(!hasLabel){
+                this.noteArr[a].label = '0';
+                this.noteArr[a].color = '#333';
+            }
+            //设置颜色
             var rgbColor = this.hexToRgb(this.noteArr[a].color);
 //            console.log(rgbColor)
             if(rgbColor && this.noteArr[a].color != '#333333'){
@@ -230,10 +253,9 @@
             }else {
               this.noteArr[a].rgbColor = "#fff"
             }
-            this.noteList = this.usableNote;
-//
-//            console.log(this.noteArr[a].rgbColor)
           }
+          this.$store.commit('setNoteArr', this.noteArr)
+          this.noteList = this.usableNote;
           this.ready = true;
           this.filterNote();
         });
@@ -252,6 +274,9 @@
         },
         filterType(){
           this.filterNote();
+        },
+        usableNote(){
+
         }
       }
   }
@@ -287,11 +312,12 @@
     padding:8px;
   }
   .note-title{
-    font-size: 18px;
+    font-size: 16px;
     line-height: 28px;
     overflow:hidden;
     text-overflow:ellipsis;
-    white-space:nowrap
+    white-space:nowrap;
+    color: #333;
   }
   .note-time{
     font-size: 14px;
@@ -337,11 +363,20 @@
   }
   /* 宫格视图 */
   .shortItem{
-    width: 42%;
+    width: 47%;
     height: 133px;
-    display: inline-block;
-    margin:12px 4%;
+    /*display: inline-block;*/
+    /*margin:12px 4%;*/
+    margin-bottom:18px;
+    margin-top:18px;
     position: relative;
+    /*float: left;*/
+  }
+  .shortItem:nth-child(odd){
+    float: left;
+  }
+  .shortItem:nth-child(even){
+    float: right;
   }
   .shortItem .noteItem{
     height: 100%;
