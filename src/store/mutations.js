@@ -26,6 +26,7 @@ const mutations = {
   },
   setLabelArr(state,n){
     state.labelArr = n;
+		console.log(state.labelArr,'aaaaaaaaaa')
     localStorage.setItem('labelArr', JSON.stringify(n))
   },
   setNoteArr(state,n){
@@ -33,7 +34,7 @@ const mutations = {
     localStorage.setItem('noteArr', JSON.stringify(n))
   },
   setShowType(state,n){
-    if(state.showType){
+    if(state.showType == 1){
       state.showType = 0;
     }else {
       state.showType = 1;

@@ -9,7 +9,7 @@
       <!--</router-link>-->
       <mt-button icon="more" slot="right" style="overflow: visible;" @click="showMore">
         <div class="moreList" v-show="isShowMore">
-          <div class="moreItem" @click="listShowType">{{showType?'宫格视图':'列表视图'}}</div>
+          <div class="moreItem" @click="listShowType">{{showType==1?'宫格视图':'列表视图'}}</div>
           <div class="moreItem" @click="setShowCheck">批量删除</div>
         </div>
       </mt-button>
@@ -225,7 +225,7 @@
       },
       mounted(){
         setTimeout(()=>{
-            console.log(this.showType)
+            console.log(this.usableLabel)
           if(this.isShowMore){
             this.$store.commit('setShowMore')
           }
@@ -238,6 +238,7 @@
               for(var b = 0; b < this.usableLabel.length; b++){
                 if(this.noteArr[a].label == this.usableLabel[b].value){
                   hasLabel = true;
+                  this.noteArr[a].color = this.usableLabel[b].color
                 }
               }
             }
@@ -276,7 +277,36 @@
           this.filterNote();
         },
         usableNote(){
-
+					for(var a = 0; a < this.noteArr.length; a++){
+							var content = this.noteArr[a].content.split(/[\s\n]/)[0];
+	//            console.log(content)
+							this.noteArr[a].title = content;
+							var hasLabel = false;
+							if(this.usableLabel){
+								for(var b = 0; b < this.usableLabel.length; b++){
+									if(this.noteArr[a].label == this.usableLabel[b].value){
+										hasLabel = true;
+										this.noteArr[a].color = this.usableLabel[b].color
+									}
+								}
+							}
+							if(!hasLabel){
+									this.noteArr[a].label = '0';
+									this.noteArr[a].color = '#333';
+							}
+							//设置颜色
+							var rgbColor = this.hexToRgb(this.noteArr[a].color);
+	//            console.log(rgbColor)
+							if(rgbColor && this.noteArr[a].color != '#333333'){
+								this.noteArr[a].rgbColor = "rgba(" + rgbColor.r + ',' + rgbColor.g + ',' + rgbColor.b + ', 0.15' + ")";
+							}else {
+								this.noteArr[a].rgbColor = "#fff"
+							}
+						}
+						this.$store.commit('setNoteArr', this.noteArr)
+						this.noteList = this.usableNote;
+						this.ready = true;
+						this.filterNote();
         }
       }
   }
@@ -310,6 +340,10 @@
     box-shadow: 0 0 8px 0px rgba(0,0,0,0.2);
     margin-bottom:16px;
     padding:8px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
   }
   .note-title{
     font-size: 16px;

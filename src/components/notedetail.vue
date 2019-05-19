@@ -49,7 +49,7 @@
         <h3 style="text-align: left">添加标签</h3>
         <div style="position: relative;;max-height: 60vh;overflow-x: auto">
           <div style="position: absolute;width: 20px;display: inline-block;top: 8px;left: 20px;z-index: 2;">
-            <div v-for="item in labelArr" class="label-icon">
+            <div v-for="item in usableLabel" class="label-icon">
               <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 18px;" :style="{color:item.color}"  v-show="item.value != 0"></font-awesome-icon>
               <span style="position: relative;" v-if="item.value == 0">
                 <font-awesome-icon :icon="['fas', 'bookmark']" style="color: #333;font-size: 18px;position: absolute;top: 0;left: 0"></font-awesome-icon>
@@ -61,12 +61,12 @@
             style="width:85%;display: inline-block;margin-left: 20px"
             align="right"
             v-model="aNote.label"
-            :options="labelArr"
+            :options="usableLabel"
             @change="labelChange()">
           </mt-radio>
         </div>
 
-        <div v-show="labelArr && labelArr.length == 0">暂无标签</div>
+        <div v-show="usableLabel && usableLabel.length == 0">暂无标签</div>
         <div style="color:#0d8794;line-height: 24px;padding-left: 26px" @click="addLabel" v-show="!addLabelIng">新建</div>
         <div style="width: 84%; margin: 5px 17px;display: flex;justify-content: center;align-items: center;" v-show="addLabelIng">
           <span @click="cancelAddLabel"><font-awesome-icon :icon="['fas', 'times']" style="color: #333;font-size: 20px;"></font-awesome-icon></span>
@@ -98,7 +98,10 @@
         noteArr(){
 //            console.log(this.$store.state.noteArr)
             return this.$store.state.noteArr
-        }
+        },
+          usableLabel(){
+              return this.$store.getters.usableLabel;
+          }
       },
       data(){
           return {
@@ -186,8 +189,8 @@
             return
           }
           var isExist = false;
-          for(var a = 0; a < this.labelArr.length; a++){
-              if(this.labelArr[a].label == this.addLabelName){
+          for(var a = 0; a < this.usableLabel.length; a++){
+              if(this.usableLabel[a].label == this.addLabelName){
                 isExist = true;
                 this.$toast({
                   message: '标签名已存在',

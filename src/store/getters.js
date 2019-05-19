@@ -23,6 +23,7 @@ const getters = {
       }
   },
   usableLabel(state){
+		console.log('标签变化')
     return state.labelArr.filter(label=>label.status==1)
   }
 }

@@ -116,7 +116,7 @@ body,html{
   font-size: 18px!important;
 }
   .globalBg{
-    background-color: rgba(0,0,0,0.2);
+    background-color: rgba(0,0,0,0.12);
     width: 100%;
     height: 100%;
     position: fixed;
@@ -178,4 +178,18 @@ body,html{
   .toast{
     z-index: 9999;
   }
+.clickItem:active{
+    background-color: #efefef;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border-radius: 6px;
+}
+    .labelName{
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 </style>

@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Login from '@/components/login'
 import noteList from '@/components/noteList'
 import noteDetail from '@/components/notedetail'
+import editLabel from '@/components/editLabel'
 
 Vue.use(Router);
 
@@ -22,6 +23,11 @@ var router = new Router({
       path: '/noteDetail',
       name: 'noteDetail',
       component: noteDetail
+    },
+    {
+       path: '/editLabel',
+       name: 'editLabel',
+       component: editLabel
     },
     {
       path: '*',
