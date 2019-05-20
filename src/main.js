@@ -10,7 +10,7 @@ import store from './store'
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {
-  faUser, faChartLine, faAmericanSignLanguageInterpreting,faUserCircle,faBars,faPlus,faBookmark,faSortDown,faCheck,faTimes,faStar,faCheckSquare,faSquare,faTrash
+  faUser, faChartLine, faAmericanSignLanguageInterpreting,faUserCircle,faBars,faPlus,faBookmark,faSortDown,faCheck,faTimes,faStar,faCheckSquare,faSquare,faTrash,faAngleLeft
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -27,7 +27,8 @@ library.add(
   faStar,
   faCheckSquare,
   faSquare,
-  faTrash
+  faTrash,
+    faAngleLeft
 );
 
 Vue.$toast = Vue.prototype.$toast = Toast;

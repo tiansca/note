@@ -108,11 +108,12 @@ body,html{
     color: #1c1c1c!important;
     font-size: 20px!important;
     font-weight: 600!important;
+      height:50px!important;
   }
 .mint-header-title {
   position: absolute!important;
   left: 40px!important;
-  top: 0!important;
+  top: 5px!important;
   font-size: 18px!important;
 }
   .globalBg{

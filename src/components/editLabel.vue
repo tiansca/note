@@ -14,7 +14,7 @@
             <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 18px" :style="{color:label.color}"></font-awesome-icon>
           </span>
                     <input class="addInput clickItem" v-model="label.label">
-                    <span style="padding: 0 8px;font-size: 18px;" @click="removeLabel(label)"><font-awesome-icon :icon="['fas', 'times']" style="color:#333" :style="{}"></font-awesome-icon></span>
+                    <span style="padding: 0 8px;font-size: 18px;line-height: 40px" @click="removeLabel(label)"><font-awesome-icon :icon="['fas', 'times']" style="color:#333" :style="{}"></font-awesome-icon></span>
                 </div>
 
             </div>
@@ -77,10 +77,13 @@
         top:0;
         left: 0;
         width: 100%;
-        height: 40px;
+        height: 50px;
         background: #f8f8f8;
         color: #333;
-        line-height: 40px;
+        line-height: 50px;
+    }
+    .head>.title{
+        font-size: 18px;
     }
     .left{
         font-size: 22px;

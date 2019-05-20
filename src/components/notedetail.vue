@@ -64,17 +64,17 @@
             :options="usableLabel"
             @change="labelChange()">
           </mt-radio>
-        </div>
+            <div style="color:#0d8794;line-height: 24px;padding-left: 26px;margin-bottom: 12px" @click="addLabel" v-show="!addLabelIng">新建</div>
+            <div v-show="usableLabel && usableLabel.length == 0">暂无标签</div>
 
-        <div v-show="usableLabel && usableLabel.length == 0">暂无标签</div>
-        <div style="color:#0d8794;line-height: 24px;padding-left: 26px" @click="addLabel" v-show="!addLabelIng">新建</div>
-        <div style="width: 84%; margin: 5px 17px;display: flex;justify-content: center;align-items: center;" v-show="addLabelIng">
-          <span @click="cancelAddLabel"><font-awesome-icon :icon="['fas', 'times']" style="color: #333;font-size: 20px;"></font-awesome-icon></span>
-          <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 15px;margin-left: 5px;" :style="{color:addLabelColor}"></font-awesome-icon>
-          <input type="text" style="width: 70%" class="addInput" v-model="addLabelName">
-          <span @click="commitAddLabel"><font-awesome-icon :icon="['fas', 'check']" style="color: #333;font-size: 20px;"></font-awesome-icon></span>
+            <div style="width: 84%; margin: 5px 17px;display: flex;justify-content: center;align-items: center;" v-show="addLabelIng">
+                <span @click="cancelAddLabel"><font-awesome-icon :icon="['fas', 'times']" style="color: #333;font-size: 20px;"></font-awesome-icon></span>
+                <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 15px;margin-left: 5px;" :style="{color:addLabelColor}"></font-awesome-icon>
+                <input type="text" style="width: 70%" class="addInput" v-model="addLabelName">
+                <span @click="commitAddLabel"><font-awesome-icon :icon="['fas', 'check']" style="color: #333;font-size: 20px;"></font-awesome-icon></span>
+            </div>
+            <div @click="closePopup" style="text-align: center;color:#0d8794;margin:12px 0 22px">取消</div>
         </div>
-        <div @click="closePopup" style="text-align: center;color:#0d8794;margin:12px 0">取消</div>
       </div>
     </mt-popup>
   </div>
@@ -343,7 +343,7 @@
     margin: 0 5px;
   }
   .label-icon{
-    padding:14px 5px;
+    padding:14.2px 5px 14px;
   }
   .detail-top{
     margin: 12px 0;

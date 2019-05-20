@@ -48,7 +48,10 @@ const mutations = {
   },
   setFilterType(state, n){
     state.filterType = n;
-  }
+  },
+    setOpenSearch(state){
+      state.openSearch = ! state.openSearch
+    }
 }
 
 export default mutations
