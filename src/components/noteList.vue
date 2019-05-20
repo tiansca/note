@@ -19,7 +19,7 @@
     </span>
 
     <div class="noteListBox" v-if="ready">
-        <div style="width: 100%;margin: 0 auto;text-align: center" v-show="!showSearch">
+        <div style="width: 100%;margin: 0 auto;text-align: center" v-show="!showSearch" :style="{marginBottom:(showType==1?'18px':'0')}">
             <input type="text" style="width: calc(100% - 27px)" class="serchInput" placeholder="搜索笔记" @focus="showSearchPage">
         </div>
       <div v-if="noteList.length == 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
@@ -502,7 +502,7 @@
     margin-bottom: 80px;
   }
   .longItem{
-      margin-top: 18px;
+      /*margin-top: 18px;*/
   }
   .longItem .show-check-item{
     width: 85%;
