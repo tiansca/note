@@ -25,7 +25,7 @@
       <div v-if="noteList.length == 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
         笔记列表为空
       </div>
-      <div  v-for="(note, index) in noteList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @touchstart="touchstart(false,note)" @touchend="touchend(false,note)" @touchmove="touchmove">
+      <div  v-for="(note, index) in noteList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaill(false, note)">
         <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
           <div class="note-title">{{showType==1?note.title:note.content}}</div>
           <div class="note-time">
@@ -224,13 +224,14 @@
             this.filterNote()
         },
       // 长按
-        touchstart(add,note){
+        touchstart(add,note,e){
             this.isMove = false;
             this.clicKTime = (new Date()).valueOf();
             this.timer = setTimeout(()=> {
               this.setShowCheck();
                 this.checkNote(note)
             },600)
+            e.preventDefault()
         },
         touchend(isAdd, note){
             if(this.isMove){

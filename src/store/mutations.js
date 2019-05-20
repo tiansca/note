@@ -26,7 +26,6 @@ const mutations = {
   },
   setLabelArr(state,n){
     state.labelArr = n;
-		console.log(state.labelArr,'aaaaaaaaaa')
     localStorage.setItem('labelArr', JSON.stringify(n))
   },
   setNoteArr(state,n){
@@ -43,7 +42,6 @@ const mutations = {
   },
   setShowType1(state,n){
     state.showType = n;
-    console.log(n)
     localStorage.setItem('showType', n);
   },
   setFilterType(state, n){
