@@ -1,0 +1,58 @@
+用户表
+id
+name
+password
+status
+
+create table user(
+id int(5) PRIMARY key auto_increment,
+name varchar(20)not null,
+password varchar(32)not null,
+emial varchar()
+status tinyint(1)
+)
+
+******************************
+
+标签表
+id
+user_label_id
+label
+value
+color
+status
+updateTime
+
+create table label(
+id int(5) PRIMARY key auto_increment,
+label varchar(20),
+user_label_id integer(6),
+value varchar(6)not null,
+color varchar(16)not null,
+status tinyint(1),
+updateTime varchar(14)
+)
+
+******************************
+
+笔记表
+id
+user_note_id
+content
+label
+color
+collect
+time
+updateTime
+status
+
+create table note(
+id int(5) PRIMARY key auto_increment,
+user_note_id integer(6),
+collect tinyint(1),
+label int(5) not null,
+time varchar(14) not null,
+updateTime varchar(14) not null,
+content varchar(10000),
+status tinyint(1)
+)

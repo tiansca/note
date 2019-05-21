@@ -7,6 +7,9 @@
       <slide-pane v-show="slidePaneShow"></slide-pane>
     </transition>
     <div v-if="globalBg" class="globalBg" @click="toggleGlobalBg" :style="{ backgroundColor: globalBgColor}"></div>
+      <span class="loading" v-if="isLoading">
+          <mt-spinner  type="snake" color="#26a2ff"></mt-spinner>
+      </span>
   </div>
 </template>
 
@@ -26,6 +29,9 @@ export default {
       },
       globalBg(){
         return this.$store.state.globalBg;
+      },
+      isLoading(){
+          return this.$store.state.isLoading
       }
   },
   data(){
@@ -85,6 +91,11 @@ export default {
       //视图模式
       if(localStorage.getItem('showType')){
           this.$store.commit('setShowType1',localStorage.getItem('showType'));
+      }
+
+      //设置用户
+      if(localStorage.getItem('user')){
+          this.$store.commit('setUserSession',JSON.parse(localStorage.getItem('user')));
       }
   }
 }
@@ -192,5 +203,16 @@ body,html{
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+    .loading{
+        position: fixed;
+        left: 0;
+        right: 0;
+        top:0;
+        bottom: 0;
+        margin:auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 </style>

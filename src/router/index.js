@@ -4,6 +4,7 @@ import Login from '@/components/login'
 import noteList from '@/components/noteList'
 import noteDetail from '@/components/notedetail'
 import editLabel from '@/components/editLabel'
+import user from '@/components/user'
 
 Vue.use(Router);
 
@@ -29,6 +30,11 @@ var router = new Router({
        name: 'editLabel',
        component: editLabel
     },
+      {
+          path: '/user',
+          name: 'user',
+          component: user
+      },
     {
       path: '*',
       redirect: '/noteList'

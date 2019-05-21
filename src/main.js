@@ -12,6 +12,13 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {
   faUser, faChartLine, faAmericanSignLanguageInterpreting,faUserCircle,faBars,faPlus,faBookmark,faSortDown,faCheck,faTimes,faStar,faCheckSquare,faSquare,faTrash,faAngleLeft
 } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
+import $ from './util.js';
+
+Vue.prototype.$axios = axios;
+Vue.prototype.$ = $;
+import qs from 'qs';
+Vue.prototype.qs = qs.stringify;
 
 library.add(
   faUser,

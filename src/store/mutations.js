@@ -4,11 +4,11 @@
 const mutations = {
   setUserSession(state, n){
     state.user = n;
-    sessionStorage.setItem('user', JSON.stringify(n));
+    localStorage.setItem('user', JSON.stringify(n));
   },
   removeUserSession(state){
     state.user = null;
-    sessionStorage.removeItem('user');
+    localStorage.removeItem('user');
   },
   setSlide(state){
     state.slideShow = !state.slideShow;
@@ -49,6 +49,9 @@ const mutations = {
   },
     setOpenSearch(state){
       state.openSearch = ! state.openSearch
+    },
+    setLoading(state,n){
+        state.isLoading = n
     }
 }
 

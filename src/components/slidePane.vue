@@ -1,7 +1,9 @@
 <template>
   <div class="slidePage">
     <div class="slidePage-head">
-      笔记
+      <span @click="goLogin" v-if="!user">登录</span>
+      <span v-if="user">{{user.name}}</span>
+        <span class="logout" v-if="user" @click="logout">退出</span>
     </div>
     <div class="slidePage-content">
       <div class="slidePage-group" @click="closeSlide">
@@ -90,6 +92,12 @@
         colors(){
             return this.$store.state.colors;
         },
+        user(){
+            return this.$store.state.user
+        },
+        noteArr(){
+            return this.$store.state.noteArr;
+        }
     },
     data () {
       return {
@@ -163,6 +171,36 @@
             this.$store.commit('setLabelArr',newLabelArr);
             this.labelPopupVisible = false;
             this.addLabelName = ''
+        },
+        goLogin(){
+            this.closeSlide();
+            setTimeout(()=> {
+                this.$router.push('/user')
+            },300)
+        },
+        logout(){
+            localStorage.setItem('oldUser', JSON.stringify(this.user));
+            this.$store.commit('removeUserSession')
+        },
+        updateNote(){
+            for(var a = 0; a < this.noteArr.length; a++){
+                this.$.ajax({
+                    method:"POST",
+                    url:'updateNote.php',
+                    data:this.qs({
+                        user_note_id:this.noteArr[a].id,
+                        user_id:this.user.id,
+                        label:this.noteArr[a].label,
+                        collect:this.noteArr[a].collect?'1':'0',
+                        time:this.noteArr[a].time,
+                        updateTime:this.noteArr[a].updateTime,
+                        content:this.noteArr[a].content,
+                        status:this.noteArr[a].status
+                    })
+                }).then((res)=>{
+                    console.log(res)
+                })
+            }
         }
     },
     mounted(){
@@ -173,8 +211,8 @@
     watch:{
       usableNote: {
         handler(newVal, oldVal) {
-            console.log('笔记变化');
             this.setLabelNum();
+            this.updateNote();
             console.log(this.usableLabel)
         },
         deep: true
@@ -290,5 +328,10 @@
   .group-item:last-of-type>.groupItemBox{
       border-bottom: none;
   }
+    .logout{
+        color:rgb(13, 135, 148);
+        float: right;
+        font-size: 16px;
+    }
 
 </style>
