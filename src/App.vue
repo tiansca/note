@@ -32,6 +32,9 @@ export default {
       },
       isLoading(){
           return this.$store.state.isLoading
+      },
+      deviceId(){
+          return this.$store.state.device_id
       }
   },
   data(){
@@ -70,18 +73,23 @@ export default {
   },
   mounted(){
       //设置标签
-      if(localStorage.getItem('labelArr')){
-          this.$store.commit('setLabelArr',JSON.parse(localStorage.getItem('labelArr')))
-      }else {
-          var labelArr = [{
-              value:'0',
-              label:'未标签',
-              color:'#333',
-              status:1
-          }];
+      setTimeout(()=>{
+          if(localStorage.getItem('labelArr')){
+              this.$store.commit('setLabelArr',JSON.parse(localStorage.getItem('labelArr')))
+          }else {
+              var labelArr = [{
+                  value:'0',
+                  label:'未标签',
+                  color:'#333',
+                  status:1,
+                  updateTime:(new Date()).valueOf(),
+                  device_id:this.deviceId
+              }];
 //          localStorage.setItem('labelArr', JSON.stringify(labelArr));
-          this.$store.commit('setLabelArr',labelArr)
-      }
+              this.$store.commit('setLabelArr',labelArr)
+          }
+      })
+
 
       //设置笔记列表
       if(localStorage.getItem('noteArr')){
@@ -95,7 +103,27 @@ export default {
 
       //设置用户
       if(localStorage.getItem('user')){
-          this.$store.commit('setUserSession',JSON.parse(localStorage.getItem('user')));
+          this.$.ajax({
+              method:"POST",
+              url:'get_user.php',
+              data:this.qs({
+                  email:JSON.parse(localStorage.getItem('user')).email
+              })
+          }).then((res)=>{
+              if(res.code == 0){
+                  if(res.data.password == JSON.parse(localStorage.getItem('user')).password){
+                      this.$store.commit('setUserSession',JSON.parse(localStorage.getItem('user')));
+                  }
+              }
+          })
+      }
+
+      //设置设备标识
+      if(localStorage.getItem('device_id')){
+          this.$store.commit('setDevice',localStorage.getItem('device_id'))
+      }else {
+          var device_id = Math.floor(Math.random() * 10000);
+          this.$store.commit('setDevice',device_id)
       }
   }
 }

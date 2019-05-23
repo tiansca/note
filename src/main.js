@@ -48,6 +48,7 @@ Vue.config.productionTip = false
 /* eslint-disable no-new */
 
 Vue.filter('formatDate',function(value, type){
+    value = Number(value)
   let date = new Date(value);
   let y = date.getFullYear();
   let MM = date.getMonth() + 1;

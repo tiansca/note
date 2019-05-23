@@ -28,7 +28,7 @@ const mutations = {
     state.labelArr = n;
     localStorage.setItem('labelArr', JSON.stringify(n))
   },
-  setNoteArr(state,n){
+  setNoteArr(state,n,update){
     state.noteArr = n;
     localStorage.setItem('noteArr', JSON.stringify(n))
   },
@@ -52,6 +52,16 @@ const mutations = {
     },
     setLoading(state,n){
         state.isLoading = n
+    },
+    closeUpdate(state){
+        state.update = false
+    },
+    setDevice(state, n){
+        state.device_id = n;
+        localStorage.setItem('device_id', n)
+    },
+    openUpdate(state){
+        state.update = true
     }
 }
 

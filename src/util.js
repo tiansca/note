@@ -5,8 +5,8 @@ import axios from 'axios';
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 //基本配置
 const Util = {
-    baseUtl:'http://localhost/note1/api/'
-    // baseUtl:'./api/'
+    baseUtl:'http://107.175.214.24/note/api/'
+    // baseUtl:'http://localhost/note/api/'
 };
 
 //ajax 通用配置

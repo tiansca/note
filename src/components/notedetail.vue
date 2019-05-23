@@ -12,7 +12,7 @@
       </span>
       <mt-button icon="more" slot="right" style="overflow: visible;" @click="showMore">
         <div class="moreList" v-show="isShowMore">
-          <div class="moreItem" @click="toggleCollect">{{aNote.collect?'取消收藏':'收藏笔记'}}</div>
+          <div class="moreItem" @click="toggleCollect">{{aNote.collect==1?'取消收藏':'收藏笔记'}}</div>
           <div class="moreItem" @click="removeNote">删除笔记</div>
         </div>
       </mt-button>
@@ -48,10 +48,10 @@
       <div style="width: 100%;padding:0px 8px 8px">
         <h3 style="text-align: left">添加标签</h3>
         <div style="position: relative;;max-height: 60vh;overflow-x: auto">
-          <div style="position: absolute;width: 20px;display: inline-block;top: 8px;left: 20px;z-index: 2;">
+          <div style="position: absolute;width: 20px;display: inline-block;top: 9px;left: 20px;z-index: 2;font-size: 0">
             <div v-for="item in usableLabel" class="label-icon">
               <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 18px;" :style="{color:item.color}"  v-show="item.value != 0"></font-awesome-icon>
-              <span style="position: relative;" v-if="item.value == 0">
+              <span style="position: relative;width: 13.5px;height: 18px;display: inline-block" v-if="item.value == 0">
                 <font-awesome-icon :icon="['fas', 'bookmark']" style="color: #333;font-size: 18px;position: absolute;top: 0;left: 0"></font-awesome-icon>
                 <font-awesome-icon :icon="['fas', 'bookmark']" style="color: #fff;font-size: 15.5px;position: absolute;top: 1px; left: 1px"></font-awesome-icon>
               </span>
@@ -101,6 +101,9 @@
         },
           usableLabel(){
               return this.$store.getters.usableLabel;
+          },
+          deviceId(){
+              return this.$store.state.device_id;
           }
       },
       data(){
@@ -115,7 +118,7 @@
             addLabelColor:'#333',
             aNote:{label:'0',
               time:(new Date()).valueOf(),
-              collect:false,
+              collect:0,
               content:'',
               color:'#333',
               updateTime:(new Date()).valueOf(),
@@ -137,13 +140,14 @@
           this.$store.commit('setShowMore')
         },
         toggleCollect(){
-          this.aNote.collect = !this.aNote.collect;
+          this.aNote.collect = this.aNote.collect == 1 ? 0 : 1;
           this.aNote.updateTime = (new Date()).valueOf();
           for(var a = 0; a < this.noteArr.length; a++){
-            if(this.noteArr[a].id == this.aNote.id){
+            if(this.noteArr[a].user_note_id == this.aNote.user_note_id && this.noteArr[a].device_id == this.aNote.device_id){
               this.noteArr[a] = this.aNote;
             }
           }
+            this.$store.commit('openUpdate');
           this.$store.commit('setNoteArr', this.noteArr);
         },
 //        打开弹窗
@@ -169,6 +173,7 @@
               }
           }
           this.aNote.updateTime = (new Date()).valueOf();
+          this.$store.commit('openUpdate');
           this.$store.commit('setNoteArr', this.noteArr);
         },
         //打开新建标签
@@ -208,7 +213,9 @@
             value:String(this.labelArr.length),
             label:this.addLabelName,
             color:this.addLabelColor,
-            status:1
+            status:1,
+              updateTime:(new Date()).valueOf(),
+              device_id:this.deviceId
           }].concat(this.labelArr)
           this.$store.commit('setLabelArr',newLabelArr);
           this.addLabelIng = false;
@@ -239,21 +246,23 @@
                 this.removeNote();
             }
             this.aNote.time = (new Date()).valueOf();
-            this.updateTime = (new Date()).valueOf();
+            this.aNote.updateTime = (new Date()).valueOf();
             //判断note是否已经存在
             var isExist = false;
             var currIndex = '';
             for(var a = 0; a < this.noteArr.length; a++){
-                if(this.noteArr[a].id == this.aNote.id){
+                if(this.noteArr[a].user_note_id == this.aNote.user_note_id && this.noteArr[a].device_id == this.aNote.device_id){
                     isExist = true;
                     currIndex = a;
                 }
             }
             if(isExist){
                 this.noteArr[currIndex] = this.aNote;
+                this.$store.commit('openUpdate');
                 this.$store.commit('setNoteArr', this.noteArr);
             }else {
                 var newNoteArr = [this.aNote].concat(this.noteArr);
+                this.$store.commit('openUpdate');
                 this.$store.commit('setNoteArr', newNoteArr);
             }
             this.title = '笔记';
@@ -272,6 +281,7 @@
         removeNote(){
           this.aNote.status = 0;
           this.aNote.updateTime = (new Date()).valueOf();
+          this.$store.commit('openUpdate');
           this.$store.commit('setNoteArr', this.noteArr);
           this.$router.replace({path:'/noteList'});
         }
@@ -284,7 +294,7 @@
           setTimeout(()=>{
             var isFund = false;
             for(var a = 0; a < this.noteArr.length; a++){
-              if(this.noteArr[a].id == this.$route.query.id){
+              if(this.noteArr[a].user_note_id == this.$route.query.id && this.noteArr[a].device_id == this.$route.query.device_id){
                   this.aNote = this.noteArr[a];
                   console.log(this.aNote);
                   this.oldContent = this.aNote.content;
@@ -292,6 +302,14 @@
                   break
               }
             }
+              //查找颜色
+              for(var a = 0; a < this.labelArr.length; a++){
+                  if(this.labelArr[a].value == this.aNote.label){
+                      this.aNote.color = this.labelArr[a].color;
+                      this.aNote.labelName = this.labelArr[a].label;
+                      break
+                  }
+              }
             if(!isFund){
               this.$router.replace({path:'/noteList'});
             }
@@ -300,7 +318,9 @@
           //新建node
           this.openType = 'add';
           setTimeout(()=>{
-            this.aNote.id = this.noteArr.length + 1;
+            this.aNote.user_note_id = this.noteArr.length + 1;
+            this.aNote.device_id = this.deviceId;
+            console.log(this.aNote)
           });
           this.$refs.inputVal.focus()
         }
@@ -343,7 +363,7 @@
     margin: 0 5px;
   }
   .label-icon{
-    padding:14.2px 5px 14px;
+    padding:14.5px 5px;
   }
   .detail-top{
     margin: 12px 0;

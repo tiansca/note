@@ -97,6 +97,12 @@
         },
         noteArr(){
             return this.$store.state.noteArr;
+        },
+        update(){
+            return this.$store.state.update;
+        },
+        deviceId(){
+            return this.$store.state.device_id;
         }
     },
     data () {
@@ -166,7 +172,9 @@
                 value:String(this.labelArr.length),
                 label:this.addLabelName,
                 color:this.addLabelColor,
-                status:1
+                status:1,
+                updateTime:(new Date()).valueOf(),
+                device_id:this.deviceId
             }].concat(this.labelArr)
             this.$store.commit('setLabelArr',newLabelArr);
             this.labelPopupVisible = false;
@@ -182,46 +190,127 @@
             localStorage.setItem('oldUser', JSON.stringify(this.user));
             this.$store.commit('removeUserSession')
         },
-        updateNote(){
-            for(var a = 0; a < this.noteArr.length; a++){
+        updateNote(first){
+            var noteCount = 0;
+            for(let a = 0; a < this.noteArr.length; a++){
                 this.$.ajax({
                     method:"POST",
                     url:'updateNote.php',
                     data:this.qs({
-                        user_note_id:this.noteArr[a].id,
+                        user_note_id:this.noteArr[a].user_note_id,
                         user_id:this.user.id,
                         label:this.noteArr[a].label,
-                        collect:this.noteArr[a].collect?'1':'0',
+                        collect:this.noteArr[a].collect,
                         time:this.noteArr[a].time,
                         updateTime:this.noteArr[a].updateTime,
                         content:this.noteArr[a].content,
-                        status:this.noteArr[a].status
+                        status:this.noteArr[a].status,
+                        device_id:this.noteArr[a].device_id
                     })
                 }).then((res)=>{
-                    console.log(res)
+                    if(res.code == 0){
+                        noteCount++
+                        if(noteCount == this.noteArr.length && first){
+                            this.downloadNote()
+                        }
+                    }
                 })
             }
+        },
+        downloadNote(){
+            console.log('下载')
+            this.$.ajax({
+                method:"POST",
+                url:'get_note.php',
+                data:this.qs({
+                    user_id:this.user.id
+                })
+            }).then((res)=>{
+                if(res.code == 0){
+                    this.$store.commit('setNoteArr', res.data)
+                }
+            })
+        },
+        updateLabel(){
+            this.$.ajax({
+                method:"POST",
+                url:'updateLabel.php',
+                data:this.qs({
+                    labelArr:JSON.stringify(this.labelArr),
+                    user_id:this.user.id
+                })
+            }).then((res)=>{
+                console.log(res);
+            })
+        },
+        downloadLabel(){
+            this.$.ajax({
+                method:"POST",
+                url:'get_label.php',
+                data:this.qs({
+                    user_id:this.user.id
+                })
+            }).then((res)=>{
+                if(res.code == 0){
+                    if(res.data && res.data != 'null'){
+                        var newLabel = JSON.parse(res.data);
+                        this.$store.commit('setLabelArr', newLabel);
+                    }
+                }
+            })
         }
     },
     mounted(){
+        var timer = setInterval(()=> {
+            if(this.user && this.user.name){
+                clearInterval(timer);
+                clearTimeout(timer1);
+                if(this.noteArr.length > 0){
+                    this.updateNote(true);
+                }else {
+                    this.downloadNote()
+                }
+                if(this.labelArr.length > 1){
+                    this.updateLabel()
+                }else {
+                    this.downloadLabel()
+                }
+            }
+        },200);
         setTimeout(()=>{
-          this.setLabelNum()
-        })
+          this.setLabelNum();
+        },10);
+        var timer1 = setTimeout(()=>{
+            clearInterval(timer)
+        },5000);
     },
     watch:{
       usableNote: {
         handler(newVal, oldVal) {
             this.setLabelNum();
-            this.updateNote();
-            console.log(this.usableLabel)
         },
         deep: true
       },
         labelArr:{
             handler(newVal, oldVal) {
                 this.setLabelNum();
+                if(this.user && this.user.name && this.labelArr.length > 1){
+                    this.updateLabel();
+                }
             },
             deep: true
+        },
+        update(){
+          if(this.update){
+              console.log('同步')
+              if(this.user && this.user.name){
+                  console.log('开始同步')
+                  this.updateNote();
+              }
+              setTimeout(()=>{
+                  this.$store.commit('closeUpdate')
+              },500)
+          }
         }
 
     }

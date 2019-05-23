@@ -30,7 +30,7 @@
           <div class="note-title">{{showType==1?note.title:note.content}}</div>
           <div class="note-time">
             <span>{{note.time | formatDate}}</span>
-            <span v-show="note.collect"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>
+            <span v-show="note.collect == 1"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>
           </div>
         </div>
         <span class="item-checkbox" v-show="showCheck">
@@ -74,7 +74,7 @@
                       <div class="note-title">{{showType==1?note.title:note.content}}</div>
                       <div class="note-time">
                           <span>{{note.time | formatDate}}</span>
-                          <span v-show="note.collect"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>
+                          <span v-show="note.collect == 1"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>
                       </div>
                   </div>
               </div>
@@ -153,7 +153,8 @@
                 this.$router.push({
                   name:'noteDetail',
                   query: {
-                    id: note.id
+                    id: note.user_note_id,
+                    device_id: note.device_id
                   }
                 })
             }
@@ -179,7 +180,7 @@
                 this.deleteArr.push(note);
             }else {
                 for(var a = 0; a < this.deleteArr.length; a++){
-                    if(this.deleteArr[a].id == note.id){
+                    if(this.deleteArr[a].user_note_id == note.user_note_id && this.deleteArr[a].device_id == note.device_id){
                         this.deleteArr.splice(a,1);
                         break
                     }
@@ -211,13 +212,15 @@
             }
             for(var a = 0; a < this.deleteArr.length; a++){
                 for(var b = 0; b < this.noteArr.length; b++){
-                    if(this.deleteArr[a].id == this.noteArr[b].id){
+                    if(this.deleteArr[a].user_note_id == this.noteArr[b].user_note_id && this.deleteArr[a].device_id == this.noteArr[b].device_id){
                         this.noteArr[b].status = 0;
+                        this.noteArr[b].updateTime = (new Date()).valueOf();
                     }
                 }
+                this.$store.commit('openUpdate');
                 this.$store.commit('setNoteArr', this.noteArr);
                 console.log(this.usableNote);
-                this.usableNote = this.usableNote.concat()
+//                this.usableNote = this.usableNote.concat()
                 this.$forceUpdate();
             }
             this.showCheck = false;
@@ -324,14 +327,16 @@
               for(var b = 0; b < this.usableLabel.length; b++){
                 if(this.noteArr[a].label == this.usableLabel[b].value){
                   hasLabel = true;
-                  this.noteArr[a].color = this.usableLabel[b].color
+                  this.noteArr[a].color = this.usableLabel[b].color;
+                  console.log(this.noteArr[a].label)
                 }
               }
             }
             if(!hasLabel){
-                this.noteArr[a].label = '0';
+//                this.noteArr[a].label = '0';
                 this.noteArr[a].color = '#333';
             }
+            console.log(hasLabel)
             //设置颜色
             var rgbColor = this.hexToRgb(this.noteArr[a].color);
 //            console.log(rgbColor)
@@ -361,7 +366,7 @@
                 this.searchValue = sessionStorage.getItem('searchValue');
                 this.$refs.serchInput.focus()
             }
-        });
+        },50);
 
       },
       watch:{
@@ -379,46 +384,49 @@
           this.filterNote();
         },
         usableNote(){
-					for(var a = 0; a < this.noteArr.length; a++){
-							var content = this.noteArr[a].content.split(/[\s\n]/)[0];
-	//            console.log(content)
-							this.noteArr[a].title = content;
-							var hasLabel = false;
-							if(this.usableLabel){
-								for(var b = 0; b < this.usableLabel.length; b++){
-									if(this.noteArr[a].label == this.usableLabel[b].value){
-										hasLabel = true;
-										this.noteArr[a].color = this.usableLabel[b].color
-									}
-								}
-							}
-							if(!hasLabel){
-									this.noteArr[a].label = '0';
-									this.noteArr[a].color = '#333';
-							}
-							//设置颜色
-							var rgbColor = this.hexToRgb(this.noteArr[a].color);
-	//            console.log(rgbColor)
-							if(rgbColor && this.noteArr[a].color != '#333333'){
-								this.noteArr[a].rgbColor = "rgba(" + rgbColor.r + ',' + rgbColor.g + ',' + rgbColor.b + ', 0.15' + ")";
-							}else {
-								this.noteArr[a].rgbColor = "#fff"
-							}
-						}
-						this.$store.commit('setNoteArr', this.noteArr)
-						this.noteList = this.usableNote.sort(function (a,b) {
-                            var val1 = Number(a.time);
-                            var val2 = Number(b.time);
-                            if (val1 < val2) {
-                                return 1;
-                            } else if (val1 > val2) {
-                                return -1;
-                            } else {
-                                return 0;
+            if(this.usableLabel.length < 1){
+                return false
+            }
+            for(var a = 0; a < this.noteArr.length; a++){
+                    var content = this.noteArr[a].content.split(/[\s\n]/)[0];
+//            console.log(content)
+                    this.noteArr[a].title = content;
+                    var hasLabel = false;
+                    if(this.usableLabel){
+                        for(var b = 0; b < this.usableLabel.length; b++){
+                            if(this.noteArr[a].label == this.usableLabel[b].value){
+                                hasLabel = true;
+                                this.noteArr[a].color = this.usableLabel[b].color
                             }
-                        });
-						this.ready = true;
-						this.filterNote();
+                        }
+                    }
+                    if(!hasLabel){
+                            this.noteArr[a].label = '0';
+                            this.noteArr[a].color = '#333';
+                    }
+                    //设置颜色
+                    var rgbColor = this.hexToRgb(this.noteArr[a].color);
+//            console.log(rgbColor)
+                    if(rgbColor && this.noteArr[a].color != '#333333'){
+                        this.noteArr[a].rgbColor = "rgba(" + rgbColor.r + ',' + rgbColor.g + ',' + rgbColor.b + ', 0.15' + ")";
+                    }else {
+                        this.noteArr[a].rgbColor = "#fff"
+                    }
+                }
+                this.$store.commit('setNoteArr', this.noteArr)
+                this.noteList = this.usableNote.sort(function (a,b) {
+                    var val1 = Number(a.time);
+                    var val2 = Number(b.time);
+                    if (val1 < val2) {
+                        return 1;
+                    } else if (val1 > val2) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                });
+                this.ready = true;
+                this.filterNote();
         },
           searchValue(){
             if(this.searchValue && this.searchValue != ''){

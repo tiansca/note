@@ -27,7 +27,9 @@ const state = {
     showType:1,
     filterType:'all',//all:全部   collect：收藏   其他数字：标签id,
     openSearch:false,
-    isLoading:false
+    isLoading:false,
+    update:false,
+    device_id:''
 }
 
 export default state

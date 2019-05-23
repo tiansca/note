@@ -8,6 +8,9 @@
             <span  class="right" @click="saveLabel"><font-awesome-icon :icon="['fas', 'check']" style=""></font-awesome-icon></span>
         </div>
         <div class="content">
+            <div v-if="labelList.length == 1" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
+                暂无标签
+            </div>
             <div class="group-item clickItem" v-for="label in labelList"   v-if="label.value !=0 && label.status==1">
                 <div class="groupItemBox">
                     <span class="label-icon">

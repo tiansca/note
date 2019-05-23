@@ -13,7 +13,8 @@
         $updateTime = $_POST['updateTime'];
         $content = $_POST['content'];
         $status = $_POST['status'];
-        $findsql = "select * from note where user_id = '$user_id' and user_note_id = '$user_note_id'";
+        $device_id = $_POST['device_id'];
+        $findsql = "select * from note where user_id = '$user_id' and user_note_id = '$user_note_id' and device_id = '$device_id'";
         $result = $conn->query($findsql);
         $results = array();
         while ($row = $result->fetch_assoc()) {
@@ -21,12 +22,12 @@
         }
         if(count($results) == 0){
         //不存在，插入
-            $sql = "INSERT INTO note (user_note_id, label, user_id, collect, time, updateTime, content, status) VALUES ('$user_note_id', '$label', '$user_id', '$collect', '$time', '$updateTime', '$content', '$status')";
+            $sql = "INSERT INTO note (user_note_id, label, user_id, collect, time, updateTime, content, status, device_id) VALUES ('$user_note_id', '$label', '$user_id', '$collect', '$time', '$updateTime', '$content', '$status', $device_id)";
         }else{
             if($results[0]['updateTime'] == $updateTime){
                 $sql = null;
             }else{
-                $sql = "UPDATE note SET label = '$label', collect = '$collect', time = '$time', updateTime = '$updateTime', content = '$content', status = '$status' WHERE user_id = '$user_id' and user_note_id = '$user_note_id'";
+                $sql = "UPDATE note SET label = '$label', collect = '$collect', time = '$time', updateTime = '$updateTime', content = '$content', status = '$status' WHERE user_id = '$user_id' and user_note_id = '$user_note_id' and device_id = '$device_id'";
             }
         }
         if($sql){
