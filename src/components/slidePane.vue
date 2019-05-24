@@ -254,7 +254,13 @@
                 if(res.code == 0){
                     if(res.data && res.data != 'null'){
                         var newLabel = JSON.parse(res.data);
-                        this.$store.commit('setLabelArr', newLabel);
+                        if(newLabel.length > this.labelArr.length){
+                            this.$store.commit('setLabelArr', newLabel);
+                        }else {
+                            this.updateLabel()
+                        }
+                    }else {
+                        this.updateLabel();
                     }
                 }
             })
@@ -271,7 +277,7 @@
                     this.downloadNote()
                 }
                 if(this.labelArr.length > 1){
-                    this.updateLabel()
+                    this.downloadLabel()
                 }else {
                     this.downloadLabel()
                 }

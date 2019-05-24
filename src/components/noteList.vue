@@ -450,7 +450,7 @@
     font-weight: lighter;
     position: fixed;
     right: 20px;
-    bottom: 80px;
+    bottom: 100px;
     padding: 8px;
     border-radius: 50%;
     box-shadow: 0 0 8px 1px rgba(0,0,0,0.2);

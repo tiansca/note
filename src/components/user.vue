@@ -322,6 +322,7 @@
         width: calc(100% - 120px);
         font-size: 16px;
         /*vertical-align: middle;*/
+        background-color: rgba(255,255,255,0);
     }
     .switch{
         padding:5px 12px;

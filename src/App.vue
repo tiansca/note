@@ -132,7 +132,9 @@ export default {
 <style>
 body,html{
   margin:0;
+    padding:0;
   font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+    overflow: hidden;
 }
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -152,8 +154,10 @@ body,html{
 .mint-header-title {
   position: absolute!important;
   left: 40px!important;
-  top: 5px!important;
+  top: 3px!important;
   font-size: 18px!important;
+    height: 18px!important;
+    padding-top:2px;
 }
   .globalBg{
     background-color: rgba(0,0,0,0.12);
