@@ -271,15 +271,15 @@
             if(this.user && this.user.name){
                 clearInterval(timer);
                 clearTimeout(timer1);
-                if(this.noteArr.length > 0){
-                    this.updateNote(true);
-                }else {
-                    this.downloadNote()
-                }
                 if(this.labelArr.length > 1){
                     this.downloadLabel()
                 }else {
                     this.downloadLabel()
+                }
+                if(this.noteArr.length > 0){
+                    this.updateNote(true);
+                }else {
+                    this.downloadNote()
                 }
             }
         },200);

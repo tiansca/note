@@ -333,7 +333,7 @@
               }
             }
             if(!hasLabel){
-//                this.noteArr[a].label = '0';
+                this.noteArr[a].label = '0';
                 this.noteArr[a].color = '#333';
             }
             console.log(hasLabel)
