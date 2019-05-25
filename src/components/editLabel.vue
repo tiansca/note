@@ -8,13 +8,13 @@
             <span  class="right" @click="saveLabel"><font-awesome-icon :icon="['fas', 'check']" style=""></font-awesome-icon></span>
         </div>
         <div class="content">
-            <div class="group-item clickItem" v-for="label in labelList"   v-if="label.value !=0 && label.status==1">
+            <div class="group-item clickItem" v-for="(label, index) in labelList"   v-if="label.value !=0 && label.status==1">
                 <div class="groupItemBox">
-                    <span class="label-icon">
+                    <span class="label-ic on">
             <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 18px" :style="{color:label.color}"></font-awesome-icon>
           </span>
                     <input class="addInput clickItem" v-model="label.label">
-                    <span style="padding: 0 8px;font-size: 18px;line-height: 40px" @click="removeLabel(label)"><font-awesome-icon :icon="['fas', 'times']" style="color:#333" :style="{}"></font-awesome-icon></span>
+                    <span style="padding: 0 8px;font-size: 18px;line-height: 40px" @click="removeLabel(label,index)"><font-awesome-icon :icon="['fas', 'times']" style="color:#333" :style="{}"></font-awesome-icon></span>
                 </div>
 
             </div>
@@ -46,19 +46,13 @@
             },
             saveLabel(){
 				console.log('保存')
-                for(var a = 0; a < this.labelList.length; a++){
-                    for(var b = 0; b < this.labelArr.length; b++){
-                        if(this.labelList[a].value == this.labelArr[b].value){
-                            this.labelArr[b] = this.labelList[a];
-                        }
-                    }
-                }
-				this.$store.commit('setLabelArr', JSON.parse(JSON.stringify(this.labelArr)));
+				this.$store.commit('setLabelArr', this.labelList.concat());
 				this.$forceUpdate();
 				this.$router.replace('/noteList');
             },
-			removeLabel(label){
+			removeLabel(label,index){
 				label.status = 0;
+				this.labelList.splice(index,1);
 			}
         },
         mounted() {

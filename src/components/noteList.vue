@@ -67,7 +67,7 @@
                 <font-awesome-icon :icon="['fas', 'times']" style="color:#333"></font-awesome-icon>
               </span>
           </div>
-          <div class="searchContent" :style="{backgroundColor:searchValue==''?'rgba(0,0,0,0.15)':'#f8f8f8'}">
+          <div class="searchContent" :style="{backgroundColor:searchValue==''?'rgba(0,0,0,0.15)':'#f8f8f8'}" @click="closeSearch1">
               <div v-if="searchList.length == 0 && searchValue != ''" style="padding: 24px; font-size: 16px; text-align: center;color: #999">没有匹配的结果</div>
               <div  v-for="note in searchList" :class="showType==1?'longItem':'shortItem'" @click="goDetaill(false, note)">
                   <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
@@ -209,19 +209,27 @@
             if(this.deleteArr.length == 0){
                 return
             }
-            for(var a = 0; a < this.deleteArr.length; a++){
-                for(var b = 0; b < this.noteArr.length; b++){
-                    if(this.deleteArr[a].id == this.noteArr[b].id){
-                        this.noteArr[b].status = 0;
+            this.$messageBox.confirm('确定要删除选中的' + this.deleteArr.length +'项吗？').then(action => {
+                if(action == 'confirm'){
+                    for(var a = 0; a < this.deleteArr.length; a++){
+                        for(var b = 0; b < this.noteArr.length; b++){
+                            if(this.deleteArr[a].id == this.noteArr[b].id){
+                                this.noteArr[b].status = 0;
+                            }
+                        }
+                        this.$store.commit('setNoteArr', this.noteArr);
+                        // this.usableNote = this.usableNote.concat()
+                        this.$forceUpdate();
                     }
+                    this.showCheck = false;
+                    this.filterNote()
+                }else {
+                    return false;
                 }
-                this.$store.commit('setNoteArr', this.noteArr);
-                console.log(this.usableNote);
-                this.usableNote = this.usableNote.concat()
-                this.$forceUpdate();
-            }
-            this.showCheck = false;
-            this.filterNote()
+            }).catch(action=>{
+                return false;
+            });
+
         },
       // 长按
         touchstart(add,note){
@@ -303,6 +311,11 @@
           closeSearch(){
               this.$store.commit('setOpenSearch');
               this.searchValue = ''
+          },
+          closeSearch1(){
+              if(!this.searchValue){
+                  this.closeSearch();
+              }
           },
           removeSearchValue(){
               this.searchValue = '';
