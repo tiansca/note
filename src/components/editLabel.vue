@@ -11,7 +11,7 @@
             <div v-if="labelList.length == 1" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
                 暂无标签
             </div>
-            <div class="group-item clickItem" v-for="label in labelList"   v-if="label.value !=0 && label.status==1">
+            <div class="group-item clickItem" v-for="(label, index) in labelList"   v-if="label.value !=0 && label.status==1">
                 <div class="groupItemBox">
                     <span class="label-icon">
             <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 18px" :style="{color:label.color}"></font-awesome-icon>
@@ -49,19 +49,13 @@
             },
             saveLabel(){
 				console.log('保存')
-                for(var a = 0; a < this.labelList.length; a++){
-                    for(var b = 0; b < this.labelArr.length; b++){
-                        if(this.labelList[a].value == this.labelArr[b].value){
-                            this.labelArr[b] = this.labelList[a];
-                        }
-                    }
-                }
-				this.$store.commit('setLabelArr', JSON.parse(JSON.stringify(this.labelArr)));
+                this.$store.commit('setLabelArr', this.labelList.concat());
 				this.$forceUpdate();
 				this.$router.replace('/noteList');
             },
 			removeLabel(label){
 				label.status = 0;
+                this.labelList.splice(index,1);
 			}
         },
         mounted() {

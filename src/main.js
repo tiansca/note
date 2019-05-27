@@ -4,7 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import Mint from 'mint-ui'
-import { Toast } from 'mint-ui'
+import { Toast,MessageBox } from 'mint-ui'
 import 'mint-ui/lib/style.css'
 import store from './store'
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -39,6 +39,7 @@ library.add(
 );
 
 Vue.$toast = Vue.prototype.$toast = Toast;
+Vue.$messageBox = Vue.prototype.$messageBox = MessageBox;
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.use(Mint)

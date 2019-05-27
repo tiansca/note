@@ -279,11 +279,14 @@
         },
         //删除笔记
         removeNote(){
-          this.aNote.status = 0;
-          this.aNote.updateTime = (new Date()).valueOf();
-          this.$store.commit('openUpdate');
-          this.$store.commit('setNoteArr', this.noteArr);
-          this.$router.replace({path:'/noteList'});
+            this.$messageBox.confirm('确定要删除该笔记吗？').then(action => {
+                this.aNote.status = 0;
+                this.aNote.updateTime = (new Date()).valueOf();
+                this.$store.commit('setNoteArr', this.noteArr);
+                this.$router.replace({path:'/noteList'});
+            }).catch(action=>{
+                return false;
+            })
         }
       },
       mounted(){
