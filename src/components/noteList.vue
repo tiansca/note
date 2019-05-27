@@ -25,7 +25,7 @@
       <div v-if="noteList.length == 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
         笔记列表为空
       </div>
-      <div  v-for="(note, index) in noteList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaill(false, note)">
+      <div  v-for="(note, index) in noteList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaillClick(false, note)">
         <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
           <div class="note-title">{{showType==1?note.title:note.content}}</div>
           <div class="note-time">
@@ -126,7 +126,8 @@
             noteList:[],
               isMove:false,
               searchValue:'',
-              searchList:[]
+              searchList:[],
+              hasTouch:false
           }
       },
       methods:{
@@ -159,6 +160,12 @@
                 })
             }
         },
+          goDetaillClick(add,note){
+              if(this.hasTouch){
+                  return false;
+              }
+              this.goDetaill(add,note)
+          },
         hexToRgb(hex) {
           var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
           return result ? {
@@ -216,8 +223,10 @@
                         for(var b = 0; b < this.noteArr.length; b++){
                             if(this.deleteArr[a].id == this.noteArr[b].id){
                                 this.noteArr[b].status = 0;
+                                this.noteArr[b].updateTime = (new Date()).valueOf();
                             }
                         }
+                        this.$store.commit('openUpdate');
                         this.$store.commit('setNoteArr', this.noteArr);
                         // this.usableNote = this.usableNote.concat()
                         this.$forceUpdate();
@@ -233,19 +242,23 @@
         },
       // 长按
         touchstart(add,note,e){
+              this.hasTouch = true;
             this.isMove = false;
             this.clicKTime = (new Date()).valueOf();
             this.timer = setTimeout(()=> {
               this.setShowCheck();
                 this.checkNote(note)
             },600)
-            e.preventDefault()
+            // e.preventDefault()
         },
         touchend(isAdd, note){
+              setTimeout(()=>{
+                  this.hasTouch = false;
+              },800);
             if(this.isMove){
                 return;
             }
-            if((new Date()).valueOf() - this.clicKTime < 200){
+            if((new Date()).valueOf() - this.clicKTime < 500){
                 this.goDetaill(isAdd, note)
             }
             if((new Date()).valueOf() - this.clicKTime < 600){
@@ -338,7 +351,6 @@
                 if(this.noteArr[a].label == this.usableLabel[b].value){
                   hasLabel = true;
                   this.noteArr[a].color = this.usableLabel[b].color;
-                  console.log(this.noteArr[a].label)
                 }
               }
             }
@@ -346,7 +358,6 @@
                 this.noteArr[a].label = '0';
                 this.noteArr[a].color = '#333';
             }
-            console.log(hasLabel)
             //设置颜色
             var rgbColor = this.hexToRgb(this.noteArr[a].color);
 //            console.log(rgbColor)

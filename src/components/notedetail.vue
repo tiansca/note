@@ -48,7 +48,7 @@
       <div style="width: 100%;padding:0px 8px 8px">
         <h3 style="text-align: left">添加标签</h3>
         <div style="position: relative;;max-height: 60vh;overflow-x: auto">
-          <div style="position: absolute;width: 20px;display: inline-block;top: 9px;left: 20px;z-index: 2;font-size: 0">
+          <div style="position: absolute;width: 20px;display: inline-block;top: 6px;left: 20px;z-index: 2;font-size: 0">
             <div v-for="item in usableLabel" class="label-icon">
               <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 18px;" :style="{color:item.color}"  v-show="item.value != 0"></font-awesome-icon>
               <span style="position: relative;width: 13.5px;height: 18px;display: inline-block" v-if="item.value == 0">
@@ -282,6 +282,7 @@
             this.$messageBox.confirm('确定要删除该笔记吗？').then(action => {
                 this.aNote.status = 0;
                 this.aNote.updateTime = (new Date()).valueOf();
+                this.$store.commit('openUpdate');
                 this.$store.commit('setNoteArr', this.noteArr);
                 this.$router.replace({path:'/noteList'});
             }).catch(action=>{
@@ -366,7 +367,7 @@
     margin: 0 5px;
   }
   .label-icon{
-    padding:14.5px 5px;
+    padding:15px 5px;
   }
   .detail-top{
     margin: 12px 0;
