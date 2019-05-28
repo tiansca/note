@@ -235,7 +235,7 @@
 //            this.title = '笔记'
         },
         saveNote(){
-            if(this.openType == 'add' && this.aNote.content == ''){
+            if(this.openType == 'add' && this.aNote.content.trim() == ''){
                 return;
             }
             if(this.oldContent == this.aNote.content){

@@ -342,9 +342,18 @@
             this.$store.commit('setShowMore')
           }
           for(var a = 0; a < this.noteArr.length; a++){
-            var content = this.noteArr[a].content.split(/[\s\n]/)[0];
-//            console.log(content)
-            this.noteArr[a].title = content;
+              var isSetTitle = false;
+            var content = this.noteArr[a].content.split(/[\s\n]/);
+            for(var b = 0; b < content.length; b++){
+                if(content[b] != ''){
+                    this.noteArr[a].title = content[b];
+                    isSetTitle = true;
+                    break;
+                }
+            }
+            if(isSetTitle == false){
+                this.noteArr[a].title = this.noteArr[a].content;
+            }
             var hasLabel = false;
             if(this.usableLabel){
               for(var b = 0; b < this.usableLabel.length; b++){
