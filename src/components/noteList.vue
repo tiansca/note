@@ -588,11 +588,9 @@
     height: 108px;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
     white-space:normal;
-    line-height: 26px;
+    line-height: 27px;
+    word-wrap: break-word;
   }
   .shortItem .item-checkbox{
     position: absolute;
