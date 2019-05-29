@@ -330,15 +330,15 @@
         }
         //监听返回
         if (window.history && window.history.pushState) {
-          history.pushState(null, null, document.URL);
-          window.addEventListener('popstate', this.back, false);
+//          history.pushState(null, null, document.URL);
+//          window.addEventListener('popstate', this.back, false);
         }
       },
       watch:{
 
       },
       destroyed(){
-        window.removeEventListener('popstate', this.back, false);
+//        window.removeEventListener('popstate', this.back, false);
       }
   }
 </script>
