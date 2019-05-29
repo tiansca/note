@@ -541,7 +541,7 @@
     margin-bottom: 80px;
   }
   .longItem{
-      /*margin-top: 18px;*/
+      margin-top: 18px;
   }
   .longItem .show-check-item{
     width: 85%;

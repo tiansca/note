@@ -14,6 +14,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import $ from './util.js';
+import './appback.js'
 
 Vue.prototype.$axios = axios;
 Vue.prototype.$ = $;
