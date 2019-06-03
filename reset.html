@@ -44,7 +44,7 @@
         <div class="button"><span>确定</span></div>
     </div>
 </body>
-<script src="http://107.175.214.24/mailer/js/jquery-3.2.0.js"></script>
+<script src="https://liyq.club/js/jquery-3.2.0.js"></script>
 
 <script>
     var search = location.search;
@@ -70,7 +70,8 @@
         }
         $.ajax({
             type:'POST',
-            url:'http://107.175.214.24/note/api/reset.php',
+//            url:'http://107.175.214.24/note/api/reset.php',
+            url:'https://liyq.club/note/api/reset.php',
             data:{
                 id:serchObj.id,
                 email:email,
@@ -99,7 +100,8 @@
         $('.text').html('重置密码成功！'+ time + '秒后自动跳转');
 
         if(time == 0){
-            location.href = "http://107.175.214.24/note"
+//            location.href = "http://107.175.214.24/note"
+            location.href = "https://liyq.club/note"
         }else {
             time --;
         }

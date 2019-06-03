@@ -8,7 +8,7 @@ const Util = {
     // baseUtl:'http://107.175.214.24/note/api/'
     // baseUtl:'https://note.liyq.club/api/'
     // baseUtl:'http://localhost/note/api/'
-    baseUtl:'https://xiaoliu.fuwuyun.loan/note/api/'
+    baseUtl:'https://liyq.club/note/api/'
 };
 
 //ajax 通用配置
