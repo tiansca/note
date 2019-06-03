@@ -333,6 +333,51 @@
           },
           removeSearchValue(){
               this.searchValue = '';
+          },
+          initNote(){
+              if(this.usableLabel.length < 1){
+                  return false
+              }
+              for(var a = 0; a < this.noteArr.length; a++){
+                  var content = this.noteArr[a].content.split(/[\s\n]/)[0];
+//            console.log(content)
+                  this.noteArr[a].title = content;
+                  var hasLabel = false;
+                  if(this.usableLabel){
+                      for(var b = 0; b < this.usableLabel.length; b++){
+                          if(this.noteArr[a].label == this.usableLabel[b].value){
+                              hasLabel = true;
+                              this.noteArr[a].color = this.usableLabel[b].color
+                          }
+                      }
+                  }
+                  if(!hasLabel){
+                      this.noteArr[a].label = '0';
+                      this.noteArr[a].color = '#333';
+                  }
+                  //设置颜色
+                  var rgbColor = this.hexToRgb(this.noteArr[a].color);
+//            console.log(rgbColor)
+                  if(rgbColor && this.noteArr[a].color != '#333333'){
+                      this.noteArr[a].rgbColor = "rgba(" + rgbColor.r + ',' + rgbColor.g + ',' + rgbColor.b + ', 0.15' + ")";
+                  }else {
+                      this.noteArr[a].rgbColor = "#fff"
+                  }
+              }
+              this.$store.commit('setNoteArr', this.noteArr)
+              this.noteList = this.usableNote.sort(function (a,b) {
+                  var val1 = Number(a.time);
+                  var val2 = Number(b.time);
+                  if (val1 < val2) {
+                      return 1;
+                  } else if (val1 > val2) {
+                      return -1;
+                  } else {
+                      return 0;
+                  }
+              });
+              this.ready = true;
+              this.filterNote();
           }
       },
       mounted(){
@@ -470,6 +515,9 @@
             }else {
                 this.searchList = [];
             }
+          },
+          usableLabel(){
+              this.initNote()
           }
       }
   }
