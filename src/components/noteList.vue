@@ -27,7 +27,10 @@
       </div>
       <div  v-for="(note, index) in noteList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaillClick(false, note)">
         <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
-          <div class="note-title">{{showType==1?note.title:note.content}}</div>
+          <div class="note-title">
+              <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
+              <div v-if="showType==0" v-html="note.title"></div>
+          </div>
           <div class="note-time">
             <span>{{note.time | formatDate}}</span>
             <span v-show="note.collect == 1"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>
@@ -71,7 +74,10 @@
               <div v-if="searchList.length == 0 && searchValue != ''" style="padding: 24px; font-size: 16px; text-align: center;color: #999">没有匹配的结果</div>
               <div  v-for="(note,index) in searchList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @click="goDetaill(false, note)">
                   <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
-                      <div class="note-title">{{showType==1?note.title:note.content}}</div>
+                      <div class="note-title">
+                          <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
+                          <div v-if="showType==0" v-html="note.title"></div>
+                      </div>
                       <div class="note-time">
                           <span>{{note.time | formatDate}}</span>
                           <span v-show="note.collect == 1"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>
@@ -387,18 +393,13 @@
             this.$store.commit('setShowMore')
           }
           for(var a = 0; a < this.noteArr.length; a++){
-              var isSetTitle = false;
-            var content = this.noteArr[a].content.split(/[\s\n]/);
-            for(var b = 0; b < content.length; b++){
-                if(content[b] != ''){
-                    this.noteArr[a].title = content[b];
-                    isSetTitle = true;
-                    break;
-                }
-            }
-            if(isSetTitle == false){
-                this.noteArr[a].title = this.noteArr[a].content;
-            }
+            var content = this.noteArr[a].content;
+              this.noteArr[a].content = this.noteArr[a].content.replace(/[\r\n]/g,"<br>");
+            console.log(content)
+              let reg=/<\/?.+?\/?>/g;
+              content = content.replace(reg,'&#10;');
+              console.log(this.noteArr[a])
+              this.noteArr[a].title = content;
             var hasLabel = false;
             if(this.usableLabel){
               for(var b = 0; b < this.usableLabel.length; b++){
@@ -463,8 +464,10 @@
                 return false
             }
             for(var a = 0; a < this.noteArr.length; a++){
-                    var content = this.noteArr[a].content.split(/[\s\n]/)[0];
-//            console.log(content)
+                    var content = this.noteArr[a].content;
+                    this.noteArr[a].content = this.noteArr[a].content.replace(/[\r\n]/g,"<br>");
+                    let reg=/<\/?.+?\/?>/g;
+                    content = content.replace(reg,'&#10;');
                     this.noteArr[a].title = content;
                     var hasLabel = false;
                     if(this.usableLabel){
@@ -508,7 +511,7 @@
                 sessionStorage.setItem('searchValue', this.searchValue);
                 this.searchList = [];
                 for(var a = 0; a < this.noteList.length; a++){
-                    if(this.noteList[a].content.indexOf(this.searchValue) > -1){
+                    if(this.noteList[a].title.indexOf(this.searchValue) > -1){
                         this.searchList.push(this.noteList[a])
                     }
                 }
@@ -565,7 +568,8 @@
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
-    color: #333;
+    color: #444;
+    font-weight: 400;
   }
   .note-time{
     font-size: 14px;
@@ -639,6 +643,7 @@
     white-space:normal;
     line-height: 27px;
     word-wrap: break-word;
+      text-align: left!important;
   }
   .shortItem .item-checkbox{
     position: absolute;
@@ -672,4 +677,11 @@
         padding-bottom: 18px;
         overflow: auto;
     }
+    .note-title-line{
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        height: 28px;
+    }
+
 </style>

@@ -247,4 +247,42 @@ body,html{
         justify-content: center;
         align-items: center;
     }
+
+  .vue-html5-editor .toolbar{
+    position: fixed!important;
+    bottom: 0!important;
+    width: calc(100% - 14px)!important;
+  }
+  .vue-html5-editor .toolbar>ul{
+    display: flex;
+    justify-content: space-around;
+  }
+    .vue-html5-editor>.toolbar>ul>li{
+        line-height: 48px!important;
+        font-size: 18px!important;
+    }
+.vue-html5-editor>.toolbar>.dashboard{
+    top:auto!important;
+    bottom: 45px;
+}
+.note-title-line ul,.note-title-line ol,.note-title-line h1,.note-title-line h2,.note-title-line h3,.note-title-line h4,.note-title-line h5,.note-title-line h6,.note-title-line b,.note-title-line i,.note-title-line div,.note-title-line font,.note-title-line u,.note-title-line strike,.note-title-line sup,.note-title-line sub,.note-title-line span{
+    padding:0;
+    margin:0;
+    font-size: 16px!important;
+    color: #444!important;
+    font-weight: 400;
+    text-align: left!important;
+    font-style:normal;
+    background-color: rgba(255,255,255,0)!important;
+    line-height: 28px!important;
+    text-decoration: none;
+    vertical-align:middle!important;
+}
+.note-title-line font{
+    margin-top: -4px;
+    display: inline-block;
+}
+    .vue-html5-editor .content{
+        height: 100%;
+    }
 </style>

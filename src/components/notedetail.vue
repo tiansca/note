@@ -33,9 +33,8 @@
       <span style="float: right;line-height: 20px;color:#999;margin-right: 12px;font-size: 14px;margin-top: 3px;">{{aNote.time | formatDate(1)}}</span>
 
     </div>
-    <textarea v-model="aNote.content" @focus="textFocus" @blur="textBlur" ref="inputVal">
-
-    </textarea>
+    <!--<textarea v-model="aNote.content" @focus="textFocus" @blur="textBlur" ref="inputVal"></textarea>-->
+      <vue-html5-editor :content="aNote.content" ref="inputVal" :height="500" :z-index="1000" :auto-height="true" :show-module-name="false" @change="textFocus"></vue-html5-editor>
 
 
     <!--标签弹窗-->
@@ -127,7 +126,7 @@
             },
             oldLabel:'',
             openType:'add',
-            oldContent:''
+            oldContent:'',
           }
       },
       methods:{
@@ -226,9 +225,11 @@
             this.addLabelIng = false;
             this.addLabelName = '';
         },
-        textFocus(){
-//            console.log('聚焦');
-            this.title = '编辑笔记'
+        textFocus(e){
+            this.title = '编辑笔记';
+            if(e){
+                this.aNote.content = e
+            }
         },
         textBlur(){
 //            console.log('失焦');
@@ -288,9 +289,28 @@
             }).catch(action=>{
                 return false;
             })
+        },
+        keepLastIndex(obj) {
+            if (window.getSelection) {//ie11 10 9 ff safari
+                obj.focus(); //解决ff不获取焦点无法定位问题
+                var range = window.getSelection();//创建range
+                range.selectAllChildren(obj);//range 选择obj下所有子内容
+                range.collapseToEnd();//光标移至最后
+            }
+            else if (document.selection) {//ie10 9 8 7 6 5
+                var range = document.selection.createRange();//创建选择对象
+                //var range = document.body.createTextRange();
+                range.moveToElementText(obj);//range定位到obj
+                range.collapse(false);//光标移至最后
+                range.select();
+            }
         }
       },
       mounted(){
+          var editor = document.querySelector('.vue-html5-editor .content');
+          editor.onfocus = ()=> {
+              this.textFocus()
+          }
         if(this.$route.query.id){
           //查找note
           this.openType = 'edit';
@@ -326,7 +346,12 @@
             this.aNote.device_id = this.deviceId;
             console.log(this.aNote)
           });
-          this.$refs.inputVal.focus()
+//          this.$refs.inputVal.focus()
+
+            editor.focus();
+            this.keepLastIndex(editor)
+            console.log(editor);
+
         }
         //监听返回
         if (window.history && window.history.pushState) {
@@ -344,16 +369,17 @@
 </script>
 
 <style scoped>
-  textarea{
+  .vue-html5-editor{
     border: none;
     margin:0;
     outline:none;
     font-size: 16px;
     line-height: 24px;
-    padding:5px 12px;
+    padding:0 5px;
     resize: none;
-    width: calc(100% - 24px);
-    height: calc(100% - 100px);
+    /*width: calc(100% - 24px);*/
+    width: 100%!important;
+    height: calc(100% - 120px);
     overflow: auto;
     color:#464646
   }
