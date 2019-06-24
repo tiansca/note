@@ -188,7 +188,7 @@
             this.showCheck = false
             note.check = !note.check;
             this.showCheck = true
-            console.log(note);
+//            console.log(note);
             if(note.check){
                 this.deleteArr.push(note);
             }else {
@@ -388,17 +388,17 @@
       },
       mounted(){
         setTimeout(()=>{
-            console.log(this.usableLabel)
+//            console.log(this.usableLabel)
           if(this.isShowMore){
             this.$store.commit('setShowMore')
           }
           for(var a = 0; a < this.noteArr.length; a++){
             var content = this.noteArr[a].content;
               this.noteArr[a].content = this.noteArr[a].content.replace(/[\r\n]/g,"<br>");
-            console.log(content)
+//            console.log(content)
               let reg=/<\/?.+?\/?>/g;
               content = content.replace(reg,'&#10;');
-              console.log(this.noteArr[a])
+//              console.log(this.noteArr[a])
               this.noteArr[a].title = content;
             var hasLabel = false;
             if(this.usableLabel){

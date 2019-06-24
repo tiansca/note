@@ -125,6 +125,22 @@ export default {
           var device_id = Math.floor(Math.random() * 10000);
           this.$store.commit('setDevice',device_id)
       }
+
+      //同步数据库
+      this.$.ajax({
+          method:"GET",
+          url:'isUpdate.php'
+      }).then((res)=>{
+          var mark = (new Date()).valueOf() - res * 1000 > 3600 * 1000 * 24;
+          if(mark){
+              this.$.ajax({
+                  method:"GET",
+                  url:'http://myrontian.000webhostapp.com/note/update/index.php'
+              }).then((res)=>{
+                  console.log(res)
+              })
+          }
+      })
   }
 }
 </script>
