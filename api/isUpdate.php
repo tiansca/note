@@ -14,7 +14,7 @@
         //通过filesize获得文件大小，将整个文件一下子读到一个字符串中
         $contents = fread($handle, 20);
         fclose($handle);
-        echo $contents.'<br>';
+        echo $contents;
         if(time() - $contents > 3600 * 24){
             $handle = fopen($file, "w");//读取二进制文件时，需要将第二个参数设置成'rb'
             fwrite($handle, time());
