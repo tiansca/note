@@ -10,7 +10,8 @@
       <mt-button icon="more" slot="right" style="overflow: visible;" @click="showMore">
         <div class="moreList" v-show="isShowMore">
           <div class="moreItem" @click="listShowType">{{showType==1?'宫格视图':'列表视图'}}</div>
-          <div class="moreItem" @click="setShowCheck">批量删除</div>
+          <div class="moreItem" @click="setShowCheck" style="border-bottom: 0.5px solid #999;padding-bottom:12px;">批量删除</div>
+          <div class="moreItem" @click="refresh">重新加载</div>
         </div>
       </mt-button>
     </mt-header>
@@ -384,6 +385,9 @@
               });
               this.ready = true;
               this.filterNote();
+          },
+          refresh(){
+              this.$store.commit('refresh')
           }
       },
       mounted(){

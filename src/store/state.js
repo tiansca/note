@@ -29,7 +29,8 @@ const state = {
     openSearch:false,
     isLoading:false,
     update:false,
-    device_id:''
+    device_id:'',
+    showPage:true
 }
 
 export default state

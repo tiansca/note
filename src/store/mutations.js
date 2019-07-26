@@ -62,6 +62,15 @@ const mutations = {
     },
     openUpdate(state){
         state.update = true
+    },
+    refresh(state){
+        state.showPage = false;
+        state.isLoading = true;
+        setTimeout(()=>{
+            state.showPage = true;
+            state.isLoading = false;
+            state.globalBg = false
+        },1000)
     }
 }
 

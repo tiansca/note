@@ -127,6 +127,7 @@
             oldLabel:'',
             openType:'add',
             oldContent:'',
+            contentEle:null
           }
       },
       methods:{
@@ -228,7 +229,7 @@
         textFocus(e){
             this.title = '编辑笔记';
             if(e){
-                this.aNote.content = e
+                this.aNote.content = e;
             }
         },
         textBlur(){
@@ -236,6 +237,8 @@
 //            this.title = '笔记'
         },
         saveNote(){
+            var editor = document.querySelector('.vue-html5-editor .content');
+            this.aNote.content = editor.innerHTML;
             if(this.openType == 'add' && this.aNote.content.trim() == ''){
                 return;
             }
@@ -311,6 +314,10 @@
           editor.onfocus = ()=> {
               this.textFocus()
           }
+//          editor.onpaste = () => {
+//              this.aNote.content = editor.innerHTML;
+//              console.log('粘贴');
+//          }
         if(this.$route.query.id){
           //查找note
           this.openType = 'edit';

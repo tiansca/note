@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <transition :name="transitionName" mode="out-in">
-      <router-view class="Router"></router-view>
+      <router-view class="Router" v-if="showPage"></router-view>
     </transition>
     <transition name="slide-fade">
       <slide-pane v-show="slidePaneShow"></slide-pane>
@@ -35,6 +35,9 @@ export default {
       },
       deviceId(){
           return this.$store.state.device_id
+      },
+      showPage(){
+          return this.$store.state.showPage
       }
   },
   data(){
