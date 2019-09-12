@@ -21,6 +21,17 @@
                 <span class="group-item-num">{{collectNote.length}}</span>
             </div>
         </div>
+          <div class="group-item clickItem" @click="changeFilterType('lock',$event)" v-if="user">
+              <div class="groupItemBox">
+                  <img src="../assets/lock.png" alt="" style="width: 18px;margin: 2px;">
+                  <span>我的加密</span>
+                  <span></span>
+                  <i style="float:right;padding: 3px 8px;margin-right: -10px;margin-top: -3px;" class="clickItem" @click="openResetSafe()" stop="true">
+                      <font-awesome-icon :icon="['fas', 'edit']" style="color: #999;font-size: 18px" stop="true"></font-awesome-icon>
+                  </i>
+
+              </div>
+          </div>
       </div>
       <div style="background: #fff;padding: 12px 18px;margin-bottom: -1px">
           <span style="color: #616161;font-size: 16px">标签</span>
@@ -83,6 +94,9 @@
         collectNote(){
             return this.$store.getters.collectNote;
         },
+        lockNote(){
+            return this.$store.getters.lockNote;
+        },
         labelArr(){
             return this.$store.state.labelArr;
         },
@@ -103,6 +117,9 @@
         },
         deviceId(){
             return this.$store.state.device_id;
+        },
+        filterType(){
+            return this.$store.state.filterType;
         }
     },
     data () {
@@ -118,8 +135,78 @@
         this.$store.commit('setSlide');
         this.$store.commit('setGlobalBg',1);
       },
-      changeFilterType(n){
+      changeFilterType(n,e){
+//          console.log(e)
+          if(e && e.target && (e.target.localName == 'svg' || e.target.localName == 'i' || e.target.localName == 'path')){
+              return
+          }
+          if(this.filterType == n){
+              return
+          }
+          if(n == 'lock' && this.user){
+              this.openLock();
+              return;
+          }
         this.$store.commit('setFilterType',n)
+      },
+      openLock(){
+          if(this.getCookie('safe_password')){
+              //cookie有加密密码，直接打开
+              this.$store.commit('setFilterType','lock');
+          }else {
+              //判断当前用户有无加密密码，若无设置，若有则输入验证
+              console.log(this.user.safe_password);
+              if(this.user.safe_password){
+                  this.$messageBox.prompt('请输入隐私密码').then(({ value, action }) => {
+                      if(value == this.user.safe_password){
+                          this.$store.commit('setFilterType','lock');
+                          this.setCookie('safe_password', value, 180)
+                      }else {
+                          this.$messageBox({
+                              title: '提示',
+                              message: '隐私密码错误',
+                              showCancelButton: false
+                          });
+                      }
+                  }).catch(action=>{
+                      return false;
+                  });
+              }else {
+                  this.$messageBox.prompt('请设置隐私密码（用来访问加密笔记，并非登录密码）').then(({ value, action }) => {
+                      console.log(value,action);
+                      if(value){
+                          this.$.ajax({
+                              method:"POST",
+                              url:'set_safe_password.php',
+                              data:this.qs({
+                                  safe_password:value,
+                                  user_id:this.user.id
+                              })
+                          }).then((res)=>{
+                              if(res.code == 0){
+                                  this.$store.commit('setFilterType','lock');
+                                  //更新本地缓存用户信息
+                                  var userInf = JSON.stringify(this.user);
+                                  userInf = JSON.parse(userInf);
+                                  userInf.safe_password = value;
+                                  this.$store.commit('setUserSession',userInf);
+                                  //写入cookie
+                                  this.setCookie('safe_password', value, 180)
+                              }
+                          })
+                      }else {
+                          this.$messageBox({
+                              title: '提示',
+                              message: '隐私密码不能设置为空',
+                              showCancelButton: false
+                          });
+                      }
+
+                  }).catch(action=>{
+                      return false;
+                  });
+              }
+          }
       },
       setLabelNum(){
         for(var a = 0; a < this.usableLabel.length; a++){
@@ -205,7 +292,8 @@
                         updateTime:this.noteArr[a].updateTime,
                         content:this.noteArr[a].content,
                         status:this.noteArr[a].status,
-                        device_id:this.noteArr[a].device_id
+                        device_id:this.noteArr[a].device_id,
+                        islock:this.noteArr[a].islock
                     })
                 }).then((res)=>{
                     if(res.code == 0){
@@ -263,6 +351,66 @@
                         this.updateLabel();
                     }
                 }
+            })
+        },
+        getCookie(name){
+            var nameEQ = name + '='
+            var ca = document.cookie.split(';') // 把cookie分割成组
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i] // 取得字符串
+                while (c.charAt(0) == ' ') { // 判断一下字符串有没有前导空格
+                    c = c.substring(1, c.length) // 有的话，从第二位开始取
+                }
+                if (c.indexOf(nameEQ) == 0) { // 如果含有我们要的name
+                    return unescape(c.substring(nameEQ.length, c.length)) // 解码并截取我们要值
+                }
+            }
+            return false
+        },
+        clearCookie(name){
+            this.setCookie(name, "", -1);
+        },
+        setCookie(name, value, seconds){
+            seconds = seconds || 0;   //seconds有值就直接赋值，没有为0，这个根php不一样。
+            var expires = "";
+            if (seconds != 0 ) {      //设置cookie生存时间
+                var date = new Date();
+                date.setTime(date.getTime()+(seconds*1000));
+                expires = "; expires="+date.toGMTString();
+            }
+            document.cookie = name+"="+escape(value)+expires+"; path=/";   //转码并赋值
+        },
+        openResetSafe(){
+            console.log('重置安全密码');
+            this.$messageBox.confirm('确定要重置隐私密码吗？').then(action => {
+                this.$store.commit('setLoading',true);
+                var baseUrl = 'http://localhost/note/reset_safe.html'
+                this.$axios({
+                    method: 'post',
+                    url: 'http://localhost/mailer/mail.php',
+                    data: this.qs({
+                        mailto:this.user.email,
+                        topic:'重置密码',
+                        content:"<span>请点击下面链接重置隐私密码，如果不能跳转，请复制网址到浏览器打开。</span><br>" +
+                        "<a href=" + baseUrl + "?id=" + this.user.id  + ">" + baseUrl + "?id=" + this.user.id + "<a/>"
+                    })
+                }).then((res=>{
+                    this.$store.commit('setLoading',false);
+                    if(res.data.return == 0){
+                        this.$toast({
+                            message: '重置链接以发送至邮箱，请查收！',
+                            duration: 3000
+                        });
+                    }else {
+                        this.$toast({
+                            message: '邮件发送失败！',
+                            position: 'top',
+                            duration: 3000
+                        });
+                    }
+                }));
+            }).catch(action=>{
+                return false;
             })
         }
     },

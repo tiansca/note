@@ -1,7 +1,7 @@
 <?php
     $data = [];
     $conn = mysqli_connect('localhost', 'id1212780_myron_tian', 'tianshicong', 'id1212780_test');
-    $conn1 = mysqli_connect('liyq.club', 's2104642', 'tianshicong', 's2104642');
+    $conn1 = mysqli_connect('106.13.66.238', 'root', 'tianshicong', 'note');
     mysqli_query($conn, "set names utf8");
     mysqli_query($conn1, "set names utf8");
     $deleteSql = "truncate TABLE note_note";

@@ -13,6 +13,7 @@
       <mt-button icon="more" slot="right" style="overflow: visible;" @click="showMore">
         <div class="moreList" v-show="isShowMore">
           <div class="moreItem" @click="toggleCollect">{{aNote.collect==1?'取消收藏':'收藏笔记'}}</div>
+          <div class="moreItem" @click="toggleLock" style="border-bottom: 0.5px solid rgb(153, 153, 153);padding-bottom: 12px;">{{aNote.islock==1?'取消加密':'加密笔记'}}</div>
           <div class="moreItem" @click="removeNote">删除笔记</div>
         </div>
       </mt-button>
@@ -122,7 +123,8 @@
               color:'#333',
               updateTime:(new Date()).valueOf(),
               status:1,
-              labelName:'未标签'
+              labelName:'未标签',
+              islock:'0'
             },
             oldLabel:'',
             openType:'add',
@@ -150,6 +152,17 @@
             this.$store.commit('openUpdate');
           this.$store.commit('setNoteArr', this.noteArr);
         },
+          toggleLock(){
+              this.aNote.islock = this.aNote.islock == 1 ? 0 : 1;
+              this.aNote.updateTime = (new Date()).valueOf();
+              for(var a = 0; a < this.noteArr.length; a++){
+                  if(this.noteArr[a].user_note_id == this.aNote.user_note_id && this.noteArr[a].device_id == this.aNote.device_id){
+                      this.noteArr[a] = this.aNote;
+                  }
+              }
+              this.$store.commit('openUpdate');
+              this.$store.commit('setNoteArr', this.noteArr);
+          },
 //        打开弹窗
         showLabel(){
             this.labelPopupVisible = true;

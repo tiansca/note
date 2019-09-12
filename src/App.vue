@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
+  <div id="app"  v-if="showPage">
     <transition :name="transitionName" mode="out-in">
-      <router-view class="Router" v-if="showPage"></router-view>
+      <router-view class="Router"></router-view>
     </transition>
     <transition name="slide-fade">
       <slide-pane v-show="slidePaneShow"></slide-pane>
@@ -113,9 +113,10 @@ export default {
                   email:JSON.parse(localStorage.getItem('user')).email
               })
           }).then((res)=>{
+              console.log(res)
               if(res.code == 0){
                   if(res.data.password == JSON.parse(localStorage.getItem('user')).password){
-                      this.$store.commit('setUserSession',JSON.parse(localStorage.getItem('user')));
+                      this.$store.commit('setUserSession',res.data);
                   }
               }
           })

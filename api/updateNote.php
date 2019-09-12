@@ -15,6 +15,7 @@
         $content = encrypt($_POST['content'],'E','tianshicong');
         $status = $_POST['status'];
         $device_id = $_POST['device_id'];
+        $islock = $_POST['islock'];
         $findsql = "select * from note where user_id = '$user_id' and user_note_id = '$user_note_id' and device_id = '$device_id'";
         $result = $conn->query($findsql);
         $results = array();
@@ -23,12 +24,12 @@
         }
         if(count($results) == 0){
         //不存在，插入
-            $sql = "INSERT INTO note (user_note_id, label, user_id, collect, time, updateTime, content, status, device_id) VALUES ('$user_note_id', '$label', '$user_id', '$collect', '$time', '$updateTime', '$content', '$status', $device_id)";
+            $sql = "INSERT INTO note (user_note_id, label, user_id, collect, time, updateTime, content, status, device_id, islock) VALUES ('$user_note_id', '$label', '$user_id', '$collect', '$time', '$updateTime', '$content', '$status', '$device_id', '$islock')";
         }else{
             if($results[0]['updateTime'] >= $updateTime){
                 $sql = null;
             }else{
-                $sql = "UPDATE note SET label = '$label', collect = '$collect', time = '$time', updateTime = '$updateTime', content = '$content', status = '$status' WHERE user_id = '$user_id' and user_note_id = '$user_note_id' and device_id = '$device_id'";
+                $sql = "UPDATE note SET label = '$label', collect = '$collect', time = '$time', updateTime = '$updateTime', content = '$content', status = '$status', islock = '$islock' WHERE user_id = '$user_id' and user_note_id = '$user_note_id' and device_id = '$device_id'";
             }
         }
         if($sql){
@@ -42,7 +43,6 @@
         }
         $data['sql'] = $sql;
         $data['postTime'] = $updateTime;
-        $data['time'] = $results[0]['updateTime'];
     }
     echo json_encode($data);
 ?>

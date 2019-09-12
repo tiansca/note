@@ -133,11 +133,11 @@
             },
             sendEmail(name,email){
 //                var baseUrl = 'http://107.175.214.24/note/activate.html'
-                var baseUrl = 'https://liyq.club/note/activate.html'
+                var baseUrl = 'http://106.13.66.238/note/activate.html'
                 this.$axios({
                     method: 'post',
 //                    url: 'http://107.175.214.24/mailer/mail.php',
-                    url: 'https://liyq.club/mailer/mail.php',
+                    url: 'http://106.13.66.238/mailer/mail.php',
                     data: this.qs({
                         mailto:email,
                         topic:'笔记应用账号激活',
@@ -232,10 +232,10 @@
             },
             findPassword(id, email){
 //                var baseUrl = 'http://107.175.214.24/note/reset.html'
-                var baseUrl = 'https://liyq.club/note/reset.html'
+                var baseUrl = 'http://106.13.66.238/note/reset.html'
                 this.$axios({
                     method: 'post',
-                    url: 'https://liyq.club/mailer/mail.php',
+                    url: 'http://106.13.66.238/mailer/mail.php',
                     data: this.qs({
                         mailto:email,
                         topic:'重置密码',

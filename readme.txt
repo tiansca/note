@@ -1,0 +1,3 @@
+更目录下的zulin.sql为数据库结构，用户名admin默认密码111111
+record.txt 记录最近备份的时间戳，间隔大于12小时才进行备份，备份文件为backup目录下的zulin_backup.sql（只保留最近备份）
+每次执行备份操作，000webhost会下载备份文件在'zulin/backup1/'目录下,文件名包含时间戳信息

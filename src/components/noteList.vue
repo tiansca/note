@@ -109,6 +109,9 @@
         collectNote(){
           return this.$store.getters.collectNote;
         },
+        lockNote(){
+            return this.$store.getters.lockNote;
+        },
         filterType(){
           return this.$store.state.filterType;
         },
@@ -303,6 +306,19 @@
                     return 0;
                 }
             });
+          }else if(this.filterType == 'lock'){
+              this.filterTitle = '我的加密';
+              this.noteList = this.lockNote.sort(function (a,b) {
+                  var val1 = Number(a.time);
+                  var val2 = Number(b.time);
+                  if (val1 < val2) {
+                      return 1;
+                  } else if (val1 > val2) {
+                      return -1;
+                  } else {
+                      return 0;
+                  }
+              });
           }else {
             for(var a = 0; a < this.usableLabel.length; a++){
               if(this.filterType == this.usableLabel[a].value){
@@ -392,7 +408,7 @@
       },
       mounted(){
         setTimeout(()=>{
-//            console.log(this.usableLabel)
+            console.log('列表加载')
           if(this.isShowMore){
             this.$store.commit('setShowMore')
           }

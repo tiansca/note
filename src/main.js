@@ -11,7 +11,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import 'font-awesome/css/font-awesome.min.css'
 import {
-  faUser, faChartLine, faAmericanSignLanguageInterpreting,faUserCircle,faBars,faPlus,faBookmark,faSortDown,faCheck,faTimes,faStar,faCheckSquare,faSquare,faTrash,faAngleLeft,faPencilAlt
+  faUser, faChartLine, faAmericanSignLanguageInterpreting,faUserCircle,faBars,faPlus,faBookmark,faSortDown,faCheck,faTimes,faStar,faCheckSquare,faSquare,faTrash,faAngleLeft,faPencilAlt,faEdit
 } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import $ from './util.js';
@@ -142,7 +142,8 @@ library.add(
   faSquare,
   faTrash,
     faAngleLeft,
-    faPencilAlt
+    faPencilAlt,
+    faEdit,
 );
 
 Vue.$toast = Vue.prototype.$toast = Toast;

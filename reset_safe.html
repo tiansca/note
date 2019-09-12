@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>重置密码</title>
+    <title>重置隐私密码</title>
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <style>
         .main{
@@ -34,7 +34,7 @@
 </head>
 <body>
     <div class="main text">
-        <h3 >重置密码</h3>
+        <h3 >重置隐私密码（仅用来访问加密笔记）</h3>
         <div class="line" style="margin-top:30px;">
             <span>邮箱：</span><input type="text" class="email">
         </div>
@@ -70,8 +70,8 @@
         }
         $.ajax({
             type:'POST',
-//            url:'http://107.175.214.24/note/api/reset.php',
-            url:'http://106.13.66.238/note/api/reset.php',
+//            url:'https://liyq.club/note/api/reset_safe.php',
+            url:'http://106.13.66.238/note/api/reset_safe.php',
             data:{
                 id:serchObj.id,
                 email:email,

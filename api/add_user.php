@@ -35,7 +35,7 @@
                 echo json_encode($data);
                 return;
             }else{
-                $sql = "INSERT INTO user (name, password, email, status) VALUES ('$name', '$password', '$email', 0)";
+                $sql = "INSERT INTO user (name, password, email, status, lock) VALUES ('$name', '$password', '$email', 0, '')";
             }
             if ($conn->query($sql) == TRUE) {
                 $data['code'] = 0;
