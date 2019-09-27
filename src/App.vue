@@ -139,7 +139,7 @@ export default {
           if(mark){
               this.$.ajax({
                   method:"GET",
-                  url:'http://myrontian.000webhostapp.com/note/update/index.php'
+                  url:'beifen.php'
               }).then((res)=>{
                   console.log(res)
               })
@@ -305,4 +305,8 @@ body,html{
     .vue-html5-editor .content{
         height: 100%;
     }
+.note-title-line pre{
+    margin-top:0!important;
+    font-family:"Helvetica Neue",Helvetica,"PingFang SC"
+}
 </style>

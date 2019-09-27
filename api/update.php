@@ -1,7 +1,7 @@
 <?php
     $data = [];
     $conn = mysqli_connect('localhost', 'id1212780_myron_tian', 'tianshicong', 'id1212780_test');
-    $conn1 = mysqli_connect('106.13.66.238', 'root', 'tianshicong', 'note');
+    $conn1 = mysqli_connect('106.13.66.238', 'tiansc', 'tianshicong', 'note');
     mysqli_query($conn, "set names utf8");
     mysqli_query($conn1, "set names utf8");
     $deleteSql = "truncate TABLE note_note";
@@ -17,7 +17,7 @@
     for($i = 0; $i < count($data["note"]); $i++){
         $aNote = $data["note"][$i];
 //        var_dump($aNote);
-        $noteSql = "INSERT INTO note_note (user_note_id, label, user_id, collect, time, updateTime, content, status, device_id) VALUES ('$aNote[user_note_id]','$aNote[label]','$aNote[user_id]','$aNote[collect]','$aNote[time]','$aNote[updateTime]','$aNote[content]','$aNote[status]','$aNote[device_id]')";
+        $noteSql = "INSERT INTO note_note (user_note_id, label, user_id, collect, time, updateTime, content, status, device_id,islock) VALUES ('$aNote[user_note_id]','$aNote[label]','$aNote[user_id]','$aNote[collect]','$aNote[time]','$aNote[updateTime]','$aNote[content]','$aNote[status]','$aNote[device_id]','$aNote[islock]')";
         $conn->query($noteSql);
     }
 
@@ -34,7 +34,7 @@
     for($i = 0; $i < count($data["user"]); $i++){
         $user = $data["user"][$i];
 //        var_dump($aNote);
-        $insertUser = "INSERT INTO note_user (name, password, status, email, label_arr) VALUES ('$user[name]','$user[password]','$user[status]','$user[email]','$user[label_arr]')";
+        $insertUser = "INSERT INTO note_user (name, password, status, email, label_arr,safe_password) VALUES ('$user[name]','$user[password]','$user[status]','$user[email]','$user[label_arr]','$user[safe_password]')";
         $conn->query($insertUser);
     }
 ?>

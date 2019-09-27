@@ -12,8 +12,8 @@
 //        'dbName' => 'note'
 //    );
     return array(
-        'host' => 'localhost',
-        'user' => 'root',
+        'host' => '106.13.66.238',
+        'user' => 'tiansc',
         'password' => 'tianshicong',
         'dbName' => 'note'
     );

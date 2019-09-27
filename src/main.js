@@ -143,7 +143,7 @@ library.add(
   faTrash,
     faAngleLeft,
     faPencilAlt,
-    faEdit,
+    faEdit
 );
 
 Vue.$toast = Vue.prototype.$toast = Toast;

@@ -362,8 +362,14 @@
                   return false
               }
               for(var a = 0; a < this.noteArr.length; a++){
-                  var content = this.noteArr[a].content.split(/[\s\n]/)[0];
-//            console.log(content)
+//                  console.log(this.noteArr[a].content)
+                  if(this.noteArr[a].content){
+                      var content = this.noteArr[a].content.split(/[\s\n]/)[0];
+                  }else {
+                      var content = this.noteArr[a].content
+                  }
+
+                    //console.log(content)
                   this.noteArr[a].title = content;
                   var hasLabel = false;
                   if(this.usableLabel){
@@ -404,6 +410,57 @@
           },
           refresh(){
               this.$store.commit('refresh')
+          },
+          getStyle(obj, attr){
+              if(!obj || !this.isDom(obj) || obj.nodeName=='#text'){
+                  return false
+              }
+              if (obj.currentStyle) {
+                  return obj.currentStyle[attr];
+              }
+              else {
+                  return getComputedStyle(obj, false)[attr];
+              }
+          },
+          isDom(obj){
+              return !!(obj && typeof window !== 'undefined' && (obj === window || obj.nodeType));
+          },
+          removeBlank(){
+              //清空标题空行
+//            console.log(console.log(document.querySelectorAll('.note-title-line')));
+              var titleArr = document.querySelectorAll('.note-title-line');
+              if(titleArr && titleArr.length > 0){
+                  for(var a = 0; a < titleArr.length; a++){
+
+                      var thisTitle = titleArr[a];
+                      var thisTitleChilds = thisTitle.childNodes;
+                      if(thisTitleChilds && thisTitleChilds.length > 0){
+                          for(var b = 0; b < thisTitleChilds.length; b++){
+//                                console.log(thisTitleChilds[b].innerText)
+                              if(this.getStyle(thisTitleChilds[b], 'display') == 'block' && (!thisTitleChilds[b].innerText || thisTitleChilds[b].innerText == '' || thisTitleChilds[b].innerText.trim() == '')){
+                                  if(thisTitleChilds[b] && thisTitleChilds[b].style){
+                                      thisTitleChilds[b].style.display = 'none'
+                                  }
+                              }
+                          }
+                      }
+
+                      var thisTitleNodes = thisTitle.getElementsByTagName('*');
+
+                      if(thisTitleNodes && thisTitleNodes.length > 0){
+//                            console.log()
+                          for(var c = 0; c < thisTitleNodes.length; c++){
+                              if(thisTitleNodes[c] && thisTitleNodes[c].nodeName == 'A' && thisTitleNodes[c].style){
+//                                    console.log(thisTitleNodes[c]);
+                                  thisTitleNodes[c].style.color = '#444';
+                                  thisTitleNodes[c].style.textDecoration= 'none';
+                                  thisTitleNodes[c].setAttribute('href', 'javascript:;')
+                              }
+                          }
+                      }
+
+                  }
+              }
           }
       },
       mounted(){
@@ -414,10 +471,18 @@
           }
           for(var a = 0; a < this.noteArr.length; a++){
             var content = this.noteArr[a].content;
-              this.noteArr[a].content = this.noteArr[a].content.replace(/[\r\n]/g,"<br>");
+            if(this.noteArr[a].content){
+                this.noteArr[a].content = this.noteArr[a].content.replace(/[\r\n]/g,"<br>");
+            }else {
+                this.noteArr[a].content = this.noteArr[a].content;
+            }
+
 //            console.log(content)
               let reg=/<\/?.+?\/?>/g;
-              content = content.replace(reg,'&#10;');
+              if(content){
+                  content = content.replace(reg,'&#10;');
+              }
+
 //              console.log(this.noteArr[a])
               this.noteArr[a].title = content;
             var hasLabel = false;
@@ -462,7 +527,29 @@
                 this.searchValue = sessionStorage.getItem('searchValue');
                 this.$refs.serchInput.focus()
             }
+
+
         },50);
+        setTimeout(()=>{
+            this.removeBlank()
+
+            //监听滚动
+            var listBox = document.querySelector('.noteListBox');
+//            console.log(listBox)
+            listBox.onscroll = ()=>{
+//                console.log('正在滚动');
+//                console.log(listBox.scrollTop);
+                if(listBox.scrollTop){
+                    sessionStorage.setItem('scrollTop',listBox.scrollTop);
+                }
+
+//                listBox.scrollTop = listBox.scrollTop + 50
+            }
+            if(sessionStorage.getItem('scrollTop')){
+                listBox.scrollTop = sessionStorage.getItem('scrollTop')
+            }
+        },80);
+
 
       },
       watch:{
@@ -478,16 +565,30 @@
         },
         filterType(){
           this.filterNote();
+            setTimeout(()=>{
+                this.removeBlank()
+            },80)
         },
         usableNote(){
+            setTimeout(()=>{
+                this.removeBlank()
+            },80)
             if(this.usableLabel.length < 1){
                 return false
             }
             for(var a = 0; a < this.noteArr.length; a++){
                     var content = this.noteArr[a].content;
-                    this.noteArr[a].content = this.noteArr[a].content.replace(/[\r\n]/g,"<br>");
+                    if(content){
+                        this.noteArr[a].content = this.noteArr[a].content.replace(/[\r\n]/g,"<br>");
+                    }else {
+                        this.noteArr[a].content = this.noteArr[a].content
+                    }
+
                     let reg=/<\/?.+?\/?>/g;
-                    content = content.replace(reg,'&#10;');
+                    if(content){
+                        content = content.replace(reg,'&#10;');
+                    }
+
                     this.noteArr[a].title = content;
                     var hasLabel = false;
                     if(this.usableLabel){
@@ -703,5 +804,8 @@
         white-space:nowrap;
         height: 28px;
     }
+  .note-title-line pre{
+      margin-top:0!important;
+  }
 
 </style>

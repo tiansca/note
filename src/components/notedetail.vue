@@ -104,7 +104,10 @@
           },
           deviceId(){
               return this.$store.state.device_id;
-          }
+          },
+          filterType(){
+              return this.$store.state.filterType;
+          },
       },
       data(){
           return {
@@ -252,7 +255,8 @@
         saveNote(){
             var editor = document.querySelector('.vue-html5-editor .content');
             this.aNote.content = editor.innerHTML;
-            if(this.openType == 'add' && this.aNote.content.trim() == ''){
+            console.log(editor.innerText.trim())
+            if(this.openType == 'add' && this.aNote.content.trim() == '' || editor.innerText.trim() == ''){
                 return;
             }
             if(this.oldContent == this.aNote.content){
@@ -278,6 +282,9 @@
                 this.$store.commit('openUpdate');
                 this.$store.commit('setNoteArr', this.noteArr);
             }else {
+                if(this.filterType == 'lock'){
+                    this.aNote.islock = '1'
+                }
                 var newNoteArr = [this.aNote].concat(this.noteArr);
                 this.$store.commit('openUpdate');
                 this.$store.commit('setNoteArr', newNoteArr);

@@ -60,6 +60,16 @@
         <div style="background: #fff;padding: 12px 18px; margin-top:-14px">
             <span style="color: rgb(13, 135, 148);padding: 3px 5px;" class="clickItem" @click="addLabel">新建</span>
         </div>
+
+        <div class="slidePage-group" @click="closeSlide" style="margin-top: 14px">
+            <div class="group-item clickItem" @click="feedback()">
+                <div class="groupItemBox">
+                    <img src="../assets/feedback.png" style="width: 18px; margin: 2px" alt="">
+                    <span>反馈</span>
+                    <span class="group-item-num"></span>
+                </div>
+            </div>
+        </div>
     </div>
 
       <!--标签弹窗-->
@@ -412,6 +422,13 @@
             }).catch(action=>{
                 return false;
             })
+        },
+        feedback(){
+            this.$messageBox({
+                title: '提示',
+                message: '请发送至邮箱：<a href="mailto:tian_shicong@163.com" style="color:rgb(13, 135, 148)">tian_shicong@163.com</a>',
+                showCancelButton: false
+            });
         }
     },
     mounted(){
