@@ -24,12 +24,20 @@
         if(version && link){
             $.ajax({
                 type:'POST',
-                url:'http://localhost/note/api/add_version.php',
+                url:'http://106.13.66.238/note/api/add_version.php',
                 data:{version:version,link:link},
                 success:function (data) {
-                    console.log(data)
+                    console.log(data);
+                    if(JSON.parse(data) && JSON.parse(data).code == 0){
+                        alert('新建版本成功')
+                        location.reload()
+                    }else {
+                        alert('新建失败')
+                    }
                 }
             })
+        }else{
+            alert('缺少参数')
         }
     })
 

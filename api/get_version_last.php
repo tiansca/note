@@ -4,7 +4,7 @@
 	date_default_timezone_set('PRC');
     require('./conn.php');
     $data = [];
-    $sql = "select * from version";
+    $sql = "select * from version where latest = 1";
     $result = $conn->query($sql);
     $results = array();
     while ($row = $result->fetch_assoc()) {

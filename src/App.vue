@@ -14,7 +14,8 @@
 </template>
 
 <script>
-  import slidePane from './components/slidePane.vue'
+  import slidePane from './components/slidePane.vue';
+
 export default {
   name: 'App',
   components:{
@@ -42,7 +43,8 @@ export default {
   },
   data(){
       return{
-        transitionName:''
+        transitionName:'',
+        downloadLink:''
       }
   },
   methods:{
@@ -144,7 +146,9 @@ export default {
                   console.log(res)
               })
           }
-      })
+      });
+
+
   }
 }
 </script>

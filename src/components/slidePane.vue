@@ -70,6 +70,19 @@
                 </div>
             </div>
         </div>
+
+        <div class="slidePage-group" @click="closeSlide" style="margin-top: 14px">
+            <div class="group-item clickItem" @click="checkVersion(true)">
+                <div class="groupItemBox">
+                    <img src="../assets/version.png" style="width: 20px; margin: 1px" alt="">
+                    <span>检查更新</span>
+                    <span class="group-item-num" style="position: relative">
+                        V{{version}}
+                        <i style="width:6px;height:6px;background-color: red;border-radius: 50%;display: inline-block;position: absolute;top: 6px;left: -10px;" v-if="hasNewVersion"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
 
       <!--标签弹窗-->
@@ -91,10 +104,17 @@
               </div>
           </div>
       </mt-popup>
+
+      <!--   下载新版本   -->
+      <iframe
+          style="display:none"
+          v-bind:src="downloadLink"
+      ></iframe>
   </div>
 </template>
 
 <script>
+    import thisVersion from '../version.js';
   export default{
     name: 'slidePane',
     computed:{
@@ -137,7 +157,11 @@
         msg: 'slidePane',
           labelPopupVisible:false,
           addLabelColor:'#333',
-          addLabelName:''
+          addLabelName:'',
+          version:thisVersion.version,
+          hasNewVersion:false,
+          latestVersion:'',
+          downloadLink:''
       }
     },
     methods:{
@@ -429,6 +453,35 @@
                 message: '请发送至邮箱：<a href="mailto:tian_shicong@163.com" style="color:rgb(13, 135, 148)">tian_shicong@163.com</a>',
                 showCancelButton: false
             });
+        },
+        checkVersion(isClick){
+            console.log(this.version);
+            this.$.ajax({
+                method:"GET",
+                url:'get_version_last.php'
+            }).then((res)=>{
+                console.log(res);
+                if(res.code == 0){
+                    this.latestVersion = res.data;
+                    console.log(this.latestVersion.version);
+                    if(this.latestVersion.version > this.version){
+                        this.hasNewVersion = true;
+                        this.$messageBox.confirm('发现新版本，确定要下载吗？').then(action => {
+                            this.downloadLink = this.latestVersion.link;
+                        }).catch(action=>{
+                            return false;
+                        })
+                    }else {
+                        this.hasNewVersion = false;
+                        if(isClick){
+                            this.$toast({
+                                message: '已经是最新版本了',
+                                duration: 3000
+                            });
+                        }
+                    }
+                }
+            })
         }
     },
     mounted(){
@@ -454,6 +507,8 @@
         var timer1 = setTimeout(()=>{
             clearInterval(timer)
         },5000);
+
+        this.checkVersion()
     },
     watch:{
       usableNote: {
@@ -538,6 +593,7 @@
   }
   .group-item>div>span:last-of-type{
     float: right;
+    margin-top: 3px;
   }
 
   .group-item-num{

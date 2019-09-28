@@ -14,12 +14,16 @@
     if(isset($_POST["version"]) && isset($_POST["link"])){
         $version = $_POST["version"];
         $link = $_POST["link"];
-
-        $sql = "INSERT INTO version (version, link, latest) VALUES ('$version', '$link', 1)";
-        if ($conn->query($sql) == TRUE) {
-            $data['code'] = 0;
+        $updateSql = "update version set latest=0 where latest=1";
+        if ($conn->query($updateSql) == TRUE) {
+            $sql = "INSERT INTO version (version, link, latest) VALUES ('$version', '$link', 1)";
+            if ($conn->query($sql) == TRUE) {
+                $data['code'] = 0;
+            } else {
+                $data['code'] = 1;
+            }
         } else {
-            $data['code'] = 1;
+            $data['code'] = 2;
         }
     }else{
         $data['code'] = -1;
