@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新增版本</title>
+</head>
+<body>
+    <h4>新增版本</h4>
+    <div style="margin: 8px;">
+        <span style="display:inline-block;width: 80px">版本号：</span><input type="text" id="version">
+    </div>
+    <div style="margin: 8px;">
+        <span style="display:inline-block;width: 80px">下载链接：</span><input type="text" id="link">
+    </div>
+
+    <input type="button" value="提交" style="margin:20px 100px" id="submit">
+    
+</body>
+<script src="http://106.13.66.238/js/jquery-3.2.0.js"></script>
+<script>
+    $('#submit').click(function () {
+        var version = $('#version').val();
+        var link = $('#link').val();
+        if(version && link){
+            $.ajax({
+                type:'POST',
+                url:'http://localhost/note/api/add_version.php',
+                data:{version:version,link:link},
+                success:function (data) {
+                    console.log(data)
+                }
+            })
+        }
+    })
+
+
+</script>
+</html>
