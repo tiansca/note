@@ -410,6 +410,9 @@
     overflow: auto;
     color:#464646
   }
+  .vue-html5-editor>.content{
+      padding-bottom: 26px;
+  }
   .addInput{
     border: none;
     border-bottom: 1px solid #999;
