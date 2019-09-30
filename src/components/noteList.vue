@@ -541,6 +541,8 @@
 //                console.log(listBox.scrollTop);
                 if(listBox.scrollTop){
                     sessionStorage.setItem('scrollTop',listBox.scrollTop);
+                }else {
+                    sessionStorage.setItem('scrollTop',0);
                 }
 
 //                listBox.scrollTop = listBox.scrollTop + 50

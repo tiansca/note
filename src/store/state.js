@@ -30,7 +30,8 @@ const state = {
     isLoading:false,
     update:false,
     device_id:'',
-    showPage:true
+    showPage:true,
+    globalBgOpacity:1
 }
 
 export default state
