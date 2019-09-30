@@ -11,7 +11,7 @@ const mutations = {
     localStorage.removeItem('user');
   },
   setSlide(state){
-    state.slideShow = !state.slideShow;
+      state.slideShow = !state.slideShow;
   },
   setGlobalBg(state,n){
       console.log(n)

@@ -147,8 +147,11 @@
     },
     methods:{
       closeSlide(){
-        this.$store.commit('setSlide');
-        this.$store.commit('setGlobalBg',1);
+          this.$store.commit('setGlobalBg',1);
+          setTimeout(()=>{
+              this.$store.commit('setSlide');
+
+          },100)
       },
       changeFilterType(n,e){
 //          console.log(e)
