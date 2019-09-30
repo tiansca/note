@@ -467,7 +467,12 @@
                     if(this.latestVersion.version > this.version){
                         this.hasNewVersion = true;
                         this.$messageBox.confirm('发现新版本，确定要下载吗？').then(action => {
-                            this.downloadLink = this.latestVersion.link;
+                            if(this.downloadLink){
+                                this.downloadLink = ''
+                            }
+                            setTimeout(()=>{
+                                this.downloadLink = this.latestVersion.link;
+                            },100)
                         }).catch(action=>{
                             return false;
                         })
@@ -482,7 +487,10 @@
                     }
                 }
             })
-        }
+        },
+        refresh(){
+            this.$store.commit('refresh')
+        },
     },
     mounted(){
         var timer = setInterval(()=> {
