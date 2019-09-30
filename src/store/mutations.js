@@ -14,12 +14,23 @@ const mutations = {
     state.slideShow = !state.slideShow;
   },
   setGlobalBg(state,n){
-    if(n === 0){
+      console.log(n)
+    if(n === 0 && !state.globalBg){
       state.globalBgColor = 'rgba(0,0,0,0)';
-    }else {
+    }else if(!state.globalBg) {
       state.globalBgColor = 'rgba(0,0,0,0.2)';
     }
-    state.globalBg = !state.globalBg;
+    if(state.globalBg){
+        state.globalBgOpacity = 0;
+        setTimeout(()=>{
+            state.globalBg = !state.globalBg;
+        },300)
+    }else {
+        state.globalBgOpacity = 1
+        state.globalBg = !state.globalBg;
+    }
+
+
   },
   setShowMore(state){
     state.showMore = !state.showMore

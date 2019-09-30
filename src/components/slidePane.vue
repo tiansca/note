@@ -513,7 +513,9 @@
             if((-this.slideLeft > this.slideWidth*0.4) || speed > 0.3){
                 this.$store.commit('setGlobalBg');
                 this.$store.commit('setSlide');
-                this.slideLeft = 0
+                setTimeout(()=>{
+                    this.slideLeft = 0
+                },350)
             }else{
                 this.slideLeft = 0;
                 this.isTransition = true;

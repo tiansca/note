@@ -6,7 +6,7 @@
     <transition name="slide-fade">
       <slide-pane v-show="slidePaneShow"></slide-pane>
     </transition>
-    <div v-if="globalBg" class="globalBg" @click="toggleGlobalBg" :style="{ backgroundColor: globalBgColor}"></div>
+    <div v-if="globalBg" class="globalBg" @click="toggleGlobalBg" :style="{ backgroundColor: globalBgColor,opacity:globalBgOpacity}"></div>
       <span class="loading" v-if="isLoading">
           <mt-spinner  type="snake" color="#26a2ff"></mt-spinner>
       </span>
@@ -39,6 +39,9 @@ export default {
       },
       showPage(){
           return this.$store.state.showPage
+      },
+      globalBgOpacity(){
+          return this.$store.state.globalBgOpacity
       }
   },
   data(){
@@ -190,13 +193,14 @@ body,html{
     position: fixed;
     top: 0;
     left: 0;
+    transition: all 0.3s;
   }
   /*侧滑面板*/
 .slide-fade-enter-active {
-  transition: all .5s ease;
+  transition: all .3s ease;
 }
 .slide-fade-leave-active {
-  transition: all .5s ease;
+  transition: all .3s ease;
 }
 .slide-fade-enter, .slide-fade-leave-to
   /* .slide-fade-leave-active for below version 2.1.8 */ {
@@ -312,5 +316,8 @@ body,html{
 .note-title-line pre{
     margin-top:0!important;
     font-family:"Helvetica Neue",Helvetica,"PingFang SC"
+}
+.vue-html5-editor>.content{
+    padding-bottom: 26px!important;
 }
 </style>

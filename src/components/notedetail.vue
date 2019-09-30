@@ -411,7 +411,7 @@
     color:#464646
   }
   .vue-html5-editor>.content{
-      padding-bottom: 26px;
+      padding-bottom: 26px!important;
   }
   .addInput{
     border: none;
