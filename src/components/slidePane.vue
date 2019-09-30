@@ -1,5 +1,5 @@
 <template>
-  <div class="slidePage">
+  <div class="slidePage" @touchstart="touchstart" @touchend="touchend" @touchmove="touchmove" :style="{left:slideLeft + 'px'}" :class="{ transition: isTransition }">
     <div class="slidePage-head">
       <span @click="goLogin" v-if="!user">登录</span>
       <span v-if="user">{{user.name}}</span>
@@ -157,12 +157,15 @@
         msg: 'slidePane',
           labelPopupVisible:false,
           addLabelColor:'#333',
-          addLabelName:'',
-          version:thisVersion.version,
+		  slideLeft:0,
+          touchStartX:0,
+          isTransition:false,
+          slideWidth:0,
+          touchTimeStamp:0,
+		  version:thisVersion.version,
           hasNewVersion:false,
           latestVersion:'',
-          downloadLink:''
-      }
+          downloadLink:''      }
     },
     methods:{
       closeSlide(){
@@ -491,6 +494,34 @@
         refresh(){
             this.$store.commit('refresh')
         },
+ 		touchstart(e){
+//            console.log(e);
+//            console.log(e.touches[0].pageX);
+            this.touchTimeStamp = e.timeStamp;
+            this.touchStartX = e.touches[0].pageX;
+        },
+        touchmove(e){
+//            console.log(e);
+//            console.log(e.touches[0].pageX);
+//            console.log(this.touchStartX - e.touches[0].pageX);
+            this.slideLeft = (e.touches[0].pageX - this.touchStartX) < 0 ? e.touches[0].pageX - this.touchStartX : 0
+        },
+        touchend(e){
+//            console.log(e);
+            console.log(-this.slideLeft / (e.timeStamp - this.touchTimeStamp));
+            var speed = -this.slideLeft / (e.timeStamp - this.touchTimeStamp);
+            if((-this.slideLeft > this.slideWidth*0.4) || speed > 0.3){
+                this.$store.commit('setGlobalBg');
+                this.$store.commit('setSlide');
+                this.slideLeft = 0
+            }else{
+                this.slideLeft = 0;
+                this.isTransition = true;
+                setTimeout(()=>{
+                    this.isTransition = false;
+                },300);
+            }
+        },
     },
     mounted(){
         var timer = setInterval(()=> {
@@ -515,8 +546,15 @@
         var timer1 = setTimeout(()=>{
             clearInterval(timer)
         },5000);
+		this.checkVersion()
 
-        this.checkVersion()
+        //获取侧栏宽度
+        setTimeout(()=>{
+            var slide = document.querySelector('#app');
+            this.slideWidth = Math.ceil(slide.clientWidth * 0.7);
+            console.log(this.slideWidth)
+        },200)
+
     },
     watch:{
       usableNote: {
@@ -656,6 +694,9 @@
         color:rgb(13, 135, 148);
         float: right;
         font-size: 16px;
+    }
+    .transition{
+        transition: left 0.3s;
     }
 
 </style>
