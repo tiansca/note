@@ -25,7 +25,7 @@ const state = {
     labelArr:[],
     noteArr:[],
     showType:1,
-    filterType:'all',//all:全部   collect：收藏  lock:加密   其他数字：标签id,
+    filterType:'all',//all:全部   collect：收藏  lock:加密  delete:回收站   其他数字：标签id,
     openSearch:false,
     isLoading:false,
     update:false,

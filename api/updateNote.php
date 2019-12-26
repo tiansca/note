@@ -24,7 +24,11 @@
         }
         if(count($results) == 0){
         //不存在，插入
-            $sql = "INSERT INTO note (user_note_id, label, user_id, collect, time, updateTime, content, status, device_id, islock) VALUES ('$user_note_id', '$label', '$user_id', '$collect', '$time', '$updateTime', '$content', '$status', '$device_id', '$islock')";
+            if($status == 1){
+                $sql = "INSERT INTO note (user_note_id, label, user_id, collect, time, updateTime, content, status, device_id, islock) VALUES ('$user_note_id', '$label', '$user_id', '$collect', '$time', '$updateTime', '$content', '$status', '$device_id', '$islock')";
+            }else{
+                $sql = null;
+            }
         }else{
             if($results[0]['updateTime'] >= $updateTime){
                 $sql = null;

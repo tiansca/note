@@ -29,6 +29,11 @@ const getters = {
             return note.status == 1 && note.islock == true
         })
     },
+    deleteNote(state){
+        return state.noteArr.filter((note)=>{
+            return note.status == 0
+        })
+    },
 }
 
 export default getters

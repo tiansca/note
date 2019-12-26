@@ -146,6 +146,17 @@ export default {
               }).then((res)=>{
                   console.log(res)
               })
+              this.$.ajax({
+                  method:"GET",
+                  url:'delete.php'
+              }).then((res)=>{
+                  console.log(res);
+                  if(res == 1){
+                      console.log('回收站删除成功')
+                  }
+              })
+          }else{
+              console.log('已同步')
           }
       })
   }
