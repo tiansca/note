@@ -10,7 +10,7 @@
       <mt-button icon="more" slot="right" style="overflow: visible;" @click="showMore">
         <div class="moreList" v-show="isShowMore">
           <div class="moreItem" @click="listShowType">{{showType==1?'宫格视图':'列表视图'}}</div>
-          <div class="moreItem" @click="setShowCheck" style="border-bottom: 0.5px solid #999;padding-bottom:12px;">批量删除</div>
+          <div class="moreItem" @click="setShowCheck" style="border-bottom: 0.5px solid #999;padding-bottom:12px;">{{filterType=='delete'?'批量恢复':'批量删除'}}</div>
           <div class="moreItem" @click="refresh">重新加载</div>
         </div>
       </mt-button>
@@ -53,8 +53,11 @@
 
     <!--批量删除footer-->
     <div class="check-show-footer" v-show="showCheck">
-        <span style="margin: 0 30px;" @click="removeMany ">
+        <span style="margin: 0 30px;" @click="removeMany " v-if="filterType != 'delete'">
           <font-awesome-icon :icon="['fas', 'trash']" style="font-size: 22px;" :style="{color:deleteArr.length==0?'#999':'#444'}"></font-awesome-icon>
+        </span>
+        <span style="margin: 0 30px;" @click="removeMany " v-if="filterType == 'delete'">
+          <font-awesome-icon :icon="['fas', 'reply']" style="font-size: 22px;" :style="{color:deleteArr.length==0?'#999':'#444'}"></font-awesome-icon>
         </span>
         <span style="margin: 0 30px;" @click="toggleSelectAll">
           <img src="../assets/select.png" alt="" style="width: 24px" v-show="!selectAll">
@@ -112,6 +115,9 @@
         lockNote(){
             return this.$store.getters.lockNote;
         },
+        deleteNote(){
+            return this.$store.getters.deleteNote;
+        },
         filterType(){
           return this.$store.state.filterType;
         },
@@ -153,20 +159,39 @@
             this.$store.commit('setShowType')
         },
         goDetaill(add,note){
-            console.log(add)
+            console.log(add, note)
             if(this.showCheck){
                 this.checkNote(note);
                 return
             }
             if(add == 'add'){
                 this.$router.push({path:'./noteDetail'})
+            }else if(this.filterType == 'delete'){
+                console.log(this.$messageBox.confirm)
+                setTimeout(()=>{
+                    this.$messageBox.confirm('确定要恢复该笔记吗？').then(action => {
+                        for(var b = 0; b < this.noteArr.length; b++){
+                            if(note.id == this.noteArr[b].id){
+                                this.noteArr[b].status = 1;
+                                this.noteArr[b].updateTime = (new Date()).valueOf();
+                            }
+                        }
+                        this.$store.commit('openUpdate');
+                        this.$store.commit('setNoteArr', this.noteArr);
+                        // this.usableNote = this.usableNote.concat()
+                        this.$forceUpdate();
+                    }).catch(action=>{
+                        return false;
+                    });
+                },200)
+
             }else {
                 this.$router.push({
-                  name:'noteDetail',
-                  query: {
-                    id: note.user_note_id,
-                    device_id: note.device_id
-                  }
+                    name:'noteDetail',
+                    query: {
+                        id: note.user_note_id,
+                        device_id: note.device_id
+                    }
                 })
             }
         },
@@ -227,12 +252,17 @@
             if(this.deleteArr.length == 0){
                 return
             }
-            this.$messageBox.confirm('确定要删除选中的' + this.deleteArr.length +'项吗？').then(action => {
+            if(this.filterType == 'delete'){
+                var msg = '确定要恢复选中的' + this.deleteArr.length +'项吗？'
+            }else {
+                var msg = '确定要将'+ this.deleteArr.length +'项吗放入回收站吗？<br>20天后自动彻底删除'
+            }
+            this.$messageBox.confirm(msg).then(action => {
                 if(action == 'confirm'){
                     for(var a = 0; a < this.deleteArr.length; a++){
                         for(var b = 0; b < this.noteArr.length; b++){
                             if(this.deleteArr[a].id == this.noteArr[b].id){
-                                this.noteArr[b].status = 0;
+                                this.noteArr[b].status = this.filterType == 'delete'?1:0;
                                 this.noteArr[b].updateTime = (new Date()).valueOf();
                             }
                         }
@@ -309,6 +339,19 @@
           }else if(this.filterType == 'lock'){
               this.filterTitle = '我的加密';
               this.noteList = this.lockNote.sort(function (a,b) {
+                  var val1 = Number(a.time);
+                  var val2 = Number(b.time);
+                  if (val1 < val2) {
+                      return 1;
+                  } else if (val1 > val2) {
+                      return -1;
+                  } else {
+                      return 0;
+                  }
+              });
+          }else if(this.filterType == 'delete'){
+              this.filterTitle = '回收站';
+              this.noteList = this.deleteNote.sort(function (a,b) {
                   var val1 = Number(a.time);
                   var val2 = Number(b.time);
                   if (val1 < val2) {
@@ -634,7 +677,7 @@
                 sessionStorage.setItem('searchValue', this.searchValue);
                 this.searchList = [];
                 for(var a = 0; a < this.noteList.length; a++){
-                    if(this.noteList[a].title.indexOf(this.searchValue) > -1){
+                    if(this.noteList[a].title && this.noteList[a].title.indexOf(this.searchValue) > -1){
                         this.searchList.push(this.noteList[a])
                     }
                 }

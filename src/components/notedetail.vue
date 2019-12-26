@@ -303,7 +303,7 @@
         },
         //删除笔记
         removeNote(){
-            this.$messageBox.confirm('确定要删除该笔记吗？').then(action => {
+            this.$messageBox.confirm('确定要将该笔记放入回收站吗？<br>20天后将自动彻底删除').then(action => {
                 this.aNote.status = 0;
                 this.aNote.updateTime = (new Date()).valueOf();
                 this.$store.commit('openUpdate');

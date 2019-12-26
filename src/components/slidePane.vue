@@ -61,6 +61,16 @@
             <span style="color: rgb(13, 135, 148);padding: 3px 5px;" class="clickItem" @click="addLabel">新建</span>
         </div>
 
+        <div class="slidePage-group" @click="closeSlide" style="margin-top: 14px;">
+            <div class="group-item clickItem" @click="changeFilterType('delete')">
+                <div class="groupItemBox">
+                    <img src="../assets/recycle.png" alt="">
+                    <span>回收站</span>
+                    <span class="group-item-num">{{deleteNote.length}}</span>
+                </div>
+            </div>
+        </div>
+
         <div class="slidePage-group" @click="closeSlide" style="margin-top: 14px">
             <div class="group-item clickItem" @click="feedback()">
                 <div class="groupItemBox">
@@ -126,6 +136,9 @@
         },
         lockNote(){
             return this.$store.getters.lockNote;
+        },
+        deleteNote(){
+            return this.$store.getters.deleteNote;
         },
         labelArr(){
             return this.$store.state.labelArr;
