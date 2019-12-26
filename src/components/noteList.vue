@@ -186,6 +186,10 @@
                 },200)
 
             }else {
+                console.log('ontouchstart' in document)
+                if('ontouchstart' in document){
+                    return;
+                }
                 this.$router.push({
                     name:'noteDetail',
                     query: {
@@ -282,7 +286,8 @@
         },
       // 长按
         touchstart(add,note,e){
-              this.hasTouch = true;
+            console.log('ontouchstart' in document)
+            this.hasTouch = true;
             this.isMove = false;
             this.clicKTime = (new Date()).valueOf();
             this.timer = setTimeout(()=> {
@@ -298,8 +303,15 @@
             if(this.isMove){
                 return;
             }
-            if((new Date()).valueOf() - this.clicKTime < 500){
-                this.goDetaill(isAdd, note)
+            if((new Date()).valueOf() - this.clicKTime < 300){
+                // this.goDetaill(isAdd, note)
+                this.$router.push({
+                    name:'noteDetail',
+                    query: {
+                        id: note.user_note_id,
+                        device_id: note.device_id
+                    }
+                })
             }
             if((new Date()).valueOf() - this.clicKTime < 600){
               clearTimeout(this.timer)
