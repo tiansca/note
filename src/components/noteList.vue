@@ -291,6 +291,9 @@
             this.isMove = false;
             this.clicKTime = (new Date()).valueOf();
             this.timer = setTimeout(()=> {
+                if(this.isMove){
+                    return;
+                }
               this.setShowCheck();
                 this.checkNote(note)
             },600)
@@ -599,6 +602,7 @@
                 }else {
                     sessionStorage.setItem('scrollTop',0);
                 }
+                this.isMove = true;
 
 //                listBox.scrollTop = listBox.scrollTop + 50
             }
