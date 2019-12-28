@@ -308,13 +308,33 @@
             }
             if((new Date()).valueOf() - this.clicKTime < 300){
                 // this.goDetaill(isAdd, note)
-                this.$router.push({
-                    name:'noteDetail',
-                    query: {
-                        id: note.user_note_id,
-                        device_id: note.device_id
-                    }
-                })
+                if(this.filterType == 'delete'){
+                    setTimeout(()=>{
+                        this.$messageBox.confirm('确定要恢复该笔记吗？').then(action => {
+                            for(var b = 0; b < this.noteArr.length; b++){
+                                if(note.id == this.noteArr[b].id){
+                                    this.noteArr[b].status = 1;
+                                    this.noteArr[b].updateTime = (new Date()).valueOf();
+                                }
+                            }
+                            this.$store.commit('openUpdate');
+                            this.$store.commit('setNoteArr', this.noteArr);
+                            // this.usableNote = this.usableNote.concat()
+                            this.$forceUpdate();
+                        }).catch(action=>{
+                            return false;
+                        });
+                    },200)
+
+                }else {
+                    this.$router.push({
+                        name:'noteDetail',
+                        query: {
+                            id: note.user_note_id,
+                            device_id: note.device_id
+                        }
+                    })
+                }
             }
             if((new Date()).valueOf() - this.clicKTime < 600){
               clearTimeout(this.timer)
