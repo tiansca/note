@@ -26,7 +26,7 @@
       <div v-if="noteList.length == 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
         笔记列表为空
       </div>
-      <div  v-for="(note, index) in noteList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaillClick(false, note)">
+      <div  v-for="(note, index) in noteList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove">
         <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
           <div class="note-title">
               <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
