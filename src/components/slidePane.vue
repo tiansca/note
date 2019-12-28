@@ -489,7 +489,7 @@
 
                     if(this.latestVersion.version > this.version){
                         this.hasNewVersion = true;
-                        this.$messageBox.confirm('发现新版本，确定要下载吗？<span style="color: rgb(13, 135, 148)" class="copybtn clickItem" data-clipboard-action="copy" data-clipboard-text=' + this.latestVersion.link + '>复制链接</span>').then(action => {
+                        this.$messageBox.confirm('发现新版本，确定要下载吗？<br><span style="color: rgb(13, 135, 148)" class="copybtn clickItem" data-clipboard-action="copy" data-clipboard-text=' + this.latestVersion.link + '>复制链接</span>').then(action => {
                             if(this.downloadLink){
                                 this.downloadLink = ''
                             }
