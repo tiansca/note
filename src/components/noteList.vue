@@ -186,10 +186,6 @@
                 },200)
 
             }else {
-                console.log('ontouchstart' in document)
-                if('ontouchstart' in document){
-                    return;
-                }
                 this.$router.push({
                     name:'noteDetail',
                     query: {
@@ -295,8 +291,9 @@
                     return;
                 }
               this.setShowCheck();
-                this.checkNote(note)
-            },600)
+                this.checkNote(note);
+                this.isMove = true;
+            },800)
             // e.preventDefault()
         },
         touchend(isAdd, note){
@@ -305,6 +302,14 @@
               },800);
             if(this.isMove){
                 return;
+            }
+            if((new Date()).valueOf() - this.clicKTime < 800){
+                console.log('quxiao')
+                clearTimeout(this.timer)
+            }
+            if(this.showCheck){
+                this.checkNote(note);
+                return
             }
             if((new Date()).valueOf() - this.clicKTime < 300){
                 // this.goDetaill(isAdd, note)
@@ -335,9 +340,6 @@
                         }
                     })
                 }
-            }
-            if((new Date()).valueOf() - this.clicKTime < 600){
-              clearTimeout(this.timer)
             }
         },
           touchmove(){
