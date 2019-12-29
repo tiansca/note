@@ -155,7 +155,8 @@
           touchStartX:0,
           isTransition:false,
           slideWidth:0,
-          touchTimeStamp:0
+          touchTimeStamp:0,
+          isScroll:false,
       }
     },
     methods:{
@@ -456,11 +457,16 @@
 //            console.log(e.touches[0].pageX);
             this.touchTimeStamp = e.timeStamp;
             this.touchStartX = e.touches[0].pageX;
+            this.isScroll = false;
         },
         touchmove(e){
 //            console.log(e);
 //            console.log(e.touches[0].pageX);
 //            console.log(this.touchStartX - e.touches[0].pageX);
+            if(this.isScroll){
+                this.slideLeft = 0;
+                return
+            }
             this.slideLeft = (e.touches[0].pageX - this.touchStartX) < 0 ? e.touches[0].pageX - this.touchStartX : 0
         },
         touchend(e){
@@ -511,6 +517,14 @@
             var slide = document.querySelector('#app');
             this.slideWidth = Math.ceil(slide.clientWidth * 0.7);
             console.log(this.slideWidth)
+
+            //    监听侧栏滚动
+            var slideBox = document.querySelector('.slidePage-content');
+//            console.log(listBox)
+            slideBox.onscroll = ()=>{
+                console.log('滚动');
+                this.isScroll = true;
+            }
         },200)
 
     },

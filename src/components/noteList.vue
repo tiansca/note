@@ -76,7 +76,7 @@
           </div>
           <div class="searchContent" :style="{backgroundColor:searchValue==''?'rgba(0,0,0,0.15)':'#f8f8f8'}" @click="closeSearch1">
               <div v-if="searchList.length == 0 && searchValue != ''" style="padding: 24px; font-size: 16px; text-align: center;color: #999">没有匹配的结果</div>
-              <div  v-for="(note,index) in searchList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @click="goDetaill(false, note)">
+              <div  v-for="(note,index) in searchList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @click="goDetaill(false, note, true)">
                   <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
                       <div class="note-title">
                           <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
@@ -158,7 +158,7 @@
         listShowType(){
             this.$store.commit('setShowType')
         },
-        goDetaill(add,note){
+        goDetaill(add,note,search){
             console.log(add, note)
             if(this.showCheck){
                 this.checkNote(note);
@@ -187,7 +187,7 @@
 
             }else {
                 console.log('ontouchstart' in document)
-                if('ontouchstart' in document){
+                if(('ontouchstart' in document) && !search){
                     return;
                 }
                 this.$router.push({
@@ -295,7 +295,8 @@
                     return;
                 }
               this.setShowCheck();
-                this.checkNote(note)
+                this.checkNote(note);
+                this.isMove = true
             },600)
             // e.preventDefault()
         },
@@ -305,6 +306,13 @@
               },800);
             if(this.isMove){
                 return;
+            }
+            if((new Date()).valueOf() - this.clicKTime < 600){
+                clearTimeout(this.timer)
+            }
+            if(this.showCheck){
+                this.checkNote(note);
+                return
             }
             if((new Date()).valueOf() - this.clicKTime < 300){
                 // this.goDetaill(isAdd, note)
@@ -336,9 +344,6 @@
                         }
                     })
                 }
-            }
-            if((new Date()).valueOf() - this.clicKTime < 600){
-              clearTimeout(this.timer)
             }
         },
           touchmove(){
