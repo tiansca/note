@@ -26,7 +26,7 @@
       <div v-if="noteList.length == 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
         笔记列表为空
       </div>
-      <div  v-for="(note, index) in noteList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove">
+      <div  v-for="(note, index) in noteList" :key="note.user_note_id + note.time" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaillClick(false, note)">
         <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
           <div class="note-title">
               <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
@@ -76,7 +76,7 @@
           </div>
           <div class="searchContent" :style="{backgroundColor:searchValue==''?'rgba(0,0,0,0.15)':'#f8f8f8'}" @click="closeSearch1">
               <div v-if="searchList.length == 0 && searchValue != ''" style="padding: 24px; font-size: 16px; text-align: center;color: #999">没有匹配的结果</div>
-              <div  v-for="(note,index) in searchList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @click="goDetaill(false, note)">
+              <div  v-for="(note,index) in searchList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @click="goDetaill(false, note, true)">
                   <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
                       <div class="note-title">
                           <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
@@ -158,7 +158,7 @@
         listShowType(){
             this.$store.commit('setShowType')
         },
-        goDetaill(add,note){
+        goDetaill(add,note,search){
             console.log(add, note)
             if(this.showCheck){
                 this.checkNote(note);
@@ -186,6 +186,10 @@
                 },200)
 
             }else {
+                console.log('ontouchstart' in document)
+                if(('ontouchstart' in document) && !search){
+                    return;
+                }
                 this.$router.push({
                     name:'noteDetail',
                     query: {
@@ -292,8 +296,8 @@
                 }
               this.setShowCheck();
                 this.checkNote(note);
-                this.isMove = true;
-            },800)
+                this.isMove = true
+            },600)
             // e.preventDefault()
         },
         touchend(isAdd, note){
@@ -303,8 +307,7 @@
             if(this.isMove){
                 return;
             }
-            if((new Date()).valueOf() - this.clicKTime < 800){
-                console.log('quxiao')
+            if((new Date()).valueOf() - this.clicKTime < 600){
                 clearTimeout(this.timer)
             }
             if(this.showCheck){
@@ -314,6 +317,7 @@
             if((new Date()).valueOf() - this.clicKTime < 300){
                 // this.goDetaill(isAdd, note)
                 if(this.filterType == 'delete'){
+                    // console.log(this.$messageBox.confirm)
                     setTimeout(()=>{
                         this.$messageBox.confirm('确定要恢复该笔记吗？').then(action => {
                             for(var b = 0; b < this.noteArr.length; b++){

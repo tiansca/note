@@ -16,6 +16,7 @@ import {
 import axios from 'axios';
 import $ from './util.js';
 import './appback.js';
+import config from './config'
 
 import VueHtml5Editor from 'vue-html5-editor'
 Vue.use(VueHtml5Editor,{
@@ -107,13 +108,47 @@ Vue.use(VueHtml5Editor,{
         // "link",
         // "unlink",
         // "tabulation",
-        // "image",
+        "image",
         "hr",
         "eraser",
         "undo",
         // "full-screen",
         // "info",
     ],
+    image: {
+        // 后端图片上传的地址，如果为空，默认转图片为base64
+        // Url of the server-side,default null and convert image to base64
+        upload: {
+            url: config.uploadUrl,
+            headers: {},
+            params: {path: 'note', fieldName: 'imgage'},
+            fieldName: {}
+        },
+        // 请求时表单参数名
+        // the name for file field in multipart request
+        fieldName: "image",
+        // 文件最大体积，单位字节  max file size
+        sizeLimit: 5600 * 5600,
+        // 是否压缩，默认true，设置为true时会使用localResizeIMG进行压缩
+        // default true,if set to true,the image will resize by localResizeIMG (https://github.com/think2011/localResizeIMG)
+        compress: true,
+        // 图片压缩选项
+        // follows are options of localResizeIMG
+        width: 1600,
+        height: 1600,
+        quality: 80,
+        // 响应数据处理
+        // handle response data，return image url
+        uploadHandler(responseText){
+            //default accept json data like  {ok:false,msg:"unexpected"} or {ok:true,data:"image url"}
+            var json = JSON.parse(responseText)
+            if (!json.ok) {
+                alert(json.msg)
+            } else {
+                return json.data
+            }
+        }
+    },
     // 扩展模块，具体可以参考examples或查看源码
     // extended modules
     modules: {
