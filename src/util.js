@@ -2,10 +2,11 @@
  * Created by administrator on 2019/3/20.
  */
 import axios from 'axios';
+import config from './config'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 //基本配置
 const Util = {
-    baseUtl:'http://106.13.66.238/note/api/'
+    baseUtl:config.baseUrl
 };
 
 //ajax 通用配置
@@ -20,3 +21,5 @@ Util.ajax.interceptors.response.use(res => {
 });
 
 export default Util;
+
+//editor 2-11

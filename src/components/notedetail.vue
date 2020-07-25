@@ -1,6 +1,6 @@
 <template>
   <div style="height: 100%">
-    <div style="position: absolute;top: 0;right: 0;width: 40px;height:30px;background-color:#f8f8f8;z-index: 9 " v-show="title=='编辑笔记'" @click="saveNote">
+    <div style="position: absolute;top: 0;right: 0;width: 40px;height:50px;background-color:#f8f8f8;z-index: 9 " v-show="title=='编辑笔记'" @click="saveNote">
       <font-awesome-icon :icon="['fas', 'check']" style="color: #333;font-size: 20px;margin: 10px;"></font-awesome-icon>
     </div>
     <mt-header :title="title">
@@ -35,7 +35,7 @@
 
     </div>
     <!--<textarea v-model="aNote.content" @focus="textFocus" @blur="textBlur" ref="inputVal"></textarea>-->
-      <vue-html5-editor :content="aNote.content" ref="inputVal" :height="500" :z-index="1000" :auto-height="true" :show-module-name="false" @change="textFocus"></vue-html5-editor>
+      <vue-html5-editor :content="aNote.content" ref="inputVal" :z-index="1000" :auto-height="true" :show-module-name="false" @change="textFocus"></vue-html5-editor>
 
 
     <!--标签弹窗-->
@@ -243,8 +243,8 @@
             this.addLabelName = '';
         },
         textFocus(e){
-            this.title = '编辑笔记';
-            if(e){
+            if(e && this.aNote.content !== e){
+                this.title = '编辑笔记';
                 this.aNote.content = e;
             }
         },
@@ -256,7 +256,7 @@
             var editor = document.querySelector('.vue-html5-editor .content');
             this.aNote.content = editor.innerHTML;
             console.log(editor.innerText.trim())
-            if(this.openType == 'add' && this.aNote.content.trim() == '' || editor.innerText.trim() == ''){
+            if(this.openType == 'add' && this.aNote.content.trim() == '' || (editor.innerText.trim() == '') && editor.innerHTML.trim() == ''){
                 return;
             }
             if(this.oldContent == this.aNote.content){
@@ -327,6 +327,27 @@
                 range.collapse(false);//光标移至最后
                 range.select();
             }
+        },
+        ctrlS(event) {
+            var that = this
+            if(event.keyCode === 83 && event.ctrlKey){
+
+                console.log('拦截到83+ctrl');//ctrl+s
+                this.saveNote()
+                event.preventDefault();
+
+                event.returnValue = false;
+
+                return false;
+
+            } else if (event.ctrlKey && event.keyCode === 17) {
+                console.log(event)
+                event.preventDefault();
+
+                event.returnValue = false;
+
+                return false;
+            }
         }
       },
       mounted(){
@@ -369,7 +390,7 @@
           //新建node
           this.openType = 'add';
           setTimeout(()=>{
-            this.aNote.user_note_id = this.noteArr.length + 1;
+            this.aNote.user_note_id = Date.now();
             this.aNote.device_id = this.deviceId;
             console.log(this.aNote)
           });
@@ -385,6 +406,8 @@
           history.pushState(null, null, document.URL);
           window.addEventListener('popstate', this.back, false);
         }
+        // ctrl+s保存
+        document.addEventListener('keydown',this.ctrlS)
       },
       watch:{
 
@@ -429,4 +452,24 @@
     margin: 12px 0;
   }
 
+
+</style>
+
+<style>
+    .vue-html5-editor>.content img{
+        max-width: 100%!important;
+    }
+    .vue-html5-editor .dashboard>div>div{
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
+    }
+    .vue-html5-editor .dashboard>div>div>input{
+        margin-right: 8px;
+        max-width: 55%;
+    }
+    .vue-html5-editor .dashboard>div>div>button{
+        margin-left: 8px;
+    }
 </style>
