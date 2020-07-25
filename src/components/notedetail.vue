@@ -256,7 +256,7 @@
             var editor = document.querySelector('.vue-html5-editor .content');
             this.aNote.content = editor.innerHTML;
             console.log(editor.innerText.trim())
-            if(this.openType == 'add' && this.aNote.content.trim() == '' || editor.innerText.trim() == ''){
+            if(this.openType == 'add' && this.aNote.content.trim() == '' || (editor.innerText.trim() == '') && editor.innerHTML.trim() == ''){
                 return;
             }
             if(this.oldContent == this.aNote.content){
@@ -340,7 +340,8 @@
 
                 return false;
 
-            } else if (event.ctrlKey) {
+            } else if (event.ctrlKey && event.keyCode === 17) {
+                console.log(event)
                 event.preventDefault();
 
                 event.returnValue = false;
