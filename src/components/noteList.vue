@@ -26,7 +26,7 @@
       <div v-if="noteList.length == 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
         笔记列表为空
       </div>
-      <div  v-for="(note, index) in noteList" :key="note.user_note_id + note.time" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaillClick(false, note)">
+      <div  v-for="(note, index) in noteList" :key="note.user_note_id  + '_' + note.time" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaillClick(false, note)">
         <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
           <div class="note-title">
               <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
@@ -76,7 +76,7 @@
           </div>
           <div class="searchContent" :style="{backgroundColor:searchValue==''?'rgba(0,0,0,0.15)':'#f8f8f8'}" @click="closeSearch1">
               <div v-if="searchList.length == 0 && searchValue != ''" style="padding: 24px; font-size: 16px; text-align: center;color: #999">没有匹配的结果</div>
-              <div  v-for="(note,index) in searchList" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @click="goDetaill(false, note, true)">
+              <div  v-for="(note,index) in searchList" :key="note.user_note_id + '_' + note.time" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @click="goDetaill(false, note, true)">
                   <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
                       <div class="note-title">
                           <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
@@ -520,9 +520,11 @@
                       var thisTitleChilds = thisTitle.childNodes;
                       if(thisTitleChilds && thisTitleChilds.length > 0){
                           for(var b = 0; b < thisTitleChilds.length; b++){
-//                                console.log(thisTitleChilds[b].innerText)
+                              if(b === 1) {
+                                  console.log(thisTitleChilds[b].tagName)
+                              }
                               if(this.getStyle(thisTitleChilds[b], 'display') == 'block' && (!thisTitleChilds[b].innerText || thisTitleChilds[b].innerText == '' || thisTitleChilds[b].innerText.trim() == '')){
-                                  if(thisTitleChilds[b] && thisTitleChilds[b].style){
+                                  if(thisTitleChilds[b] && thisTitleChilds[b].style && thisTitleChilds[b].tagName !== 'IMG'){
                                       thisTitleChilds[b].style.display = 'none'
                                   }
                               }
@@ -769,6 +771,7 @@
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
+      position: relative;
   }
   .note-title{
     font-size: 16px;
@@ -778,6 +781,7 @@
     white-space:nowrap;
     color: #444;
     font-weight: 400;
+      /*height: 40px;*/
   }
   .note-time{
     font-size: 14px;
@@ -846,7 +850,7 @@
   }
   .shortItem .noteItem .note-title{
     height: 108px;
-    overflow: hidden;
+    /*overflow: hidden;*/
     text-overflow: ellipsis;
     white-space:normal;
     line-height: 27px;
@@ -886,13 +890,26 @@
         overflow: auto;
     }
     .note-title-line{
-        overflow:hidden;
+        /*overflow:hidden;*/
         text-overflow:ellipsis;
         white-space:nowrap;
         height: 28px;
+        width: calc(100% - 60px);
+        overflow: hidden;
     }
   .note-title-line pre{
       margin-top:0!important;
   }
 
+</style>
+<style>
+    .noteItem .note-title-line>img{
+        max-width: 50px;
+        max-height: 50px;
+        position: absolute;
+        right: 12px;
+        top: 6px;
+        z-index: 1;
+        /*border: 1px solid;*/
+    }
 </style>
