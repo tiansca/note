@@ -253,6 +253,7 @@
 //            this.title = '笔记'
         },
         saveNote(){
+            console.log('保存笔记')
             var editor = document.querySelector('.vue-html5-editor .content');
             this.aNote.content = editor.innerHTML;
             console.log(editor.innerText.trim())
@@ -413,6 +414,7 @@
       },
       destroyed(){
         window.removeEventListener('popstate', this.back, false);
+        document.removeEventListener('keydown', this.ctrlS, false);
       }
   }
 </script>
