@@ -574,7 +574,7 @@
         var timer1 = setTimeout(()=>{
             clearInterval(timer)
         },5000);
-		this.checkVersion()
+		// this.checkVersion()
 
         //获取侧栏宽度
         setTimeout(()=>{
