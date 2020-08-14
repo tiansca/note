@@ -1,4 +1,4 @@
 export default {
-    baseUrl: 'http://106.13.66.238/note/api/',
-    uploadUrl: 'http://106.13.66.238:3002/upload'
+    baseUrl: 'http://182.92.210.246/note/api/',
+    uploadUrl: 'http://182.92.210.246:3002/upload'
 }
