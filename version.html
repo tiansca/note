@@ -14,9 +14,9 @@
     </div>
 
     <input type="button" value="提交" style="margin:20px 100px" id="submit">
-    
+
 </body>
-<script src="http://106.13.66.238/js/jquery-3.2.0.js"></script>
+<script src="http://182.92.210.246/js/jquery-3.2.0.js"></script>
 <script>
     $('#submit').click(function () {
         var version = $('#version').val();
@@ -24,7 +24,7 @@
         if(version && link){
             $.ajax({
                 type:'POST',
-                url:'http://106.13.66.238/note/api/add_version.php',
+                url:'http://182.92.210.246/note/api/add_version.php',
                 data:{version:version,link:link},
                 success:function (data) {
                     console.log(data);
