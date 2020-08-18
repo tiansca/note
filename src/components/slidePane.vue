@@ -85,11 +85,8 @@
             <div class="group-item clickItem" @click="checkVersion(true)">
                 <div class="groupItemBox">
                     <img src="../assets/version.png" style="width: 20px; margin: 1px" alt="">
-                    <span>检查更新</span>
-                    <span class="group-item-num" style="position: relative">
-                        V{{version}}
-                        <i style="width:6px;height:6px;background-color: red;border-radius: 50%;display: inline-block;position: absolute;top: 6px;left: -10px;" v-if="hasNewVersion"></i>
-                    </span>
+                    <span>下载APP</span>
+                    <span class="group-item-num"></span>
                 </div>
             </div>
         </div>
@@ -487,28 +484,17 @@
                     this.latestVersion = res.data;
                     console.log(this.latestVersion.version);
                     const btnCopy = new Clipboard('.copybtn');
-
-                    if(this.latestVersion.version > this.version){
-                        this.hasNewVersion = true;
-                        this.$messageBox.confirm('发现新版本，确定要下载吗？<br><span style="color: rgb(13, 135, 148)" class="copybtn clickItem" data-clipboard-action="copy" data-clipboard-text=' + this.latestVersion.link + '>复制链接</span>').then(action => {
-                            if(this.downloadLink){
-                                this.downloadLink = ''
-                            }
-                            setTimeout(()=>{
-                                this.downloadLink = this.latestVersion.link;
-                            },100)
-                        }).catch(action=>{
-                            return false;
-                        })
-                    }else {
-                        this.hasNewVersion = false;
-                        if(isClick){
-                            this.$toast({
-                                message: '已经是最新版本了',
-                                duration: 3000
-                            });
+                    this.hasNewVersion = true;
+                    this.$messageBox.confirm('确定要下载吗？<br><span style="color: rgb(13, 135, 148)" class="copybtn clickItem" data-clipboard-action="copy" data-clipboard-text=' + this.latestVersion.link + '>复制链接</span>').then(action => {
+                        if(this.downloadLink){
+                            this.downloadLink = ''
                         }
-                    }
+                        setTimeout(()=>{
+                            this.downloadLink = this.latestVersion.link;
+                        },100)
+                    }).catch(action=>{
+                        return false;
+                    })
                 }
             })
         },
