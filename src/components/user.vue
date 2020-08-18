@@ -73,7 +73,8 @@
                 username1:'',
                 password1:'',
                 email1:'',
-                find_email:''
+                find_email:'',
+                baseUrl: 'http://182.92.210.246:3000/api/'
             }
         },
         methods:{
@@ -168,12 +169,18 @@
                 if(this.password && this.username){
                     this.$.ajax({
                         method:"POST",
-                        url:'login.php',
+                        url: this.baseUrl + 'login',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        crossDomain: true,
                         data:this.qs({
                             name:this.username,
                             password:this.password,
+                            username: this.username
                         })
                     }).then((res)=>{
+                        console.log(res)
                         this.$store.commit('setLoading',false);
                         if(res.code == 0){
                             console.log(res.data)
@@ -188,22 +195,22 @@
                                     this.clearLocal();
                                 }
                             }
-                            this.$store.commit('setUserSession',res.data);
+                            this.$store.commit('setUserSession',{...res.data, id: res.data._id, name: res.data.username});
                             this.$router.replace('/noteList');
-                            location.reload();
-                        }else if(res.code == -4){
+                            // location.reload();
+                        }else if(res.code == 3){
                             this.$toast({
                                 message: '账号未激活！',
                                 duration: 3000,
                                 position:'top'
                             });
-                        }else if(res.code == -3){
+                        }else if(res.code == 1){
                             this.$toast({
                                 message: '用户名不存在！',
                                 duration: 3000,
                                 position:'top'
                             });
-                        }else if(res.code == -2){
+                        }else if(res.code == 2){
                             this.$toast({
                                 message: '密码错误！',
                                 duration: 3000,

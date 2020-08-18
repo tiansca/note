@@ -47,7 +47,8 @@ export default {
   data(){
       return{
         transitionName:'',
-        downloadLink:''
+        downloadLink:'',
+        baseUrl: 'http://182.92.210.246:3000/api/'
       }
   },
   methods:{
@@ -112,14 +113,15 @@ export default {
       //设置用户
       if(localStorage.getItem('user')){
           this.$.ajax({
-              method:"POST",
-              url:'get_user.php',
-              data:this.qs({
-                  email:JSON.parse(localStorage.getItem('user')).email
-              })
+              method:"GET",
+              url: this.baseUrl + 'self',
+              xhrFields: {
+                  withCredentials: true
+              },
+              crossDomain: true,
           }).then((res)=>{
               console.log(res)
-              if(res.code == 0){
+              if(res.code === 0){
                   if(res.data.password == JSON.parse(localStorage.getItem('user')).password){
                       this.$store.commit('setUserSession',res.data);
                   }
