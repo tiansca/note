@@ -2,11 +2,11 @@
  * Created by administrator on 2019/3/20.
  */
 import axios from 'axios';
-import config from './config'
+import {baseUrl} from './config'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 //基本配置
 const Util = {
-    baseUtl:config.baseUrl
+    baseUtl:baseUrl
 };
 
 //ajax 通用配置
