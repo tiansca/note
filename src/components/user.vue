@@ -58,6 +58,7 @@
     </div>
 </template>
 <script>
+    import { baseUrl } from "../config"
     export default{
         name:'user',
         computed:{
@@ -169,7 +170,7 @@
                 if(this.password && this.username){
                     this.$.ajax({
                         method:"POST",
-                        url: this.baseUrl + 'login',
+                        url: baseUrl + 'login',
                         xhrFields: {
                             withCredentials: true
                         },

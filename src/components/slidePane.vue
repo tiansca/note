@@ -123,6 +123,7 @@
 <script>
     import thisVersion from '../version.js';
     import Clipboard from 'clipboard';
+    import { baseUrl } from "../config"
   export default{
     name: 'slidePane',
     computed:{
