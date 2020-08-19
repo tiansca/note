@@ -16,7 +16,7 @@ import {
 import axios from 'axios';
 import $ from './util.js';
 import './appback.js';
-import config from './config'
+import {uploadUrl} from './config'
 
 import VueHtml5Editor from 'vue-html5-editor'
 Vue.use(VueHtml5Editor,{
@@ -119,7 +119,7 @@ Vue.use(VueHtml5Editor,{
         // 后端图片上传的地址，如果为空，默认转图片为base64
         // Url of the server-side,default null and convert image to base64
         upload: {
-            url: config.uploadUrl,
+            url: uploadUrl,
             headers: {},
             params: {path: 'note', fieldName: 'imgage'},
             fieldName: {}

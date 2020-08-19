@@ -15,6 +15,7 @@
 
 <script>
   import slidePane from './components/slidePane.vue';
+  import { baseUrl } from './config'
 
 export default {
   name: 'App',
@@ -111,23 +112,20 @@ export default {
       }
 
       //设置用户
-      if(localStorage.getItem('user')){
-          this.$.ajax({
-              method:"GET",
-              url: this.baseUrl + 'self',
-              xhrFields: {
-                  withCredentials: true
-              },
-              crossDomain: true,
-          }).then((res)=>{
-              console.log(res)
-              if(res.code === 0){
-                  if(res.data.password == JSON.parse(localStorage.getItem('user')).password){
-                      this.$store.commit('setUserSession',res.data);
-                  }
-              }
-          })
-      }
+      console.log(baseUrl)
+      this.$.ajax({
+          method:"GET",
+          url: 'self',
+          xhrFields: {
+              withCredentials: true
+          },
+          crossDomain: true,
+      }).then((res)=>{
+          console.log(res)
+          if(res.code === 0){
+              this.$store.commit('setUserSession',res.data)
+          }
+      })
 
       //设置设备标识
       if(localStorage.getItem('device_id')){
