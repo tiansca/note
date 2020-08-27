@@ -5,10 +5,11 @@
     require('./conn.php');
     require('./encrypt.php');
     $data = [];
-    if(isset($_POST['user_note_id']) && isset($_POST['label']) && isset($_POST['user_id'])){
+    require('./get_header.php');
+    $user_id = getallheaders()['Userid'];
+    if(isset($_POST['user_note_id']) && isset($_POST['label']) && $user_id){
         $user_note_id = $_POST['user_note_id'];
         $label = $_POST['label'];
-        $user_id = $_POST['user_id'];
         $collect = $_POST['collect'];
         $time = $_POST['time'];
         $updateTime = $_POST['updateTime'];

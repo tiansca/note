@@ -8,7 +8,7 @@
         $id = $_POST['id'];
         $email = $_POST['email'];
         $password = $_POST['password'];
-        $sql = "select * from user where id = '$id' && email = '$email'";
+        $sql = "select * from user where user_id = '$id'";
         $result = $conn->query($sql);
         $results = array();
         while ($row = $result->fetch_assoc()) {
@@ -19,7 +19,7 @@
             echo json_encode($data);
             return;
         }
-        $sql = "UPDATE user SET safe_password = '$password' WHERE id = '$id'";
+        $sql = "UPDATE user SET safe_password = '$password' WHERE user_id = '$id'";
         if ($conn->query($sql) == TRUE) {
             $data['data'] = 0;
         } else {

@@ -14,9 +14,6 @@ module.exports = {
         '/api': {
             target: 'http://182.92.210.246:3000', //需要代理的网址
             changeOrigin: true,
-            // pathRewrite: {
-            //   '^/246': '/api'
-            // }
         }
     },
 
