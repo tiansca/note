@@ -123,7 +123,7 @@
 <script>
     import thisVersion from '../version.js';
     import Clipboard from 'clipboard';
-    import { baseUrl } from "../config"
+    import { noteUrl } from "../config"
   export default{
     name: 'slidePane',
     computed:{
@@ -162,6 +162,9 @@
         },
         filterType(){
             return this.$store.state.filterType;
+        },
+        safepassword() {
+            return this.$store.state.safepassword;
         }
     },
     data () {
@@ -210,9 +213,9 @@
           }else {
               //判断当前用户有无加密密码，若无设置，若有则输入验证
               console.log(this.user.safe_password);
-              if(this.user.safe_password){
+              if(this.safepassword){
                   this.$messageBox.prompt('请输入隐私密码').then(({ value, action }) => {
-                      if(value == this.user.safe_password){
+                      if(value == this.safepassword){
                           this.$store.commit('setFilterType','lock');
                           this.setCookie('safe_password', value, 180)
                       }else {
@@ -231,7 +234,7 @@
                       if(value){
                           this.$.ajax({
                               method:"POST",
-                              url:'set_safe_password.php',
+                              url:noteUrl + 'set_safe_password.php',
                               data:this.qs({
                                   safe_password:value,
                                   user_id:this.user.id
@@ -330,13 +333,19 @@
         logout(){
             localStorage.setItem('oldUser', JSON.stringify(this.user));
             this.$store.commit('removeUserSession')
+            this.$.ajax({
+                method:"GET",
+                url:'logout'
+            }).then((res)=>{
+                location.reload()
+            })
         },
         updateNote(first){
             var noteCount = 0;
             for(let a = 0; a < this.noteArr.length; a++){
                 this.$.ajax({
                     method:"POST",
-                    url:'updateNote.php',
+                    url:noteUrl + 'updateNote.php',
                     data:this.qs({
                         user_note_id:this.noteArr[a].user_note_id,
                         user_id:this.user.id,
@@ -363,7 +372,7 @@
             console.log('下载')
             this.$.ajax({
                 method:"POST",
-                url:'get_note.php',
+                url: noteUrl + 'get_note.php',
                 data:this.qs({
                     user_id:this.user.id
                 })
@@ -376,7 +385,7 @@
         updateLabel(){
             this.$.ajax({
                 method:"POST",
-                url:'updateLabel.php',
+                url:noteUrl + 'updateLabel.php',
                 data:this.qs({
                     labelArr:JSON.stringify(this.labelArr),
                     user_id:this.user.id
@@ -388,21 +397,28 @@
         downloadLabel(){
             this.$.ajax({
                 method:"POST",
-                url:'get_label.php',
+                url:noteUrl + 'get_label.php',
                 data:this.qs({
                     user_id:this.user.id
                 })
             }).then((res)=>{
                 if(res.code == 0){
-                    if(res.data && res.data != 'null'){
-                        var newLabel = JSON.parse(res.data);
-                        if(newLabel.length > this.labelArr.length){
+                    if(res.data && res.data != 'null' && res.data.label_arr){
+                        var newLabel = JSON.parse(res.data.label_arr);
+                        console.log(newLabel)
+                        if(newLabel.length >= this.labelArr.length){
                             this.$store.commit('setLabelArr', newLabel);
                         }else {
                             this.updateLabel()
                         }
                     }else {
                         this.updateLabel();
+                    }
+                    // 设置隐私密码
+                    if(res.data && res.data !== 'null' && res.data.safe_password) {
+                        this.$store.commit('setSafePassword', res.data.safe_password);
+                    } else {
+                        this.$store.commit('setSafePassword', '');
                     }
                 }
             })
@@ -438,13 +454,13 @@
             console.log('重置安全密码');
             this.$messageBox.confirm('确定要重置隐私密码吗？').then(action => {
                 this.$store.commit('setLoading',true);
-                var baseUrl = 'http://localhost/note/reset_safe.html'
-                this.$axios({
+                var baseUrl = 'http://182.92.210.246/note/reset_safe.html'
+                this.$.ajax({
                     method: 'post',
-                    url: 'http://localhost/mailer/mail.php',
+                    url: 'mail',
                     data: this.qs({
-                        mailto:this.user.email,
-                        topic:'重置密码',
+                        to:this.user.email,
+                        subject:'重置密码',
                         content:"<span>请点击下面链接重置隐私密码，如果不能跳转，请复制网址到浏览器打开。</span><br>" +
                         "<a href=" + baseUrl + "?id=" + this.user.id  + ">" + baseUrl + "?id=" + this.user.id + "<a/>"
                     })

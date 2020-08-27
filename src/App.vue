@@ -15,7 +15,7 @@
 
 <script>
   import slidePane from './components/slidePane.vue';
-  import { baseUrl } from './config'
+  import { noteUrl } from './config'
 
 export default {
   name: 'App',
@@ -112,7 +112,7 @@ export default {
       }
 
       //设置用户
-      console.log(baseUrl)
+      // console.log(baseUrl)
       this.$.ajax({
           method:"GET",
           url: 'self',
@@ -138,7 +138,7 @@ export default {
       //同步数据库
       this.$.ajax({
           method:"GET",
-          url:'isUpdate.php'
+          url:noteUrl + 'isUpdate.php'
       }).then((res)=>{
           var mark = (new Date()).valueOf() - res * 1000 > 3600 * 1000 * 24;
           if(mark){
