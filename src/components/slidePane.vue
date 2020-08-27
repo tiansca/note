@@ -494,7 +494,7 @@
             console.log(this.version);
             this.$.ajax({
                 method:"GET",
-                url:'get_version_last.php'
+                url: noteUrl + 'get_version_last.php'
             }).then((res)=>{
                 console.log(res);
                 if(res.code == 0){
