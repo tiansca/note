@@ -82,6 +82,9 @@ const mutations = {
             state.isLoading = false;
             state.globalBg = false
         },1000)
+    },
+    setSafePassword(state, n) {
+      state.safepassword = n
     }
 }
 

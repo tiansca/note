@@ -3,6 +3,7 @@
  */
 const state = {
     user: null, // 用户信息
+    safepassword: '',
     slideShow:false,
     globalBg:false,
     globalBgColor:'none',

@@ -170,7 +170,7 @@
                 if(this.password && this.username){
                     this.$.ajax({
                         method:"POST",
-                        url: baseUrl + 'login',
+                        url: 'login',
                         xhrFields: {
                             withCredentials: true
                         },

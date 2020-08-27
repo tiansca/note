@@ -12,9 +12,10 @@
 //        'dbName' => 'note'
 //    );
     return array(
-        'host' => '106.13.66.238',
-        'user' => 'tiansc',
+        'host' => 'localhost',
+        'user' => 'root',
         'password' => 'tianshicong',
         'dbName' => 'note'
+
     );
 ?>
