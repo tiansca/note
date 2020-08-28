@@ -12,6 +12,7 @@ const Util = {
 //ajax 通用配置
 Util.ajax = axios.create({
     baseURL:Util.baseUtl,
+    withCredentials: true
 });
 
 

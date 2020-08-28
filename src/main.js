@@ -17,7 +17,8 @@ import axios from 'axios';
 import $ from './util.js';
 import './appback.js';
 import {uploadUrl} from './config'
-
+import broadcast from './broadcast' // 引入broadcast
+Vue.use(broadcast)
 import VueHtml5Editor from 'vue-html5-editor'
 Vue.use(VueHtml5Editor,{
     // 全局组件名称，使用new VueHtml5Editor(options)时该选项无效
