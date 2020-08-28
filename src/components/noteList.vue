@@ -27,20 +27,7 @@
         笔记列表为空
       </div>
       <div  v-for="(note, index) in noteList" :key="note.user_note_id  + '_' + note.time" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaillClick(false, note)">
-        <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
-          <div class="note-title">
-              <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
-              <div v-if="showType==0" v-html="note.title"></div>
-          </div>
-          <div class="note-time">
-            <span>{{note.time | formatDate}}</span>
-            <span v-show="note.collect == 1"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>
-          </div>
-        </div>
-        <span class="item-checkbox" v-show="showCheck">
-          <font-awesome-icon :icon="['fas', 'check-square']" style="display:inline-block;width: 24px;height: 24px; color: #0d8794" v-if="note.check"></font-awesome-icon>
-          <font-awesome-icon :icon="['fas', 'square']" :style="{color:(showType==1?'#fff':'rgba(225,225,225,0)')}" style="border-radius: 2px;border:1px solid #0d8794;display: inline-block;width: 20px;height: 20px" v-else></font-awesome-icon>
-        </span>
+          <list-item :note="note" :show-type="showType" :show-check="showCheck"></list-item>
       </div>
     </div>
     <!--批量操作head-->
@@ -77,16 +64,17 @@
           <div class="searchContent" :style="{backgroundColor:searchValue==''?'rgba(0,0,0,0.15)':'#f8f8f8'}" @click="closeSearch1">
               <div v-if="searchList.length == 0 && searchValue != ''" style="padding: 24px; font-size: 16px; text-align: center;color: #999">没有匹配的结果</div>
               <div  v-for="(note,index) in searchList" :key="note.user_note_id + '_' + note.time" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @click="goDetaill(false, note, true)">
-                  <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">
-                      <div class="note-title">
-                          <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
-                          <div v-if="showType==0" v-html="note.title"></div>
-                      </div>
-                      <div class="note-time">
-                          <span>{{note.time | formatDate}}</span>
-                          <span v-show="note.collect == 1"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>
-                      </div>
-                  </div>
+<!--                  <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">-->
+<!--                      <div class="note-title">-->
+<!--                          <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>-->
+<!--                          <div v-if="showType==0" v-html="note.title"></div>-->
+<!--                      </div>-->
+<!--                      <div class="note-time">-->
+<!--                          <span>{{note.time | formatDate}}</span>-->
+<!--                          <span v-show="note.collect == 1"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>-->
+<!--                      </div>-->
+<!--                  </div>-->
+                  <list-item :note="note" :show-check="showCheck" :show-type="showType"></list-item>
               </div>
           </div>
       </div>
@@ -94,8 +82,12 @@
 </template>
 
 <script>
+  import listItem from './listItem'
   export default{
       name:'noteList',
+      components: {
+          listItem
+      },
       computed:{
         isShowMore(){
             return this.$store.state.showMore;
@@ -219,7 +211,8 @@
         checkNote(note){
             /*tiansc*/
             this.showCheck = false
-            note.check = !note.check;
+            // note.check = !note.check;
+            this.$set(note, 'check', !note.check)
             this.showCheck = true
 //            console.log(note);
             if(note.check){
@@ -239,13 +232,15 @@
             if(this.selectAll){
                 this.selectAll = false;
                 for(var a = 0; a < this.noteList.length; a++){
-                  this.noteList[a].check = false;
+                  // this.noteList[a].check = false;
+                  this.$set(this.noteList[a], 'check', false)
                 }
                 this.deleteArr = []
             }else {
                 this.selectAll = true;
                 for(var a = 0; a < this.noteList.length; a++){
-                  this.noteList[a].check = true;
+                  // this.noteList[a].check = true;
+                    this.$set(this.noteList[a], 'check', true)
                 }
                 this.deleteArr = this.noteList.concat()
             }
@@ -421,6 +416,9 @@
               }
             }
           }
+          this.$nextTick(() => {
+              this.broadcast()
+          })
         },
           //打开搜索页面
           showSearchPage(){
@@ -547,9 +545,14 @@
 
                   }
               }
+          },
+          broadcast(e) {
+              this.$broadcast('scroll')
+              console.log('滚动')
           }
       },
       mounted(){
+        const _this = this
         setTimeout(()=>{
             console.log('列表加载')
           if(this.isShowMore){
@@ -631,6 +634,7 @@
                     sessionStorage.setItem('scrollTop',0);
                 }
                 this.isMove = true;
+                this.broadcast()
 
 //                listBox.scrollTop = listBox.scrollTop + 50
             }
@@ -638,8 +642,6 @@
                 listBox.scrollTop = sessionStorage.getItem('scrollTop')
             }
         },80);
-
-
       },
       watch:{
         showCheck(){
@@ -647,7 +649,8 @@
             if(this.showCheck == false){
                 this.selectAll = false;
                 for(var a = 0; a < this.noteList.length; a++){
-                  this.noteList[a].check = false;
+                  // this.noteList[a].check = false;
+                  this.$set(this.noteList[a], 'check', false)
                 }
                 this.deleteArr = []
             }
@@ -731,6 +734,15 @@
           },
           usableLabel(){
               this.initNote()
+          },
+          showSearch(n) {
+            if(n) {
+                setTimeout(() => {
+                    document.querySelector('.searchContent').addEventListener('scroll', this.broadcast)
+                },100)
+            } else {
+                document.querySelector('.searchContent').removeEventListener('scroll', this.broadcast)
+            }
           }
       }
   }
@@ -765,7 +777,7 @@
     border-radius: 6px;
     background-color: #fff;
     box-shadow: 0 0 8px 0px rgba(0,0,0,0.2);
-    margin-bottom:16px;
+    /*margin-bottom:16px;*/
     padding:8px;
       -webkit-user-select: none;
       -moz-user-select: none;
@@ -783,7 +795,7 @@
     font-weight: 400;
       /*height: 40px;*/
   }
-  .note-time{
+  /deep/ .note-time{
     font-size: 14px;
     line-height: 24px;
     color: #757575;
@@ -801,17 +813,18 @@
     align-items: center;
     padding-top:1px;
   }
-  .longItem:last-of-type,.shortItem:last-of-type{
+  .longItem:last-of-type,/deep/ .shortItem:last-of-type{
     margin-bottom: 80px;
   }
   .longItem{
       margin-top: 18px;
+      min-height: 68px;
   }
-  .longItem .show-check-item{
+  /deep/.longItem .show-check-item{
     width: 85%;
     display: inline-block;
   }
-  .longItem .item-checkbox{
+  /deep/ .longItem .item-checkbox{
     /*vertical-align: middle;*/
     position: relative;
     top: -10px;
@@ -829,7 +842,7 @@
     align-items: center;
   }
   /* 宫格视图 */
-  .shortItem{
+  /deep/ .shortItem{
     width: 47%;
     height: 133px;
     /*display: inline-block;*/
@@ -839,25 +852,25 @@
     position: relative;
     /*float: left;*/
   }
-  .shortItem.right{
+  /deep/ .shortItem.right{
     float: right;
   }
-  .shortItem.left{
+  /deep/ .shortItem.left{
       float: left;
   }
-  .shortItem .noteItem{
+  /deep/ .shortItem .noteItem{
     height: 100%;
   }
-  .shortItem .noteItem .note-title{
+  /deep/ .shortItem .noteItem .note-title{
     height: 108px;
-    /*overflow: hidden;*/
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space:normal;
     line-height: 27px;
     word-wrap: break-word;
       text-align: left!important;
   }
-  .shortItem .item-checkbox{
+  /deep/ .shortItem .item-checkbox{
     position: absolute;
     bottom: -6px;
     right: 12px;
@@ -889,16 +902,41 @@
         padding-bottom: 18px;
         overflow: auto;
     }
-    .note-title-line{
+    /deep/ .note-title-line{
         /*overflow:hidden;*/
         text-overflow:ellipsis;
         white-space:nowrap;
         height: 28px;
+        line-height: 28px;
         width: calc(100% - 60px);
         overflow: hidden;
     }
-  .note-title-line pre{
+  /deep/ .note-title-line pre{
       margin-top:0!important;
+  }
+  /deep/ .note-title-line ul,/deep/ .note-title-line ol,/deep/ .note-title-line h1,/deep/ .note-title-line h2,/deep/ .note-title-line h3,/deep/ .note-title-line h4,/deep/ .note-title-line h5,/deep/ .note-title-line h6,/deep/ .note-title-line b,/deep/ .note-title-line i,/deep/ .note-title-line div,/deep/ .note-title-line font,/deep/ .note-title-line u,/deep/ .note-title-line strike,/deep/ .note-title-line sup,/deep/ .note-title-line sub,/deep/ .note-title-line span{
+      padding:0;
+      margin:0;
+      font-size: 16px!important;
+      color: #444!important;
+      font-weight: 400;
+      text-align: left!important;
+      font-style:normal;
+      background-color: rgba(255,255,255,0)!important;
+      line-height: 28px!important;
+      text-decoration: none;
+      vertical-align:middle!important;
+  }
+  /deep/ .note-title-line font{
+      margin-top: -4px;
+      display: inline-block;
+  }
+  .vue-html5-editor .content{
+      height: 100%;
+  }
+  /deep/ .note-title-line pre{
+      margin-top:0!important;
+      font-family:"Helvetica Neue",Helvetica,"PingFang SC"
   }
 
 </style>
