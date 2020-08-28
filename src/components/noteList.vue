@@ -640,6 +640,9 @@
             }
             if(sessionStorage.getItem('scrollTop')){
                 listBox.scrollTop = sessionStorage.getItem('scrollTop')
+                setTimeout(() => {
+                    this.broadcast()
+                }, 100)
             }
         },80);
       },
