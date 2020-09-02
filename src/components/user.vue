@@ -171,10 +171,10 @@
                     this.$.ajax({
                         method:"POST",
                         url: 'login',
-                        xhrFields: {
-                            withCredentials: true
-                        },
-                        crossDomain: true,
+                        // xhrFields: {
+                        //     withCredentials: true
+                        // },
+                        // crossDomain: true,
                         data:this.qs({
                             name:this.username,
                             password:this.password,
