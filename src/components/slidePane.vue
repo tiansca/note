@@ -2,7 +2,7 @@
   <div class="slidePage" @touchstart="touchstart" @touchend="touchend" @touchmove="touchmove" :style="{left:slideLeft + 'px'}" :class="{ transition: isTransition }">
     <div class="slidePage-head">
       <span @click="goLogin" v-if="!user">登录</span>
-      <span v-if="user">{{user.name}}</span>
+      <span v-if="user" @click="openInfo">{{user.name}}</span>
         <span class="logout" v-if="user" @click="logout">退出</span>
     </div>
     <div class="slidePage-content">
@@ -126,7 +126,7 @@
 <script>
     import thisVersion from '../version.js';
     import Clipboard from 'clipboard';
-    import { noteUrl } from "../config"
+    import { noteUrl, loginUrl, changepasswordUrl } from "../config"
   export default{
     name: 'slidePane',
     computed:{
@@ -330,7 +330,8 @@
         goLogin(){
             this.closeSlide();
             setTimeout(()=> {
-                this.$router.push('/user')
+                location.href = loginUrl + '?from=' + location.href
+                // this.$router.push('/user')
             },300)
         },
         logout(){
@@ -567,6 +568,25 @@
                 },300);
             }
         },
+        openInfo() {
+            this.$messageBox({
+                title: '用户信息',
+                message: '用户名：' + this.user.name + ' <br> ' + '邮箱：' + this.user.email,
+                showCancelButton: true,
+                confirmButtonText:'退出登录',
+                cancelButtonText:'修改密码'
+            }).then(action => {
+                console.log(action);
+                if(action == 'confirm'){
+                    this.logout()
+                }else {
+                    location.href = changepasswordUrl + '?from=' + location.href
+                }
+
+            }).catch((action)=>{
+                console.log(action)
+            })
+        }
     },
     mounted(){
         var timer = setInterval(()=> {

@@ -116,10 +116,10 @@ export default {
       this.$.ajax({
           method:"GET",
           url: 'self',
-          xhrFields: {
-              withCredentials: true
-          },
-          crossDomain: true,
+          // xhrFields: {
+          //     withCredentials: true
+          // },
+          // crossDomain: true,
       }).then((res)=>{
           console.log(res)
           if(res.code === 0){
