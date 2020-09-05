@@ -119,7 +119,7 @@ export default {
       })
       //设置笔记列表
       if (localStorage.getItem('noteArr')) {
-          console.log('设置笔记1', localStorage.getItem('noteArr'))
+          // console.log('设置笔记1', localStorage.getItem('noteArr'))
           this.$store.commit('setNoteArr', JSON.parse(localStorage.getItem('noteArr')))
       }
 

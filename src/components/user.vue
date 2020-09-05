@@ -1,5 +1,6 @@
 <template>
-    <div>
+    <div style="width: 100%;height: 100%">
+        <iframe id="userIframe" :src="url" style="width: 100%; height:100%;border: none"></iframe>
     </div>
 </template>
 <script>
@@ -9,28 +10,49 @@
         computed:{
             url() {
                 if (this.type === 'login') {
-                    return loginUrl + '?from=' + location.origin + (location.pathname?location.pathname:'')
+                    return loginUrl + '?from=webapp'
                 } else if(this.type === 'changePassword') {
-                    return changepasswordUrl + '?from=' + location.origin + (location.pathname?location.pathname:'')
+                    return changepasswordUrl + '?from=webapp'
                 }
                 return ''
             }
         },
         data(){
             return{
-                type:'login'
+                type:'login',
+                timmer: null,
+                status: ''
             }
         },
         methods:{
-
+            checkUser(){
+                var obj=document.getElementById("userIframe").contentWindow;
+                var ifmObj = obj.document.getElementById("status");
+                if (ifmObj) {
+                    this.status = ifmObj.innerText
+                }
+                if (this.status.indexOf('true') !== -1) {
+                    this.$router.replace('/')
+                    setTimeout(() => {
+                        location.reload()
+                    },100)
+                }
+            }
         },
         mounted(){
             if (this.$route.query.type) {
                 this.type = this.$route.query.type
             }
-            setTimeout(() => {
-                location.replace(this.url)
-            }, 100)
+            console.log(document.querySelector('#userIframe').getAttribute('src'))
+            // setTimeout(() => {
+            //     this.checkUser()
+            // }, 2000)
+            this.timmer = setInterval(this.checkUser, 500)
+        },
+        beforeDestroy() {
+            if (this.timmer) {
+                clearInterval(this.timmer)
+            }
         }
     }
 </script>
