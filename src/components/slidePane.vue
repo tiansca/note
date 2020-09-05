@@ -327,18 +327,27 @@
         goLogin(){
             this.closeSlide();
             setTimeout(()=> {
-                location.href = loginUrl + '?from=' + location.href
-                // this.$router.push('/user')
+                // location.href = loginUrl + '?from=' + location.href
+                this.$router.push({
+                    path: '/user',
+                    query: {
+                        type: 'login'
+                    }
+                })
             },300)
         },
         logout(){
             localStorage.setItem('oldUser', JSON.stringify(this.user));
             this.$store.commit('removeUserSession')
+            this.$indicator.open()
             this.$.ajax({
                 method:"GET",
                 url:'logout'
             }).then((res)=>{
                 location.reload()
+                this.$indicator.close()
+            }).catch(e => {
+                this.$indicator.close()
             })
         },
         updateNote(first){
@@ -379,6 +388,7 @@
                 })
             }).then((res)=>{
                 if(res.code == 0){
+                    // console.log('设置笔记2', res.data)
                     this.$store.commit('setNoteArr', res.data)
                 }
             })
@@ -555,6 +565,7 @@
             }
         },
         openInfo() {
+            this.closeSlide();
             this.$messageBox({
                 title: '用户信息',
                 message: '用户名：' + this.user.name + ' <br> ' + '邮箱：' + this.user.email,
@@ -566,7 +577,12 @@
                 if(action == 'confirm'){
                     this.logout()
                 }else {
-                    location.href = changepasswordUrl + '?from=' + location.href
+                    this.$router.push({
+                        path: '/user',
+                        query: {
+                            type: 'changePassword'
+                        }
+                    })
                 }
 
             }).catch((action)=>{

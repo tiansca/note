@@ -4,6 +4,9 @@
 const mutations = {
   setUserSession(state, n){
     state.user = n;
+    if (n) {
+        localStorage.setItem('oldUser', JSON.stringify(n));
+    }
     localStorage.setItem('user', JSON.stringify(n));
   },
   removeUserSession(state){

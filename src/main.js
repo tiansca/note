@@ -213,13 +213,38 @@ Vue.filter('formatDate',function(value, type){
     return y + '-' + MM + '-' + d ;
   }
 })
-new Vue({
-  el: '#app',
-  router,
-  store,
-  components: { App },
-  template: '<App/>'
-})
+
+const getSelf = async () => {
+    await $.ajax({
+        method: "GET",
+        url: 'self'
+    }).then((res) => {
+        if (res.code === 0) {
+            let oldUser = localStorage.getItem('oldUser')
+            if (oldUser) {
+                try {
+                    oldUser = JSON.parse(oldUser)
+                } catch (e) {
+                    console.log(e)
+                }
+
+            }
+            if (oldUser && oldUser.name !== res.data.name) {
+                console.log('清空缓存')
+                localStorage.removeItem('noteArr')
+            }
+        }
+    })
+    new Vue({
+        el: '#app',
+        router,
+        store,
+        components: { App },
+        template: '<App/>'
+    })
+}
+getSelf()
+
 
 
 // formatDate: function (value, type) {

@@ -440,7 +440,7 @@
               this.searchValue = '';
           },
           initNote(){
-              if(this.usableLabel.length < 1){
+              if(this.usableLabel.length < 1 && this.noteArr.length === 0){
                   return false
               }
               for(var a = 0; a < this.noteArr.length; a++){

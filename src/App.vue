@@ -85,83 +85,80 @@ export default {
 //        console.log(this.transitionName)
       }
   },
-  mounted(){
+  async mounted() {
       //设置标签
-      setTimeout(()=>{
-          if(localStorage.getItem('labelArr')){
-              this.$store.commit('setLabelArr',JSON.parse(localStorage.getItem('labelArr')))
-          }else {
+      setTimeout(() => {
+          if (localStorage.getItem('labelArr')) {
+              this.$store.commit('setLabelArr', JSON.parse(localStorage.getItem('labelArr')))
+          } else {
               var labelArr = [{
-                  value:'0',
-                  label:'未标签',
-                  color:'#333',
-                  status:1,
-                  updateTime:(new Date()).valueOf(),
-                  device_id:this.deviceId
+                  value: '0',
+                  label: '未标签',
+                  color: '#333',
+                  status: 1,
+                  updateTime: (new Date()).valueOf(),
+                  device_id: this.deviceId
               }];
 //          localStorage.setItem('labelArr', JSON.stringify(labelArr));
-              this.$store.commit('setLabelArr',labelArr)
+              this.$store.commit('setLabelArr', labelArr)
           }
       })
 
-
+        //设置用户
+      // console.log(baseUrl)
+      this.$.ajax({
+          method: "GET",
+          url: 'self'
+      }).then((res) => {
+          console.log(res)
+          if (res.code === 0) {
+              this.$store.commit('setUserSession', res.data)
+          } else {
+              this.$store.commit('setUserSession', null)
+          }
+      })
       //设置笔记列表
-      if(localStorage.getItem('noteArr')){
-        this.$store.commit('setNoteArr',JSON.parse(localStorage.getItem('noteArr')))
+      if (localStorage.getItem('noteArr')) {
+          console.log('设置笔记1', localStorage.getItem('noteArr'))
+          this.$store.commit('setNoteArr', JSON.parse(localStorage.getItem('noteArr')))
       }
 
       //视图模式
-      if(localStorage.getItem('showType')){
-          this.$store.commit('setShowType1',localStorage.getItem('showType'));
+      if (localStorage.getItem('showType')) {
+          this.$store.commit('setShowType1', localStorage.getItem('showType'));
       }
 
-      //设置用户
-      // console.log(baseUrl)
-      this.$.ajax({
-          method:"GET",
-          url: 'self',
-          // xhrFields: {
-          //     withCredentials: true
-          // },
-          // crossDomain: true,
-      }).then((res)=>{
-          console.log(res)
-          if(res.code === 0){
-              this.$store.commit('setUserSession',res.data)
-          }
-      })
-
       //设置设备标识
-      if(localStorage.getItem('device_id')){
-          this.$store.commit('setDevice',localStorage.getItem('device_id'))
-      }else {
+      if (localStorage.getItem('device_id')) {
+          this.$store.commit('setDevice', localStorage.getItem('device_id'))
+      } else {
           var device_id = Math.floor(Math.random() * 10000);
-          this.$store.commit('setDevice',device_id)
+          this.$store.commit('setDevice', device_id)
       }
 
       //同步数据库
       this.$.ajax({
-          method:"GET",
-          url:noteUrl + 'isUpdate.php'
-      }).then((res)=>{
+          method: "GET",
+          url: noteUrl + 'isUpdate.php'
+      }).then((res) => {
           var mark = (new Date()).valueOf() - res * 1000 > 3600 * 1000 * 24;
-          if(mark){
+          if (mark) {
               this.$.ajax({
-                  method:"GET",
-                  url:'beifen.php'
-              }).then((res)=>{
+                  method: "GET",
+                  url: 'beifen.php'
+              }).then((res) => {
                   console.log(res)
               })
               this.$.ajax({
-                  method:"GET",
-                  url:'delete.php'
-              }).then((res)=>{
+                  method: "GET",
+                  url: 'delete.php'
+              }).then((res) => {
                   console.log(res);
-                  if(res == 1){
+                  if (res == 1) {
                       console.log('回收站删除成功')
                   }
               })
-          }else{
+          } else {
               console.log('已同步')
           }
       });
@@ -171,7 +168,6 @@ export default {
           history.pushState(null, null, document.URL);
           window.addEventListener('popstate', this.back, false);
       }
-
   },
     beforeDestroy() {
         window.removeEventListener('popstate', this.back, false);
