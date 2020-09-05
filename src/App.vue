@@ -65,7 +65,11 @@ export default {
       if(this.$store.state.showMore){
         this.$store.commit('setShowMore');
       }
-    }
+    },
+      back(e) {
+         console.log('拦截')
+         return false
+      }
   },
   watch:{
       globalBgColor(){
@@ -162,8 +166,16 @@ export default {
           }
       });
 
+      // 监听离开
+      if (window.history && window.history.pushState) {
+          history.pushState(null, null, document.URL);
+          window.addEventListener('popstate', this.back, false);
+      }
 
-  }
+  },
+    beforeDestroy() {
+        window.removeEventListener('popstate', this.back, false);
+    }
 }
 </script>
 
