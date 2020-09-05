@@ -5,6 +5,7 @@ import noteList from '@/components/noteList'
 import noteDetail from '@/components/notedetail'
 import editLabel from '@/components/editLabel'
 import user from '@/components/user'
+import Store from '@/store'
 
 Vue.use(Router);
 
@@ -46,5 +47,16 @@ Router.prototype.goBack = function () {
   this.isBack = true
   window.history.go(-1)
 }
+
+router.beforeEach(function (to, from, next) {
+    console.log(to, from)
+    if (to.path === '/user' && to.query.type === 'login') {
+        console.log(Store.state.user)
+        if (Store.state.user) {
+            return next('/')
+        }
+    }
+    next()
+})
 
 export default router;
