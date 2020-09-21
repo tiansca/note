@@ -731,6 +731,9 @@
                         this.searchList.push(this.noteList[a])
                     }
                 }
+                this.$nextTick(() => {
+                    this.$broadcast('scroll')
+                })
             }else {
                 this.searchList = [];
             }
