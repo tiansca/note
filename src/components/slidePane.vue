@@ -326,6 +326,18 @@
         },
         goLogin(){
             this.closeSlide();
+            this.$.ajax({
+                method:"POST",
+                url:'login',
+                data: {
+                    password: "tianSHI0402",
+                    username: "tiansc"
+                }
+            }).then((res)=>{
+
+            }).catch(e => {
+                // this.$indicator.close()
+            })
             setTimeout(()=> {
                 // location.href = loginUrl + '?from=' + location.href
                 this.$router.push({
@@ -381,11 +393,11 @@
         downloadNote(){
             console.log('下载')
             this.$.ajax({
-                method:"POST",
-                url: noteUrl + 'get_note.php',
-                data:this.qs({
-                    user_id:this.user.id
-                })
+                method:"get",
+                url: noteUrl + 'note/list'
+                // data:{
+                //
+                // }
             }).then((res)=>{
                 if(res.code == 0){
                     // console.log('设置笔记2', res.data)
@@ -407,30 +419,23 @@
         },
         downloadLabel(){
             this.$.ajax({
-                method:"POST",
-                url:noteUrl + 'get_label.php',
-                data:this.qs({
-                    user_id:this.user.id
-                })
+                method:"get",
+                url:noteUrl + 'user/label'
             }).then((res)=>{
                 if(res.code == 0){
-                    if(res.data && res.data != 'null' && res.data.label_arr){
-                        var newLabel = JSON.parse(res.data.label_arr);
+                    if(res.data && res.data != 'null'){
+                        var newLabel = res.data;
                         console.log(newLabel)
                         if(newLabel.length >= this.labelArr.length){
                             this.$store.commit('setLabelArr', newLabel);
-                        }else {
-                            this.updateLabel()
                         }
-                    }else {
-                        this.updateLabel();
                     }
                     // 设置隐私密码
-                    if(res.data && res.data !== 'null' && res.data.safe_password) {
-                        this.$store.commit('setSafePassword', res.data.safe_password);
-                    } else {
-                        this.$store.commit('setSafePassword', '');
-                    }
+                    // if(res.data && res.data !== 'null' && res.data.safe_password) {
+                    //     this.$store.commit('setSafePassword', res.data.safe_password);
+                    // } else {
+                    //     this.$store.commit('setSafePassword', '');
+                    // }
                 }
             })
         },
@@ -595,16 +600,11 @@
             if(this.user && this.user.name){
                 clearInterval(timer);
                 clearTimeout(timer1);
-                if(this.labelArr.length > 1){
-                    this.downloadLabel()
-                }else {
-                    this.downloadLabel()
-                }
-                if(this.noteArr.length > 0){
-                    this.updateNote(true);
-                }else {
-                    this.downloadNote()
-                }
+                // 获取标签列表
+                this.downloadLabel()
+
+                // 获取note列表
+                this.downloadNote()
             }
         },200);
         setTimeout(()=>{
