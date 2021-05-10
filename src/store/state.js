@@ -33,6 +33,7 @@ const state = {
     device_id:'',
     showPage:true,
     globalBgOpacity:1
+    // pageIndex: 1
 }
 
 export default state

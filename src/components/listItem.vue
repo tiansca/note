@@ -1,6 +1,6 @@
 <template>
     <div class="itemWrap" ref="itemWrap">
-        <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''" v-if="inview">
+        <div class="noteItem" :style="{backgroundColor: hexToRgb(labelColorMap[note.label])}"  :class="showCheck?'show-check-item':''" v-if="inview">
             <div class="note-title">
                 <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
                 <div v-if="showType==0" v-html="note.title"></div>
@@ -41,6 +41,18 @@ export default {
             timer: null
         }
     },
+    computed: {
+      usableLabel(){
+        return this.$store.getters.usableLabel;
+      },
+      labelColorMap() {
+        const obj = {}
+        for (const label of this.usableLabel) {
+          obj[label.value] = label.color
+        }
+        return obj
+      }
+    },
     mounted() {
         // console.log(this.$refs)
         // console.log()
@@ -57,7 +69,14 @@ export default {
                 // console.log('滚动')
                 this.inview = !isNotInView(this.$refs.itemWrap, 500)
             }
+        },
+      hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        if (result) {
+          return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, 0.1)`
         }
+        return '#fff'
+      },
     }
 }
 </script>

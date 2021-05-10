@@ -19,16 +19,20 @@
       <font-awesome-icon :icon="['fas', 'plus']"></font-awesome-icon>
     </span>
 
-    <div class="noteListBox" v-if="ready">
+    <div class="noteListBox" v-if="ready" v-loading-more="loadingMore">
         <div style="width: 100%;margin-top: 8px;text-align: center" v-show="!showSearch" :style="{marginBottom:(showType==1?'18px':'0')}">
             <input type="text" style="width: calc(100% - 27px)" class="serchInput" placeholder="搜索笔记" @focus="showSearchPage">
         </div>
       <div v-if="noteList.length == 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
         笔记列表为空
       </div>
-      <div  v-for="(note, index) in noteList" :key="note.user_note_id  + '_' + note.time" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaillClick(false, note)">
+      <div  v-for="(note, index) in noteList" :key="note.id" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaillClick(false, note)">
           <list-item :note="note" :show-type="showType" :show-check="showCheck"></list-item>
       </div>
+      <div v-if="loading" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
+        加载中...
+      </div>
+      <div v-else-if="noMore && noteList.length > 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">没有更多了</div>
     </div>
     <!--批量操作head-->
     <div class="check-show-head" v-show="showCheck">
@@ -61,9 +65,9 @@
                 <font-awesome-icon :icon="['fas', 'times']" style="color:#333"></font-awesome-icon>
               </span>
           </div>
-          <div class="searchContent" :style="{backgroundColor:searchValue==''?'rgba(0,0,0,0.15)':'#f8f8f8'}" @click="closeSearch1">
-              <div v-if="searchList.length == 0 && searchValue != ''" style="padding: 24px; font-size: 16px; text-align: center;color: #999">没有匹配的结果</div>
-              <div  v-for="(note,index) in searchList" :key="note.user_note_id + '_' + note.time" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @click="goDetaill(false, note, true)">
+          <div class="searchContent" :style="{backgroundColor:searchValue==''?'rgba(0,0,0,0.15)':'#f8f8f8'}" @click="closeSearch1" v-loading-more="searchMore">
+              <div v-if="searchList.length == 0 && searchValue != '' && !loading" style="padding: 24px; font-size: 16px; text-align: center;color: #999">没有匹配的结果</div>
+              <div  v-for="(note,index) in searchList" :key="note.id" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" @click="goDetaill(false, note, true)">
 <!--                  <div class="noteItem" :style="{backgroundColor:note.rgbColor}"  :class="showCheck?'show-check-item':''">-->
 <!--                      <div class="note-title">-->
 <!--                          <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>-->
@@ -76,17 +80,24 @@
 <!--                  </div>-->
                   <list-item :note="note" :show-check="showCheck" :show-type="showType"></list-item>
               </div>
+              <div v-if="searchValue != '' && loading && !searchNoMore" style="padding: 24px; font-size: 16px; text-align: center;color: #999">加载中...</div>
+              <div v-else-if="searchValue != '' && searchList.length > 0 && searchNoMore" style="padding: 24px; font-size: 16px; text-align: center;color: #999">没有更多了</div>
           </div>
       </div>
   </div>
 </template>
 
 <script>
+  import { noteUrl, loginUrl, changepasswordUrl } from "../config"
+  import loadingMore from '@/directive/loadMore'
   import listItem from './listItem'
   export default{
       name:'noteList',
       components: {
           listItem
+      },
+      directives: {
+          loadingMore
       },
       computed:{
         isShowMore(){
@@ -132,13 +143,65 @@
             timer:'',
             filterTitle:'全部笔记',
             noteList:[],
-              isMove:false,
-              searchValue:'',
-              searchList:[],
-              hasTouch:false
+            isMove:false,
+            searchValue:'',
+            searchList:[],
+            hasTouch:false,
+            pageIndex: 1,
+            searchPageIndex: 1,
+            loading: false,
+            noMore: false,
+            searchNoMore: false
           }
       },
       methods:{
+          getNote(search){
+              console.log('下载')
+              this.loading = true
+              this.$.ajax({
+                  method:"get",
+                  url: noteUrl + 'note/list',
+                  params:{
+                    pageIndex: search ? this.searchPageIndex : this.pageIndex,
+                    type: this.filterType,
+                    key: search ? this.searchValue : ''
+                  }
+              }).then((res)=>{
+                  if(res.code == 0){
+                    this.loading = false
+                    // this.noteList = this.noteList.concat(res.data)
+                    if (search) {
+                      this.searchList = this.searchList.concat(res.data)
+                      if (res.data && res.data.length === 0) {
+                        this.searchNoMore = true
+                      }
+                    } else {
+                      this.noteList = this.noteList.concat(res.data)
+                      if (res.data && res.data.length === 0) {
+                        this.noMore = true
+                      }
+                    }
+
+                    this.ready = true
+                    console.log(this.noteList)
+                  }
+              })
+          },
+          loadingMore() {
+            console.log('加载更多')
+            if (this.loading || this.noMore) {
+              return
+            }
+            this.pageIndex++
+            this.getNote()
+          },
+          searchMore() {
+            if (this.loading || this.searchNoMore) {
+              return
+            }
+            this.searchPageIndex++
+            this.getNote('search')
+          },
           toggleSlide(){
               this.$store.commit('setSlide');
               this.$store.commit('setGlobalBg');
@@ -199,11 +262,17 @@
           },
         hexToRgb(hex) {
           var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-          return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-          } : null;
+          // return result ? {
+          //   r: parseInt(result[1], 16),
+          //   g: parseInt(result[2], 16),
+          //   b: parseInt(result[3], 16)
+          // } : null;
+          if (result) {
+            return `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, 0.2)`
+          }
+          return 'none'
+          //   g: parseInt(result[2], 16),
+          //   b: parseInt(result[3], 16)
         },
         setShowCheck(){
             this.showCheck = !this.showCheck;
@@ -271,7 +340,6 @@
                         this.$forceUpdate();
                     }
                     this.showCheck = false;
-                    this.filterNote()
                 }else {
                     return false;
                 }
@@ -345,81 +413,6 @@
             clearTimeout(this.timer);
             this.isMove = true;
           },
-        filterNote(){
-          if(this.filterType == 'all'){
-            this.filterTitle='全部笔记';
-            this.noteList = this.usableNote.sort(function (a,b) {
-                var val1 = Number(a.time);
-                var val2 = Number(b.time);
-                if (val1 < val2) {
-                    return 1;
-                } else if (val1 > val2) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            });
-          }else if(this.filterType == 'collect'){
-            this.filterTitle = '我的收藏';
-            this.noteList = this.collectNote.sort(function (a,b) {
-                var val1 = Number(a.time);
-                var val2 = Number(b.time);
-                if (val1 < val2) {
-                    return 1;
-                } else if (val1 > val2) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            });
-          }else if(this.filterType == 'lock'){
-              this.filterTitle = '我的加密';
-              this.noteList = this.lockNote.sort(function (a,b) {
-                  var val1 = Number(a.time);
-                  var val2 = Number(b.time);
-                  if (val1 < val2) {
-                      return 1;
-                  } else if (val1 > val2) {
-                      return -1;
-                  } else {
-                      return 0;
-                  }
-              });
-          }else if(this.filterType == 'delete'){
-              this.filterTitle = '回收站';
-              this.noteList = this.deleteNote.sort(function (a,b) {
-                  var val1 = Number(a.time);
-                  var val2 = Number(b.time);
-                  if (val1 < val2) {
-                      return 1;
-                  } else if (val1 > val2) {
-                      return -1;
-                  } else {
-                      return 0;
-                  }
-              });
-          }else {
-            for(var a = 0; a < this.usableLabel.length; a++){
-              if(this.filterType == this.usableLabel[a].value){
-                this.filterTitle = this.usableLabel[a].label;
-                this.noteList = this.$store.getters.labelNote(this.filterType).sort(function (a,b) {
-                    var val1 = Number(a.time);
-                    var val2 = Number(b.time);
-                    if (val1 < val2) {
-                        return 1;
-                    } else if (val1 > val2) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                });
-              }
-            }
-          }
-          this.$nextTick(() => {
-              this.broadcast()
-          })
-        },
           //打开搜索页面
           showSearchPage(){
             this.$store.commit('setOpenSearch');
@@ -439,57 +432,6 @@
           removeSearchValue(){
               this.searchValue = '';
           },
-          initNote(){
-              if(this.usableLabel.length < 1 && this.noteArr.length === 0){
-                  return false
-              }
-              for(var a = 0; a < this.noteArr.length; a++){
-//                  console.log(this.noteArr[a].content)
-                  if(this.noteArr[a].content){
-                      var content = this.noteArr[a].content.split(/[\s\n]/)[0];
-                  }else {
-                      var content = this.noteArr[a].content
-                  }
-
-                    //console.log(content)
-                  this.noteArr[a].title = content;
-                  var hasLabel = false;
-                  if(this.usableLabel){
-                      for(var b = 0; b < this.usableLabel.length; b++){
-                          if(this.noteArr[a].label == this.usableLabel[b].value){
-                              hasLabel = true;
-                              this.noteArr[a].color = this.usableLabel[b].color
-                          }
-                      }
-                  }
-                  if(!hasLabel){
-                      this.noteArr[a].label = '0';
-                      this.noteArr[a].color = '#333';
-                  }
-                  //设置颜色
-                  var rgbColor = this.hexToRgb(this.noteArr[a].color);
-//            console.log(rgbColor)
-                  if(rgbColor && this.noteArr[a].color != '#333333'){
-                      this.noteArr[a].rgbColor = "rgba(" + rgbColor.r + ',' + rgbColor.g + ',' + rgbColor.b + ', 0.15' + ")";
-                  }else {
-                      this.noteArr[a].rgbColor = "#fff"
-                  }
-              }
-              this.$store.commit('setNoteArr', this.noteArr)
-              this.noteList = this.usableNote.sort(function (a,b) {
-                  var val1 = Number(a.time);
-                  var val2 = Number(b.time);
-                  if (val1 < val2) {
-                      return 1;
-                  } else if (val1 > val2) {
-                      return -1;
-                  } else {
-                      return 0;
-                  }
-              });
-              this.ready = true;
-              this.filterNote();
-          },
           refresh(){
               this.$store.commit('refresh')
           },
@@ -507,45 +449,6 @@
           isDom(obj){
               return !!(obj && typeof window !== 'undefined' && (obj === window || obj.nodeType));
           },
-          removeBlank(){
-              //清空标题空行
-//            console.log(console.log(document.querySelectorAll('.note-title-line')));
-              var titleArr = document.querySelectorAll('.note-title-line');
-              if(titleArr && titleArr.length > 0){
-                  for(var a = 0; a < titleArr.length; a++){
-
-                      var thisTitle = titleArr[a];
-                      var thisTitleChilds = thisTitle.childNodes;
-                      if(thisTitleChilds && thisTitleChilds.length > 0){
-                          for(var b = 0; b < thisTitleChilds.length; b++){
-                              if(b === 1) {
-                                  console.log(thisTitleChilds[b].tagName)
-                              }
-                              if(this.getStyle(thisTitleChilds[b], 'display') == 'block' && (!thisTitleChilds[b].innerText || thisTitleChilds[b].innerText == '' || thisTitleChilds[b].innerText.trim() == '')){
-                                  if(thisTitleChilds[b] && thisTitleChilds[b].style && thisTitleChilds[b].tagName !== 'IMG'){
-                                      thisTitleChilds[b].style.display = 'none'
-                                  }
-                              }
-                          }
-                      }
-
-                      var thisTitleNodes = thisTitle.getElementsByTagName('*');
-
-                      if(thisTitleNodes && thisTitleNodes.length > 0){
-//                            console.log()
-                          for(var c = 0; c < thisTitleNodes.length; c++){
-                              if(thisTitleNodes[c] && thisTitleNodes[c].nodeName == 'A' && thisTitleNodes[c].style){
-//                                    console.log(thisTitleNodes[c]);
-                                  thisTitleNodes[c].style.color = '#444';
-                                  thisTitleNodes[c].style.textDecoration= 'none';
-                                  thisTitleNodes[c].setAttribute('href', 'javascript:;')
-                              }
-                          }
-                      }
-
-                  }
-              }
-          },
           broadcast(e) {
               this.$broadcast('scroll')
               console.log('滚动')
@@ -554,77 +457,21 @@
       mounted(){
         const _this = this
         setTimeout(()=>{
-            console.log('列表加载')
-          if(this.isShowMore){
-            this.$store.commit('setShowMore')
-          }
-          for(var a = 0; a < this.noteArr.length; a++){
-            var content = this.noteArr[a].content;
-            if(this.noteArr[a].content){
-                this.noteArr[a].content = this.noteArr[a].content.replace(/[\r\n]/g,"<br>");
-            }else {
-                this.noteArr[a].content = this.noteArr[a].content;
-            }
-
-//            console.log(content)
-              let reg=/<\/?.+?\/?>/g;
-              if(content){
-                  content = content.replace(reg,'&#10;');
-              }
-
-//              console.log(this.noteArr[a])
-              this.noteArr[a].title = content;
-            var hasLabel = false;
-            if(this.usableLabel){
-              for(var b = 0; b < this.usableLabel.length; b++){
-                if(this.noteArr[a].label == this.usableLabel[b].value){
-                  hasLabel = true;
-                  this.noteArr[a].color = this.usableLabel[b].color;
-                }
-              }
-            }
-            if(!hasLabel){
-                this.noteArr[a].label = '0';
-                this.noteArr[a].color = '#333';
-            }
-            //设置颜色
-            var rgbColor = this.hexToRgb(this.noteArr[a].color);
-//            console.log(rgbColor)
-            if(rgbColor && this.noteArr[a].color != '#333333'){
-              this.noteArr[a].rgbColor = "rgba(" + rgbColor.r + ',' + rgbColor.g + ',' + rgbColor.b + ', 0.15' + ")";
-            }else {
-              this.noteArr[a].rgbColor = "#fff"
-            }
-          }
-          this.$store.commit('setNoteArr', this.noteArr)
-          this.noteList = this.usableNote.sort(function (a,b) {
-              var val1 = Number(a.time);
-              var val2 = Number(b.time);
-              if (val1 < val2) {
-                  return 1;
-              } else if (val1 > val2) {
-                  return -1;
-              } else {
-                  return 0;
-              }
-          });
-          this.ready = true;
-          this.filterNote();
-
-          //获取查询关键词
-            if(this.showSearch){
-                this.searchValue = sessionStorage.getItem('searchValue');
-                this.$refs.serchInput.focus()
-            }
-
-
+//           var rgbColor = this.hexToRgb(this.noteArr[a].color);
+// //            console.log(rgbColor)
+//           if(rgbColor && this.noteArr[a].color != '#333333'){
+//             this.noteArr[a].rgbColor = "rgba(" + rgbColor.r + ',' + rgbColor.g + ',' + rgbColor.b + ', 0.15' + ")";
+//           }else {
+//             this.noteArr[a].rgbColor = "#fff"
+//           }
         },50);
         setTimeout(()=>{
-            this.removeBlank()
-
             //监听滚动
             var listBox = document.querySelector('.noteListBox');
 //            console.log(listBox)
+            if (!listBox) {
+              return
+            }
             listBox.onscroll = ()=>{
 //                console.log('正在滚动');
 //                console.log(listBox.scrollTop);
@@ -658,79 +505,22 @@
                 this.deleteArr = []
             }
         },
-        filterType(){
-          this.filterNote();
-            setTimeout(()=>{
-                this.removeBlank()
-            },80)
-        },
-        usableNote(){
-            setTimeout(()=>{
-                this.removeBlank()
-            },80)
-            if(this.usableLabel.length < 1){
-                return false
-            }
-            for(var a = 0; a < this.noteArr.length; a++){
-                    var content = this.noteArr[a].content;
-                    if(content){
-                        this.noteArr[a].content = this.noteArr[a].content.replace(/[\r\n]/g,"<br>");
-                    }else {
-                        this.noteArr[a].content = this.noteArr[a].content
-                    }
-
-                    let reg=/<\/?.+?\/?>/g;
-                    if(content){
-                        content = content.replace(reg,'&#10;');
-                    }
-
-                    this.noteArr[a].title = content;
-                    var hasLabel = false;
-                    if(this.usableLabel){
-                        for(var b = 0; b < this.usableLabel.length; b++){
-                            if(this.noteArr[a].label == this.usableLabel[b].value){
-                                hasLabel = true;
-                                this.noteArr[a].color = this.usableLabel[b].color
-                            }
-                        }
-                    }
-                    if(!hasLabel){
-                            this.noteArr[a].label = '0';
-                            this.noteArr[a].color = '#333';
-                    }
-                    //设置颜色
-                    var rgbColor = this.hexToRgb(this.noteArr[a].color);
-//            console.log(rgbColor)
-                    if(rgbColor && this.noteArr[a].color != '#333333'){
-                        this.noteArr[a].rgbColor = "rgba(" + rgbColor.r + ',' + rgbColor.g + ',' + rgbColor.b + ', 0.15' + ")";
-                    }else {
-                        this.noteArr[a].rgbColor = "#fff"
-                    }
-                }
-                this.$store.commit('setNoteArr', this.noteArr)
-                this.noteList = this.usableNote.sort(function (a,b) {
-                    var val1 = Number(a.time);
-                    var val2 = Number(b.time);
-                    if (val1 < val2) {
-                        return 1;
-                    } else if (val1 > val2) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                });
-                this.ready = true;
-                this.filterNote();
+        filterType: {
+          handler() {
+            this.noteList = []
+            this.pageIndex = 1
+            this.noMore = false
+            this.getNote()
+            console.log(this.noteList)
+          },
+          immediate: true
         },
           searchValue(){
             if(this.searchValue && this.searchValue != ''){
-                sessionStorage.setItem('searchValue', this.searchValue);
-                this.searchList = [];
-                for(var a = 0; a < this.noteList.length; a++){
-                    if(this.noteList[a].title && this.noteList[a].title.indexOf(this.searchValue) > -1){
-                        this.searchList.push(this.noteList[a])
-                    }
-                }
+                this.searchList = []
+                this.searchPageIndex = 1
+                this.searchNoMore = false
+                this.getNote('search')
                 this.$nextTick(() => {
                     this.$broadcast('scroll')
                 })
@@ -739,7 +529,7 @@
             }
           },
           usableLabel(){
-              this.initNote()
+              // this.initNote()
           },
           showSearch(n) {
             if(n) {

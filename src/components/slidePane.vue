@@ -11,14 +11,14 @@
             <div class="groupItemBox">
                 <img src="../assets/note.png" alt="">
                 <span>全部笔记</span>
-                <span class="group-item-num">{{usableNote.length}}</span>
+                <span class="group-item-num">{{ countObj['all'] }}</span>
             </div>
         </div>
-        <div class="group-item clickItem" @click="changeFilterType('collect')">
+        <div class="group-item clickItem" @click="changeFilterType('like')">
             <div class="groupItemBox">
                 <img src="../assets/star.png" alt="">
                 <span>我的收藏</span>
-                <span class="group-item-num">{{collectNote.length}}</span>
+                <span class="group-item-num">{{ countObj['like'] }}</span>
             </div>
         </div>
           <div class="group-item clickItem" @click="changeFilterType('lock',$event)" v-if="user">
@@ -38,7 +38,7 @@
           <span style="color: rgb(13, 135, 148);padding: 3px 5px;float: right;display: inline-block;margin-top: -4px;margin-right: -10px;" @click="goEdit" class="clickItem">编辑</span>
       </div>
       <div class="slidePage-group" @click="closeSlide">
-        <div class="group-item clickItem" v-for="label in usableLabel" @click="changeFilterType(label.value)">
+        <div class="group-item clickItem" v-for="label in usableLabel" @click="changeFilterType(`tag_${label.value}`)">
             <div class="groupItemBox">
                 <span  v-if="label.value == 0" style="display: inline-block;width: 18px;height: 18px">
             <span style="font-size: 18px;position: relative">
@@ -51,7 +51,7 @@
           </span>
 
                 <span class="labelName">{{label.label}}</span>
-                <span>{{label.number}}</span>
+                <span>{{ countObj[label.value] || 0 }}</span>
             </div>
 
         </div>
@@ -66,7 +66,7 @@
                 <div class="groupItemBox">
                     <img src="../assets/recycle.png" alt="">
                     <span>回收站</span>
-                    <span class="group-item-num">{{deleteNote.length}}</span>
+                    <span class="group-item-num">{{ countObj['delete'] }}</span>
                 </div>
             </div>
         </div>
@@ -165,6 +165,14 @@
         },
         safepassword() {
             return this.$store.state.safepassword;
+        },
+        countObj() {
+          const obj = {}
+          for (const item of this.countData) {
+            console.log(item)
+            obj[item.label] = item.value
+          }
+          return obj
         }
     },
     data () {
@@ -182,7 +190,9 @@
           latestVersion:'',
           addLabelName:'',
           isScroll:false,
-          downloadLink:''      }
+          downloadLink:'',
+          countData: []
+      }
     },
     methods:{
       closeSlide(){
@@ -266,10 +276,18 @@
           }
       },
       setLabelNum(){
-        for(var a = 0; a < this.usableLabel.length; a++){
-            this.usableLabel[a].number = this.$store.getters.labelNote(this.usableLabel[a].value).length;
-        }
-        this.$forceUpdate()
+        // for(let a = 0; a < this.usableLabel.length; a++){
+        //   let fund = false
+        //   for (let b = 0; b < this.countData.length; b++){
+        //     if (this.updateLabel[a].id === this.countData[b].name) {
+        //       this.$set(this.usableLabel[a], 'number', this.countData[b].value)
+        //       fund = true
+        //     }
+        //   }
+        //   if (!fund) {
+        //     this.usableLabel[a].number = 0
+        //   }
+        // }
       },
         goEdit(){
           this.closeSlide();
@@ -593,6 +611,16 @@
             }).catch((action)=>{
                 console.log(action)
             })
+        },
+        getCount() {
+          this.$.ajax({
+            method:"get",
+            url:noteUrl + 'note/count'
+          }).then((res)=>{
+            if (res.code === 0) {
+              this.countData = res.data
+            }
+          })
         }
     },
     mounted(){
@@ -603,8 +631,10 @@
                 // 获取标签列表
                 this.downloadLabel()
 
+                //获取count
+                this.getCount()
                 // 获取note列表
-                this.downloadNote()
+                // this.downloadNote()
             }
         },200);
         setTimeout(()=>{
@@ -634,16 +664,16 @@
     watch:{
       usableNote: {
         handler(newVal, oldVal) {
-            this.setLabelNum();
+            // this.setLabelNum();
         },
         deep: true
       },
         labelArr:{
             handler(newVal, oldVal) {
-                this.setLabelNum();
-                if(this.user && this.user.name && this.labelArr.length > 1){
-                    this.updateLabel();
-                }
+                // this.setLabelNum();
+                // if(this.user && this.user.name && this.labelArr.length > 1){
+                //     // this.updateLabel();
+                // }
             },
             deep: true
         },

@@ -5,9 +5,9 @@ const mutations = {
   setUserSession(state, n){
     state.user = n;
     if (n) {
-        localStorage.setItem('oldUser', JSON.stringify(n));
+        // localStorage.setItem('oldUser', JSON.stringify(n));
     }
-    localStorage.setItem('user', JSON.stringify(n));
+    // localStorage.setItem('user', JSON.stringify(n));
   },
   removeUserSession(state){
     state.user = null;
@@ -40,11 +40,11 @@ const mutations = {
   },
   setLabelArr(state,n){
     state.labelArr = n;
-    localStorage.setItem('labelArr', JSON.stringify(n))
+    // localStorage.setItem('labelArr', JSON.stringify(n))
   },
   setNoteArr(state,n,update){
     state.noteArr = n;
-    localStorage.setItem('noteArr', JSON.stringify(n))
+    // localStorage.setItem('noteArr', JSON.stringify(n))
   },
   setShowType(state,n){
     if(state.showType == 1){
@@ -89,6 +89,9 @@ const mutations = {
     setSafePassword(state, n) {
       state.safepassword = n
     }
+    // setPageIndex(state, n) {
+    //   state.pageIndex = n
+    // }
 }
 
 export default mutations

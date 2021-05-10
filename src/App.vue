@@ -119,7 +119,7 @@ export default {
       })
       //设置笔记列表
       if (localStorage.getItem('noteArr')) {
-          console.log('设置笔记1', localStorage.getItem('noteArr'))
+          // console.log('设置笔记1', localStorage.getItem('noteArr'))
           this.$store.commit('setNoteArr', JSON.parse(localStorage.getItem('noteArr')))
       }
 
@@ -136,32 +136,6 @@ export default {
           this.$store.commit('setDevice', device_id)
       }
 
-      //同步数据库
-      this.$.ajax({
-          method: "GET",
-          url: noteUrl + 'isUpdate.php'
-      }).then((res) => {
-          var mark = (new Date()).valueOf() - res * 1000 > 3600 * 1000 * 24;
-          if (mark) {
-              this.$.ajax({
-                  method: "GET",
-                  url: 'beifen.php'
-              }).then((res) => {
-                  console.log(res)
-              })
-              this.$.ajax({
-                  method: "GET",
-                  url: 'delete.php'
-              }).then((res) => {
-                  console.log(res);
-                  if (res == 1) {
-                      console.log('回收站删除成功')
-                  }
-              })
-          } else {
-              console.log('已同步')
-          }
-      });
 
       // 监听离开
       if (window.history && window.history.pushState) {
