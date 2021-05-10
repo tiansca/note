@@ -248,8 +248,7 @@
                 this.$router.push({
                     name:'noteDetail',
                     query: {
-                        id: note.user_note_id,
-                        device_id: note.device_id
+                        id: note.id
                     }
                 })
             }

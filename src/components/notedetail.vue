@@ -24,8 +24,8 @@
           <font-awesome-icon :icon="['fas', 'bookmark']" style="color: #333;font-size: 18px;position: absolute;top: 0;left: 0"></font-awesome-icon>
           <font-awesome-icon :icon="['fas', 'bookmark']" style="color: #fff;font-size: 15.5px;position: absolute;top: 1px; left: 1px"></font-awesome-icon>
         </span>
-        <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 18px;position: relative;" v-if="aNote.label !=0" :style="{color:aNote.color}"></font-awesome-icon>
-        <span style="margin-left: 20px;font-size: 14px" :style="{marginLeft:(aNote.label==0?'20px':'0')}">{{aNote.label==0?'添加标签':aNote.labelName}}</span>
+        <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 18px;position: relative;" v-if="aNote.label !=0" :style="{color:labelMap[aNote.label] ? labelMap[aNote.label].color : '#999'}"></font-awesome-icon>
+        <span style="margin-left: 20px;font-size: 14px" :style="{marginLeft:(aNote.label==0?'20px':'0')}">{{aNote.label==0?'添加标签':labelMap[aNote.label] ? labelMap[aNote.label].name : ''}}</span>
         <span style="margin-top: -3px;display: inline-block;position: relative;vertical-align: top;">
           <font-awesome-icon :icon="['fas', 'sort-down']" style="color: #333;font-size: 16px;position: absolute;top: 1px;left: 2px"></font-awesome-icon>
         </span>
@@ -82,6 +82,7 @@
 
 <script>
 //  import { Toast } from 'mint-ui';
+import { noteUrl, loginUrl, changepasswordUrl } from "../config"
   export default{
       name:'noteDetail',
       computed:{
@@ -108,6 +109,13 @@
           filterType(){
               return this.$store.state.filterType;
           },
+        labelMap() {
+          const obj = {}
+          for (const label of this.labelArr) {
+            obj[label.value] = {color: label.color, name: label.label}
+          }
+          return obj
+        }
       },
       data(){
           return {
@@ -180,17 +188,18 @@
         labelChange(){
           this.labelPopupVisible = false;
           this.addLabelIng = false;
-          //查找颜色
-          for(var a = 0; a < this.labelArr.length; a++){
-              if(this.labelArr[a].value == this.aNote.label){
-                  this.aNote.color = this.labelArr[a].color;
-                  this.aNote.labelName = this.labelArr[a].label;
-                  break
-              }
-          }
+          // //查找颜色
+          // for(var a = 0; a < this.labelArr.length; a++){
+          //     if(this.labelArr[a].value == this.aNote.label){
+          //         this.aNote.color = this.labelArr[a].color;
+          //         this.aNote.labelName = this.labelArr[a].label;
+          //         break
+          //     }
+          // }
           this.aNote.updateTime = (new Date()).valueOf();
-          this.$store.commit('openUpdate');
-          this.$store.commit('setNoteArr', this.noteArr);
+          this.updateNote()
+          // this.$store.commit('openUpdate');
+          // this.$store.commit('setNoteArr', this.noteArr);
         },
         //打开新建标签
         addLabel(){
@@ -349,6 +358,30 @@
 
                 return false;
             }
+        },
+        async getNoteDetail(id) {
+          if (!id) {
+            return
+          }
+          const res = await this.$.ajax({
+            url: noteUrl + 'note/detail',
+            method: 'get',
+            params: {
+              id: id
+            }
+          })
+          console.log(res)
+          this.aNote = {
+            ...res.data,
+            label: String(res.data.label) || '0'
+          }
+        },
+        async updateNote() {
+          const res = await this.$.ajax({
+            url: noteUrl + 'note/update',
+            method: 'post',
+            data: this.aNote
+          })
         }
       },
       mounted(){
@@ -364,29 +397,30 @@
           //查找note
           this.openType = 'edit';
           console.log(this.$route.query.id)
-          setTimeout(()=>{
-            var isFund = false;
-            for(var a = 0; a < this.noteArr.length; a++){
-              if(this.noteArr[a].user_note_id == this.$route.query.id && this.noteArr[a].device_id == this.$route.query.device_id){
-                  this.aNote = this.noteArr[a];
-                  console.log(this.aNote);
-                  this.oldContent = this.aNote.content;
-                  isFund = true;
-                  break
-              }
-            }
-              //查找颜色
-              for(var a = 0; a < this.labelArr.length; a++){
-                  if(this.labelArr[a].value == this.aNote.label){
-                      this.aNote.color = this.labelArr[a].color;
-                      this.aNote.labelName = this.labelArr[a].label;
-                      break
-                  }
-              }
-            if(!isFund){
-              this.$router.replace({path:'/noteList'});
-            }
-          });
+          this.getNoteDetail(this.$route.query.id)
+          // setTimeout(()=>{
+          //   var isFund = false;
+          //   for(var a = 0; a < this.noteArr.length; a++){
+          //     if(this.noteArr[a].user_note_id == this.$route.query.id && this.noteArr[a].device_id == this.$route.query.device_id){
+          //         this.aNote = this.noteArr[a];
+          //         console.log(this.aNote);
+          //         this.oldContent = this.aNote.content;
+          //         isFund = true;
+          //         break
+          //     }
+          //   }
+          //     //查找颜色
+          //     for(var a = 0; a < this.labelArr.length; a++){
+          //         if(this.labelArr[a].value == this.aNote.label){
+          //             this.aNote.color = this.labelArr[a].color;
+          //             this.aNote.labelName = this.labelArr[a].label;
+          //             break
+          //         }
+          //     }
+          //   if(!isFund){
+          //     this.$router.replace({path:'/noteList'});
+          //   }
+          // });
         }else {
           //新建node
           this.openType = 'add';
