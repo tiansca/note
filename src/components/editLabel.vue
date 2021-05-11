@@ -17,7 +17,8 @@
             <font-awesome-icon :icon="['fas', 'bookmark']" style="font-size: 18px" :style="{color:label.color}"></font-awesome-icon>
           </span>
                     <input class="addInput clickItem" v-model="label.label">
-                    <span style="padding: 0 8px;font-size: 18px;line-height: 40px" @click="removeLabel(label)"><font-awesome-icon :icon="['fas', 'times']" style="color:#333" :style="{}"></font-awesome-icon></span>
+                  <span @click="removeLabel(label, index)" style="padding: 0 8px;font-size: 18px;line-height: 40px"><font-awesome-icon
+                    :icon="['fas', 'times']" :style="{}" style="color:#333"></font-awesome-icon></span>
                 </div>
 
             </div>
@@ -27,6 +28,8 @@
 </template>
 
 <script>
+  import { noteUrl, loginUrl, changepasswordUrl } from "../config"
+  import bus from '@/utils/bus'
     export default {
         name: "editLabel",
         computed:{
@@ -47,17 +50,29 @@
             goBack(){
                 this.$router.replace('/noteList');
             },
-            saveLabel(){
-				console.log('保存')
-                this.$store.commit('setLabelArr', this.labelList.concat());
-				this.$forceUpdate();
-				this.$router.replace('/noteList');
+            async saveLabel() {
+              console.log('保存');
+              await this.$.ajax({
+                url: noteUrl + 'user/update',
+                method: 'post',
+                data: {
+                  label_arr: JSON.stringify(this.labelList)
+                }
+              })
+              bus.$emit('updateLabel')
+              this.$router.replace('/noteList');
             },
-			removeLabel(label){
+          removeLabel(label, index) {
 				label.status = 0;
-                this.labelList.splice(index,1);
+            this.labelList.splice(index, 1);
 			}
         },
+      activated() {
+        setTimeout(() => {
+          this.oldLabelArr = JSON.parse(JSON.stringify(this.usableLabel));
+          this.labelList = JSON.parse(JSON.stringify(this.usableLabel));
+        })
+      },
         mounted() {
             setTimeout(()=>{
                 this.oldLabelArr = JSON.parse(JSON.stringify(this.usableLabel));

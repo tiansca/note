@@ -124,6 +124,7 @@
     import thisVersion from '../version.js';
     import Clipboard from 'clipboard';
     import { noteUrl, loginUrl, changepasswordUrl } from "../config"
+    import bus from '@/utils/bus'
   export default{
     name: 'slidePane',
     computed:{
@@ -163,9 +164,6 @@
         filterType(){
             return this.$store.state.filterType;
         },
-        safepassword() {
-            return this.$store.state.safepassword;
-        },
         countObj() {
           const obj = {}
           for (const item of this.countData) {
@@ -173,11 +171,20 @@
             obj[item.label] = item.value
           }
           return obj
+        },
+        maxLabelId() {
+          let id = 0
+          for(const item of this.usableLabel) {
+            if (item.value > id) {
+              id = item.value
+            }
+          }
+          return id
         }
     },
     data () {
       return {
-        msg: 'slidePane',
+          msg: 'slidePane',
           labelPopupVisible:false,
           addLabelColor:'#333',
 		  slideLeft:0,
@@ -191,7 +198,8 @@
           addLabelName:'',
           isScroll:false,
           downloadLink:'',
-          countData: []
+          countData: [],
+          safepassword: ''
       }
     },
     methods:{
@@ -216,64 +224,61 @@
           }
         this.$store.commit('setFilterType',n)
       },
-      openLock(){
-          if(this.getCookie('safe_password')){
-              //cookie有加密密码，直接打开
-              this.$store.commit('setFilterType','lock');
-          }else {
-              //判断当前用户有无加密密码，若无设置，若有则输入验证
-              console.log(this.user.safe_password);
-              if(this.safepassword){
-                  this.$messageBox.prompt('请输入隐私密码').then(({ value, action }) => {
-                      if(value == this.safepassword){
-                          this.$store.commit('setFilterType','lock');
-                          this.setCookie('safe_password', value, 180)
-                      }else {
-                          this.$messageBox({
-                              title: '提示',
-                              message: '隐私密码错误',
-                              showCancelButton: false
-                          });
-                      }
-                  }).catch(action=>{
-                      return false;
-                  });
-              }else {
-                  this.$messageBox.prompt('请设置隐私密码（用来访问加密笔记，并非登录密码）').then(({ value, action }) => {
-                      console.log(value,action);
-                      if(value){
-                          this.$.ajax({
-                              method:"POST",
-                              url:noteUrl + 'set_safe_password.php',
-                              data:this.qs({
-                                  safe_password:value,
-                                  user_id:this.user.id
-                              })
-                          }).then((res)=>{
-                              if(res.code == 0){
-                                  this.$store.commit('setFilterType','lock');
-                                  //更新本地缓存用户信息
-                                  var userInf = JSON.stringify(this.user);
-                                  userInf = JSON.parse(userInf);
-                                  userInf.safe_password = value;
-                                  this.$store.commit('setUserSession',userInf);
-                                  //写入cookie
-                                  this.setCookie('safe_password', value, 180)
-                              }
-                          })
-                      }else {
-                          this.$messageBox({
-                              title: '提示',
-                              message: '隐私密码不能设置为空',
-                              showCancelButton: false
-                          });
-                      }
-
-                  }).catch(action=>{
-                      return false;
-                  });
+      async openLock() {
+        const res = await this.$.ajax({
+          url: noteUrl + 'user/password'
+        })
+        console.log(res)
+        this.safepassword = res.data
+        if (sessionStorage.getItem('safe_password') === this.safepassword && this.safepassword !== '') {
+          //cookie有加密密码，直接打开
+          this.$store.commit('setFilterType', 'lock');
+        } else {
+          //判断当前用户有无加密密码，若无设置，若有则输入验证
+          if (this.safepassword) {
+            this.$messageBox.prompt('请输入隐私密码').then(({value, action}) => {
+              if (value == this.safepassword) {
+                this.$store.commit('setFilterType', 'lock');
+                sessionStorage.setItem('safe_password', value)
+              } else {
+                this.$messageBox({
+                  title: '提示',
+                  message: '隐私密码错误',
+                  showCancelButton: false
+                });
               }
+            }).catch(action => {
+              return false;
+            });
+          } else {
+            this.$messageBox.prompt('请设置隐私密码（用来访问加密笔记，并非登录密码）').then(({value, action}) => {
+              console.log(value, action);
+              if (value) {
+                this.$.ajax({
+                  method: "POST",
+                  url: noteUrl + 'user/update',
+                  data: {
+                    safe_password: value
+                  }
+                }).then((res) => {
+                  if (res.code == 0) {
+                    this.safepassword = value
+                    sessionStorage.setItem('safe_password', value)
+                  }
+                })
+              } else {
+                this.$messageBox({
+                  title: '提示',
+                  message: '隐私密码不能设置为空',
+                  showCancelButton: false
+                });
+              }
+
+            }).catch(action => {
+              return false;
+            });
           }
+        }
       },
       setLabelNum(){
         // for(let a = 0; a < this.usableLabel.length; a++){
@@ -304,58 +309,66 @@
           this.labelPopupVisible = false;
           this.addLabelName = ''
         },
-        commitAdd(){
-            if(!this.addLabelName){
-                this.$toast({
-                    message: '标签名不能为空',
-                    position: 'bottom',
-                    duration: 3000,
-                    className:'toast'
-                });
-                return
+        async commitAdd() {
+          if (!this.addLabelName) {
+            this.$toast({
+              message: '标签名不能为空',
+              position: 'bottom',
+              duration: 3000,
+              className: 'toast'
+            });
+            return
+          }
+          var isExist = false;
+          for (var a = 0; a < this.usableLabel.length; a++) {
+            if (this.usableLabel[a].label == this.addLabelName) {
+              isExist = true;
+              this.$toast({
+                message: '标签名已存在',
+                position: 'bottom',
+                duration: 3000,
+                className: 'toast'
+              });
+              break;
             }
-            var isExist = false;
-            for(var a = 0; a < this.usableLabel.length; a++){
-                if(this.usableLabel[a].label == this.addLabelName){
-                    isExist = true;
-                    this.$toast({
-                        message: '标签名已存在',
-                        position: 'bottom',
-                        duration: 3000,
-                        className:'toast'
-                    });
-                    break;
-                }
+          }
+          if (isExist) {
+            return
+          }
+          var newLabel = [{
+            value: String(this.maxLabelId * 1 + 1),
+            label: this.addLabelName,
+            color: this.addLabelColor,
+            status: 1,
+            updateTime: (new Date()).valueOf(),
+            device_id: this.deviceId
+          }].concat(this.labelArr)
+          await this.$.ajax({
+            url: noteUrl + 'user/update',
+            method: 'post',
+            data: {
+              label_arr: JSON.stringify(newLabel)
             }
-            if(isExist){
-                return
-            }
-            var newLabelArr =[{
-                value:String(this.labelArr.length),
-                label:this.addLabelName,
-                color:this.addLabelColor,
-                status:1,
-                updateTime:(new Date()).valueOf(),
-                device_id:this.deviceId
-            }].concat(this.labelArr)
-            this.$store.commit('setLabelArr',newLabelArr);
-            this.labelPopupVisible = false;
-            this.addLabelName = ''
+          })
+          this.downloadLabel()
+          this.labelPopupVisible = false;
+          this.addLabelName = ''
         },
         goLogin(){
             this.closeSlide();
-            this.$.ajax({
-                method:"POST",
-                url:'login',
-                data: {
-                    password: "tianSHI0402",
-                    username: "tiansc"
-                }
-            }).then((res)=>{
-
-            }).catch(e => {
-                // this.$indicator.close()
-            })
+            // 开发环境自动登录
+            // this.$.ajax({
+            //     method:"POST",
+            //     url:'login',
+            //     data: {
+            //         password: "tianSHI0402",
+            //         username: "tiansc"
+            //     }
+            // }).then((res)=>{
+            //
+            // }).catch(e => {
+            //     // this.$indicator.close()
+            // })
             setTimeout(()=> {
                 // location.href = loginUrl + '?from=' + location.href
                 this.$router.push({
@@ -444,9 +457,7 @@
                     if(res.data && res.data != 'null'){
                         var newLabel = res.data;
                         console.log(newLabel)
-                        if(newLabel.length >= this.labelArr.length){
-                            this.$store.commit('setLabelArr', newLabel);
-                        }
+                        this.$store.commit('setLabelArr', newLabel);
                     }
                     // 设置隐私密码
                     // if(res.data && res.data !== 'null' && res.data.safe_password) {
@@ -624,6 +635,10 @@
         }
     },
     mounted(){
+      bus.$off('getCount', this.getCount)
+      bus.$on('getCount', this.getCount)
+      bus.$off('updateLabel', this.downloadLabel)
+      bus.$on('updateLabel', this.downloadLabel)
         var timer = setInterval(()=> {
             if(this.user && this.user.name){
                 clearInterval(timer);

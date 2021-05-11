@@ -16,7 +16,7 @@ import {
 import axios from 'axios';
 import $ from './util.js';
 import './appback.js';
-import {uploadUrl} from './config'
+import {baseUrl, noteUrl, uploadUrl} from './config'
 import broadcast from './broadcast' // 引入broadcast
 Vue.use(broadcast)
 import VueHtml5Editor from 'vue-html5-editor'
@@ -120,9 +120,9 @@ Vue.use(VueHtml5Editor,{
         // 后端图片上传的地址，如果为空，默认转图片为base64
         // Url of the server-side,default null and convert image to base64
         upload: {
-            url: uploadUrl,
+            url: baseUrl + uploadUrl + 'upload',
             headers: {},
-            params: {path: 'note', fieldName: 'imgage'},
+            params: {path: 'note', fieldName: 'image'},
             fieldName: {}
         },
         // 请求时表单参数名
@@ -234,6 +234,8 @@ const getSelf = async () => {
                 localStorage.removeItem('noteArr')
             }
         }
+    }).catch((err) => {
+      console.log(err)
     })
     new Vue({
         el: '#app',

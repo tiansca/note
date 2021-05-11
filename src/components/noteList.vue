@@ -23,10 +23,10 @@
         <div style="width: 100%;margin-top: 8px;text-align: center" v-show="!showSearch" :style="{marginBottom:(showType==1?'18px':'0')}">
             <input type="text" style="width: calc(100% - 27px)" class="serchInput" placeholder="搜索笔记" @focus="showSearchPage">
         </div>
-      <div v-if="noteList.length == 0" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
+      <div v-if="noteList.length == 0 && !loading" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
         笔记列表为空
       </div>
-      <div  v-for="(note, index) in noteList" :key="note.id" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaillClick(false, note)">
+      <div v-if="!note.islock && filterType !== 'lock' || note.islock && filterType === 'lock'"  v-for="(note, index) in noteList" :key="note.id" :class="showType==1?'longItem':(index%2==0?'shortItem left':'shortItem right')" :style="{marginTop:(index==0||index==1&&showSearch&&showType==1?'18px':'')}" @touchstart="touchstart(false,note,$event)" @touchend="touchend(false,note)" @touchmove="touchmove" @click="goDetaillClick(false, note)">
           <list-item :note="note" :show-type="showType" :show-check="showCheck"></list-item>
       </div>
       <div v-if="loading" style="padding: 24px; font-size: 16px; text-align: center;color: #999">
@@ -91,6 +91,7 @@
   import { noteUrl, loginUrl, changepasswordUrl } from "../config"
   import loadingMore from '@/directive/loadMore'
   import listItem from './listItem'
+  import bus from '@/utils/bus'
   export default{
       name:'noteList',
       components: {
@@ -127,9 +128,16 @@
         usableLabel(){
           return this.$store.getters.usableLabel;
         },
-          showSearch(){
-              return this.$store.state.openSearch;
+        showSearch(){
+            return this.$store.state.openSearch;
+        },
+        labelMap() {
+          const obj = {}
+          for (const label of this.usableLabel) {
+            obj[label.value] = {color: label.color, name: label.label}
           }
+          return obj
+        }
       },
       data(){
           return{
@@ -153,6 +161,17 @@
             noMore: false,
             searchNoMore: false
           }
+      },
+      activated() {
+        var listBox = document.querySelector('.noteListBox');
+        if(sessionStorage.getItem('scrollTop') && listBox){
+          listBox.scrollTop = sessionStorage.getItem('scrollTop')
+          setTimeout(() => {
+            this.broadcast()
+          }, 100)
+        } else {
+          this.broadcast()
+        }
       },
       methods:{
           getNote(search){
@@ -224,17 +243,17 @@
             }else if(this.filterType == 'delete'){
                 console.log(this.$messageBox.confirm)
                 setTimeout(()=>{
-                    this.$messageBox.confirm('确定要恢复该笔记吗？').then(action => {
-                        for(var b = 0; b < this.noteArr.length; b++){
-                            if(note.id == this.noteArr[b].id){
-                                this.noteArr[b].status = 1;
-                                this.noteArr[b].updateTime = (new Date()).valueOf();
-                            }
+                    this.$messageBox.confirm('确定要恢复该笔记吗？').then(async action => {
+                      await this.$.ajax({
+                        url: noteUrl + 'note/delete',
+                        method: 'get',
+                        params: {
+                          id: note.id,
+                          status: 1
                         }
-                        this.$store.commit('openUpdate');
-                        this.$store.commit('setNoteArr', this.noteArr);
-                        // this.usableNote = this.usableNote.concat()
-                        this.$forceUpdate();
+                      })
+                      this.refresh()
+                      bus.$emit('getCount')
                     }).catch(action=>{
                         return false;
                     });
@@ -319,29 +338,32 @@
             if(this.deleteArr.length == 0){
                 return
             }
+            let status = 0
             if(this.filterType == 'delete'){
                 var msg = '确定要恢复选中的' + this.deleteArr.length +'项吗？'
+                status = 1
             }else {
                 var msg = '确定要将'+ this.deleteArr.length +'项吗放入回收站吗？<br>20天后自动彻底删除'
             }
-            this.$messageBox.confirm(msg).then(action => {
-                if(action == 'confirm'){
-                    for(var a = 0; a < this.deleteArr.length; a++){
-                        for(var b = 0; b < this.noteArr.length; b++){
-                            if(this.deleteArr[a].id == this.noteArr[b].id){
-                                this.noteArr[b].status = this.filterType == 'delete'?1:0;
-                                this.noteArr[b].updateTime = (new Date()).valueOf();
-                            }
-                        }
-                        this.$store.commit('openUpdate');
-                        this.$store.commit('setNoteArr', this.noteArr);
-                        // this.usableNote = this.usableNote.concat()
-                        this.$forceUpdate();
-                    }
-                    this.showCheck = false;
-                }else {
-                    return false;
-                }
+            this.$messageBox.confirm(msg).then(async action => {
+              if (action == 'confirm') {
+                const deleteIdArr = this.deleteArr.map(item => {
+                  return item.id
+                })
+                await this.$.ajax({
+                  url: noteUrl + 'note/delete',
+                  method: 'get',
+                  params: {
+                    id: deleteIdArr.join(','),
+                    status: status
+                  }
+                })
+                bus.$emit('getCount')
+                this.refresh()
+                this.showCheck = false;
+              } else {
+                return false;
+              }
             }).catch(action=>{
                 return false;
             });
@@ -381,17 +403,17 @@
                 if(this.filterType == 'delete'){
                     // console.log(this.$messageBox.confirm)
                     setTimeout(()=>{
-                        this.$messageBox.confirm('确定要恢复该笔记吗？').then(action => {
-                            for(var b = 0; b < this.noteArr.length; b++){
-                                if(note.id == this.noteArr[b].id){
-                                    this.noteArr[b].status = 1;
-                                    this.noteArr[b].updateTime = (new Date()).valueOf();
-                                }
+                        this.$messageBox.confirm('确定要恢复该笔记吗？').then(async action => {
+                          await this.$.ajax({
+                            url: noteUrl + 'note/delete',
+                            method: 'get',
+                            params: {
+                              id: note.id,
+                              status: 1
                             }
-                            this.$store.commit('openUpdate');
-                            this.$store.commit('setNoteArr', this.noteArr);
-                            // this.usableNote = this.usableNote.concat()
-                            this.$forceUpdate();
+                          })
+                          this.refresh()
+                          bus.$emit('getCount')
                         }).catch(action=>{
                             return false;
                         });
@@ -432,7 +454,10 @@
               this.searchValue = '';
           },
           refresh(){
-              this.$store.commit('refresh')
+            this.noteList = []
+            this.pageIndex = 1
+            this.noMore = false
+            this.getNote()
           },
           getStyle(obj, attr){
               if(!obj || !this.isDom(obj) || obj.nodeName=='#text'){
@@ -451,7 +476,75 @@
           broadcast(e) {
               this.$broadcast('scroll')
               console.log('滚动')
+          },
+          initScroll() {
+            setTimeout(()=>{
+              //监听滚动
+              var listBox = document.querySelector('.noteListBox');
+//            console.log(listBox)
+              if (!listBox) {
+                return
+              }
+              listBox.onscroll = ()=>{
+//                console.log('正在滚动');
+//                console.log(listBox.scrollTop);
+                if(listBox.scrollTop){
+                  sessionStorage.setItem('scrollTop',listBox.scrollTop);
+                }else {
+                  sessionStorage.setItem('scrollTop',0);
+                }
+                this.isMove = true;
+                this.broadcast()
+
+//                listBox.scrollTop = listBox.scrollTop + 50
+              }
+              if(sessionStorage.getItem('scrollTop')){
+                listBox.scrollTop = sessionStorage.getItem('scrollTop')
+                setTimeout(() => {
+                  this.broadcast()
+                }, 100)
+              }
+            },80);
+          },
+        async update(val) {
+          console.log('更新', val)
+          if (!val) {
+            return
           }
+          if (val.type === 'one') {
+            const res = await this.$.ajax({
+              url: noteUrl + 'note/detail',
+              params: {
+                id: val.id
+              }
+            })
+            const note = res.data
+            console.log(note)
+            const oldContent = note.content
+            note.content = note.content.replace(/<[^>]+>/g,"").slice(0, 50)
+            oldContent.replace(/<img [^>]*src=['"]([^'"]+)[^>]*>/g, function (match, capture) {
+              note.content += match
+            });
+            for (let a = 0; a < this.noteList.length; a++) {
+              if (this.noteList[a].id === note.id) {
+                this.$set(this.noteList, a, note)
+                break
+              }
+            }
+            this.noteList.sort((a, b) => {
+              if (a.updateTime > b.updateTime) {
+                return -1
+              }
+              return 1
+            })
+            this.broadcast()
+          } else {
+            this.noteList = []
+            this.pageIndex = 1
+            this.noMore = false
+            this.getNote()
+          }
+        }
       },
       mounted(){
         const _this = this
@@ -464,33 +557,8 @@
 //             this.noteArr[a].rgbColor = "#fff"
 //           }
         },50);
-        setTimeout(()=>{
-            //监听滚动
-            var listBox = document.querySelector('.noteListBox');
-//            console.log(listBox)
-            if (!listBox) {
-              return
-            }
-            listBox.onscroll = ()=>{
-//                console.log('正在滚动');
-//                console.log(listBox.scrollTop);
-                if(listBox.scrollTop){
-                    sessionStorage.setItem('scrollTop',listBox.scrollTop);
-                }else {
-                    sessionStorage.setItem('scrollTop',0);
-                }
-                this.isMove = true;
-                this.broadcast()
-
-//                listBox.scrollTop = listBox.scrollTop + 50
-            }
-            if(sessionStorage.getItem('scrollTop')){
-                listBox.scrollTop = sessionStorage.getItem('scrollTop')
-                setTimeout(() => {
-                    this.broadcast()
-                }, 100)
-            }
-        },80);
+        bus.$off('update', this.update)
+        bus.$on('update', this.update)
       },
       watch:{
         showCheck(){
@@ -505,12 +573,26 @@
             }
         },
         filterType: {
-          handler() {
+          handler(n) {
             this.noteList = []
             this.pageIndex = 1
             this.noMore = false
             this.getNote()
             console.log(this.noteList)
+            if (n === 'all') {
+              this.filterTitle = '全部笔记'
+            } else if (n === 'delete') {
+              this.filterTitle = '回收站'
+            } else if (n === 'like') {
+              this.filterTitle = '我的收藏'
+            } else if (n === 'lock') {
+              this.filterTitle = '我的加密'
+            } else if(n.indexOf('tag') !== -1) {
+              const label = n.split('_')[1]
+              if (this.labelMap[label]) {
+                this.filterTitle = this.labelMap[label].name
+              }
+            }
           },
           immediate: true
         },
@@ -537,6 +619,11 @@
                 },100)
             } else {
                 document.querySelector('.searchContent').removeEventListener('scroll', this.broadcast)
+            }
+          },
+          ready(n) {
+            if (n) {
+              this.initScroll()
             }
           }
       }

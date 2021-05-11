@@ -3,7 +3,7 @@
         <div class="noteItem" :style="{backgroundColor: hexToRgb(labelColorMap[note.label])}"  :class="showCheck?'show-check-item':''" v-if="inview">
             <div class="note-title">
                 <div class="note-title-line" v-html="note.content" v-if="showType==1"></div>
-                <div v-if="showType==0" v-html="note.title"></div>
+                <div v-if="showType==0" v-html="note.content"></div>
             </div>
             <div class="note-time">
                 <span>{{note.time | formatDate}}</span>

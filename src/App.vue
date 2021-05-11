@@ -1,7 +1,9 @@
 <template>
   <div id="app"  v-if="showPage">
     <transition :name="transitionName" mode="out-in">
-      <router-view class="Router"></router-view>
+      <keep-alive>
+        <router-view class="Router"></router-view>
+      </keep-alive>
     </transition>
     <transition name="slide-fade">
       <slide-pane v-show="slidePaneShow"></slide-pane>

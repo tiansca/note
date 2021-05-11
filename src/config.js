@@ -1,4 +1,4 @@
-const uploadUrl = 'http://182.92.210.246:3002/upload'
+const uploadUrl = 'qcloud/'
 // const baseUrl =  '/api/'
 const noteUrl = 'note1/'
 // const baseUrl =  'http://182.92.210.246:3000/api/'

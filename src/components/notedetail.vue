@@ -82,6 +82,7 @@
 
 <script>
 //  import { Toast } from 'mint-ui';
+import bus from '@/utils/bus'
 import { noteUrl, loginUrl, changepasswordUrl } from "../config"
   export default{
       name:'noteDetail',
@@ -111,10 +112,20 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
           },
         labelMap() {
           const obj = {}
-          for (const label of this.labelArr) {
+          for (const label of this.usableLabel) {
+            console.log(label.label)
             obj[label.value] = {color: label.color, name: label.label}
           }
           return obj
+        },
+        maxLabelId() {
+          let id = 0
+          for(const item of this.usableLabel) {
+            if (item.value > id) {
+              id = item.value
+            }
+          }
+          return id
         }
       },
       data(){
@@ -131,10 +142,8 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
               time:(new Date()).valueOf(),
               collect:0,
               content:'',
-              color:'#333',
               updateTime:(new Date()).valueOf(),
               status:1,
-              labelName:'未标签',
               islock:'0'
             },
             oldLabel:'',
@@ -155,24 +164,12 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
         toggleCollect(){
           this.aNote.collect = this.aNote.collect == 1 ? 0 : 1;
           this.aNote.updateTime = (new Date()).valueOf();
-          for(var a = 0; a < this.noteArr.length; a++){
-            if(this.noteArr[a].user_note_id == this.aNote.user_note_id && this.noteArr[a].device_id == this.aNote.device_id){
-              this.noteArr[a] = this.aNote;
-            }
-          }
-            this.$store.commit('openUpdate');
-          this.$store.commit('setNoteArr', this.noteArr);
+          this.updateNote()
         },
           toggleLock(){
               this.aNote.islock = this.aNote.islock == 1 ? 0 : 1;
               this.aNote.updateTime = (new Date()).valueOf();
-              for(var a = 0; a < this.noteArr.length; a++){
-                  if(this.noteArr[a].user_note_id == this.aNote.user_note_id && this.noteArr[a].device_id == this.aNote.device_id){
-                      this.noteArr[a] = this.aNote;
-                  }
-              }
-              this.$store.commit('openUpdate');
-              this.$store.commit('setNoteArr', this.noteArr);
+              this.updateNote()
           },
 //        打开弹窗
         showLabel(){
@@ -208,41 +205,48 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
             this.addLabelColor = this.colors[colorIndex];
         },
         //提交新建标签
-        commitAddLabel(){
-          if(!this.addLabelName){
+        async commitAddLabel() {
+          if (!this.addLabelName) {
             this.$toast({
               message: '标签名不能为空',
               position: 'bottom',
               duration: 3000,
-              className:'toast'
+              className: 'toast'
             });
             return
           }
           var isExist = false;
-          for(var a = 0; a < this.usableLabel.length; a++){
-              if(this.usableLabel[a].label == this.addLabelName){
-                isExist = true;
-                this.$toast({
-                  message: '标签名已存在',
-                  position: 'bottom',
-                  duration: 3000,
-                  className:'toast'
-                });
-                break;
-              }
+          for (var a = 0; a < this.usableLabel.length; a++) {
+            if (this.usableLabel[a].label == this.addLabelName) {
+              isExist = true;
+              this.$toast({
+                message: '标签名已存在',
+                position: 'bottom',
+                duration: 3000,
+                className: 'toast'
+              });
+              break;
+            }
           }
-          if(isExist){
+          if (isExist) {
             return
           }
-          var newLabelArr =[{
-            value:String(this.labelArr.length),
-            label:this.addLabelName,
-            color:this.addLabelColor,
-            status:1,
-              updateTime:(new Date()).valueOf(),
-              device_id:this.deviceId
+          var newLabel = [{
+            value: String(this.maxLabelId * 1 + 1),
+            label: this.addLabelName,
+            color: this.addLabelColor,
+            status: 1,
+            updateTime: (new Date()).valueOf(),
+            device_id: this.deviceId
           }].concat(this.labelArr)
-          this.$store.commit('setLabelArr',newLabelArr);
+          await this.$.ajax({
+            url: noteUrl + 'user/update',
+            method: 'post',
+            data: {
+              label_arr: JSON.stringify(newLabel)
+            }
+          })
+          bus.$emit('updateLabel')
           this.addLabelIng = false;
           this.addLabelName = '';
         },
@@ -261,64 +265,80 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
 //            console.log('失焦');
 //            this.title = '笔记'
         },
-        saveNote(){
-            console.log('保存笔记')
-            var editor = document.querySelector('.vue-html5-editor .content');
-            this.aNote.content = editor.innerHTML;
-            console.log(editor.innerText.trim())
-            if(this.openType == 'add' && this.aNote.content.trim() == '' || (editor.innerText.trim() == '') && editor.innerHTML.trim() == ''){
-                return;
-            }
-            if(this.oldContent == this.aNote.content){
-                this.title = '笔记';
-                return;
-            }
-            if(this.aNote.content == ''){
-                this.removeNote();
-            }
-            this.aNote.time = (new Date()).valueOf();
-            this.aNote.updateTime = (new Date()).valueOf();
-            //判断note是否已经存在
-            var isExist = false;
-            var currIndex = '';
-            for(var a = 0; a < this.noteArr.length; a++){
-                if(this.noteArr[a].user_note_id == this.aNote.user_note_id && this.noteArr[a].device_id == this.aNote.device_id){
-                    isExist = true;
-                    currIndex = a;
-                }
-            }
-            if(isExist){
-                this.noteArr[currIndex] = this.aNote;
-                this.$store.commit('openUpdate');
-                this.$store.commit('setNoteArr', this.noteArr);
-            }else {
-                if(this.filterType == 'lock'){
-                    this.aNote.islock = '1'
-                }
-                var newNoteArr = [this.aNote].concat(this.noteArr);
-                this.$store.commit('openUpdate');
-                this.$store.commit('setNoteArr', newNoteArr);
-            }
+        async saveNote() {
+          console.log('保存笔记')
+          var editor = document.querySelector('.vue-html5-editor .content');
+          this.aNote.content = editor.innerHTML;
+          console.log(editor.innerText.trim())
+          if (this.openType == 'add' && this.aNote.content.trim() == '' || (editor.innerText.trim() == '') && editor.innerHTML.trim() == '') {
+            return;
+          }
+          if (this.oldContent == this.aNote.content) {
             this.title = '笔记';
-            this.oldContent = this.aNote.content
+            return;
+          }
+          if (this.aNote.content == '') {
+            this.removeNote();
+          }
+          this.aNote.time = (new Date()).valueOf();
+          this.aNote.updateTime = (new Date()).valueOf();
+          //判断note是否已经存在
+          var isExist = false;
+          if (this.aNote.id) {
+            isExist = true
+          }
+          if (isExist) {
+            // 更新笔记
+            this.$.ajax({
+              url: noteUrl + 'note/update',
+              method: 'post',
+              data: this.aNote
+            })
+          } else {
+            if (this.filterType == 'lock') {
+              this.aNote.islock = '1'
+            }
+            // 新建笔记
+            const note = await this.$.ajax({
+              url: noteUrl + 'note/add',
+              method: 'post',
+              data: this.aNote
+            })
+            if (note.code ===0) {
+              this.aNote.id = note.data.id
+            }
+            console.log(note)
+          }
+          this.title = '笔记';
+          this.oldContent = this.aNote.content
+          bus.$emit('getCount')
         },
         back(){
-            if(this.title == '编辑笔记'){
-                if(this.aNote.content == '' && !!this.oldContent){
-                    this.aNote.content = this.oldContent;
-                }
-                this.saveNote();
-            }
+            // if(this.title == '编辑笔记'){
+            //     if(this.aNote.content == '' && !!this.oldContent){
+            //         this.aNote.content = this.oldContent;
+            //     }
+            this.saveNote();
+            // }
             this.$router.go(-1);
         },
         //删除笔记
         removeNote(){
-            this.$messageBox.confirm('确定要将该笔记放入回收站吗？<br>20天后将自动彻底删除').then(action => {
-                this.aNote.status = 0;
-                this.aNote.updateTime = (new Date()).valueOf();
-                this.$store.commit('openUpdate');
-                this.$store.commit('setNoteArr', this.noteArr);
-                this.$router.replace({path:'/noteList'});
+            if (!this.aNote.id) {
+              return
+            }
+            this.$messageBox.confirm('确定要将该笔记放入回收站吗？<br>20天后将自动彻底删除').then(async action => {
+              this.aNote.status = 0;
+              this.aNote.updateTime = (new Date()).valueOf();
+              const res = await this.$.ajax({
+                url: noteUrl + 'note/delete',
+                method: 'get',
+                params: {
+                  id: this.aNote.id,
+                  status: 0
+                }
+              })
+              this.$router.replace({path: '/noteList'});
             }).catch(action=>{
                 return false;
             })
@@ -382,62 +402,59 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
             method: 'post',
             data: this.aNote
           })
-        }
-      },
-      mounted(){
+        },
+        initNote() {
           var editor = document.querySelector('.vue-html5-editor .content');
           editor.onfocus = ()=> {
-              this.textFocus()
+            this.textFocus()
           }
-//          editor.onpaste = () => {
-//              this.aNote.content = editor.innerHTML;
-//              console.log('粘贴');
-//          }
-        if(this.$route.query.id){
-          //查找note
-          this.openType = 'edit';
-          console.log(this.$route.query.id)
-          this.getNoteDetail(this.$route.query.id)
-          // setTimeout(()=>{
-          //   var isFund = false;
-          //   for(var a = 0; a < this.noteArr.length; a++){
-          //     if(this.noteArr[a].user_note_id == this.$route.query.id && this.noteArr[a].device_id == this.$route.query.device_id){
-          //         this.aNote = this.noteArr[a];
-          //         console.log(this.aNote);
-          //         this.oldContent = this.aNote.content;
-          //         isFund = true;
-          //         break
-          //     }
-          //   }
-          //     //查找颜色
-          //     for(var a = 0; a < this.labelArr.length; a++){
-          //         if(this.labelArr[a].value == this.aNote.label){
-          //             this.aNote.color = this.labelArr[a].color;
-          //             this.aNote.labelName = this.labelArr[a].label;
-          //             break
-          //         }
-          //     }
-          //   if(!isFund){
-          //     this.$router.replace({path:'/noteList'});
-          //   }
-          // });
-        }else {
-          //新建node
-          this.openType = 'add';
-          setTimeout(()=>{
-            this.aNote.user_note_id = Date.now();
-            this.aNote.device_id = this.deviceId;
-            console.log(this.aNote)
-          });
+          if(this.$route.query.id){
+            //查找note
+            this.openType = 'edit';
+            console.log(this.$route.query.id)
+            this.getNoteDetail(this.$route.query.id)
+          }else {
+            //新建node
+            this.openType = 'add';
+            this.aNote = {label:'0',
+              time:(new Date()).valueOf(),
+              collect:0,
+              content:'',
+              updateTime:(new Date()).valueOf(),
+              status:1,
+              islock:'0'
+            }
+            setTimeout(()=>{
+              this.aNote.user_note_id = Date.now();
+              this.aNote.device_id = this.deviceId;
+              console.log(this.aNote)
+            });
 //          this.$refs.inputVal.focus()
 
             editor.focus();
             this.keepLastIndex(editor)
             console.log(editor);
 
+          }
         }
+      },
+      activated() {
+        this.initNote()
+      },
+      deactivated() {
+        this.aNote.content = ''
+        if(this.openType === 'edit') {
+          bus.$emit('update', {type: 'one', id: this.aNote.id})
+        }else {
+          bus.$emit('update', {type: 'all', id: null})
+        }
+      },
+      mounted(){
+        // this.initNote()
         //监听返回
         if (window.history && window.history.pushState) {
+          window.removeEventListener('popstate', this.back, false);
+          document.removeEventListener('keydown', this.ctrlS, false);
           history.pushState(null, null, document.URL);
           window.addEventListener('popstate', this.back, false);
         }
