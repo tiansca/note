@@ -423,8 +423,7 @@
                     this.$router.push({
                         name:'noteDetail',
                         query: {
-                            id: note.user_note_id,
-                            device_id: note.device_id
+                            id: note.id
                         }
                     })
                 }
@@ -532,7 +531,7 @@
               }
             }
             this.noteList.sort((a, b) => {
-              if (a.updateTime > b.updateTime) {
+              if (Number(a.updateTime) > Number(b.updateTime)) {
                 return -1
               }
               return 1

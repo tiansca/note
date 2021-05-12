@@ -292,7 +292,7 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
             this.$.ajax({
               url: noteUrl + 'note/update',
               method: 'post',
-              data: this.aNote
+              data: {...this.aNote}
             })
           } else {
             if (this.filterType == 'lock') {
@@ -320,7 +320,10 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
             //     }
             this.saveNote();
             // }
-            this.$router.go(-1);
+            // this.$router.push({
+            //   path: '/noteList'
+            // });
+          this.$router.go(-1)
         },
         //删除笔记
         removeNote(){
@@ -395,6 +398,7 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
             ...res.data,
             label: String(res.data.label) || '0'
           }
+          this.oldContent = this.aNote.content
         },
         async updateNote() {
           const res = await this.$.ajax({
@@ -440,6 +444,15 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
       },
       activated() {
         this.initNote()
+        if (window.history && window.history.pushState) {
+          //监听返回
+          window.removeEventListener('popstate', this.back, false);
+          document.removeEventListener('keydown', this.ctrlS, false);
+          history.pushState(null, null, document.URL);
+          window.addEventListener('popstate', this.back, false);
+          // ctrl+s保存
+          document.addEventListener('keydown',this.ctrlS)
+        }
       },
       deactivated() {
         this.aNote.content = ''
@@ -448,18 +461,11 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
         }else {
           bus.$emit('update', {type: 'all', id: null})
         }
+        window.removeEventListener('popstate', this.back, false);
+        document.removeEventListener('keydown', this.ctrlS, false);
       },
       mounted(){
         // this.initNote()
-        //监听返回
-        if (window.history && window.history.pushState) {
-          window.removeEventListener('popstate', this.back, false);
-          document.removeEventListener('keydown', this.ctrlS, false);
-          history.pushState(null, null, document.URL);
-          window.addEventListener('popstate', this.back, false);
-        }
-        // ctrl+s保存
-        document.addEventListener('keydown',this.ctrlS)
       },
       watch:{
 
@@ -524,5 +530,10 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
     }
     .vue-html5-editor .dashboard>div>div>button{
         margin-left: 8px;
+    }
+    .vue-html5-editor pre{
+      width: 100%;
+      white-space: pre-wrap!important;
+      word-wrap: break-word!important;
     }
 </style>
