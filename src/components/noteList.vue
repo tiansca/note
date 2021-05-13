@@ -530,13 +530,16 @@
                 break
               }
             }
-            this.noteList.sort((a, b) => {
-              if (Number(a.updateTime) > Number(b.updateTime)) {
-                return -1
-              }
-              return 1
+            setTimeout(() => {
+              this.noteList.sort((a, b) => {
+                if (Number(a.updateTime) > Number(b.updateTime)) {
+                  return -1
+                }
+                return 1
+              })
+              this.$forceUpdate()
+              this.broadcast()
             })
-            this.broadcast()
           } else {
             this.noteList = []
             this.pageIndex = 1

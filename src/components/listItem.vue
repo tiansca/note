@@ -6,7 +6,7 @@
                 <div v-if="showType==0" v-html="note.content"></div>
             </div>
             <div class="note-time">
-                <span>{{note.time | formatDate}}</span>
+                <span>{{note.updateTime | formatDate}}</span>
                 <span v-show="note.collect == 1"><font-awesome-icon :icon="['fas', 'star']" style="color: #fec000;font-size: 16px"></font-awesome-icon></span>
             </div>
         </div>

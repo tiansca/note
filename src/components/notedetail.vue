@@ -31,7 +31,7 @@
         </span>
       </div>
 
-      <span style="float: right;line-height: 20px;color:#999;margin-right: 12px;font-size: 14px;margin-top: 3px;">{{aNote.time | formatDate(1)}}</span>
+      <span style="float: right;line-height: 20px;color:#999;margin-right: 12px;font-size: 14px;margin-top: 3px;">{{aNote.updateTime | formatDate(1)}}</span>
 
     </div>
     <!--<textarea v-model="aNote.content" @focus="textFocus" @blur="textBlur" ref="inputVal"></textarea>-->
@@ -289,7 +289,7 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
           }
           if (isExist) {
             // 更新笔记
-            this.$.ajax({
+            await this.$.ajax({
               url: noteUrl + 'note/update',
               method: 'post',
               data: {...this.aNote}
@@ -312,17 +312,18 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
           this.title = '笔记';
           this.oldContent = this.aNote.content
           bus.$emit('getCount')
+          return Promise.resolve()
         },
-        back(){
-            // if(this.title == '编辑笔记'){
-            //     if(this.aNote.content == '' && !!this.oldContent){
-            //         this.aNote.content = this.oldContent;
-            //     }
-            this.saveNote();
-            // }
-            // this.$router.push({
-            //   path: '/noteList'
-            // });
+        async back() {
+          // if(this.title == '编辑笔记'){
+          //     if(this.aNote.content == '' && !!this.oldContent){
+          //         this.aNote.content = this.oldContent;
+          //     }
+          await this.saveNote();
+          // }
+          // this.$router.push({
+          //   path: '/noteList'
+          // });
           this.$router.go(-1)
         },
         //删除笔记
