@@ -511,6 +511,15 @@
             return
           }
           if (val.type === 'one') {
+            if (val.action && val.action === 'delete' && val.id) {
+              for (let a = 0; a < this.noteList.length; a++) {
+                if (this.noteList[a].id === val.id) {
+                  this.noteList.splice(a, 1)
+                  break
+                }
+              }
+              return
+            }
             const res = await this.$.ajax({
               url: noteUrl + 'note/detail',
               params: {

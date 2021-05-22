@@ -343,6 +343,7 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
                 }
               })
               this.$router.replace({path: '/noteList'});
+              bus.$emit('update', {type: 'one', id: this.aNote.id, action: 'delete'})
             }).catch(action=>{
                 return false;
             })
