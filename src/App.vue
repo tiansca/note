@@ -51,7 +51,7 @@ export default {
       return{
         transitionName:'',
         downloadLink:'',
-        baseUrl: 'http://182.92.210.246:3000/api/'
+        baseUrl: 'http://47.95.5.207:3000/api/'
       }
   },
   methods:{

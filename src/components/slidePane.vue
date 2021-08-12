@@ -499,7 +499,7 @@
             console.log('重置安全密码');
             this.$messageBox.confirm('确定要重置隐私密码吗？').then(action => {
                 this.$store.commit('setLoading',true);
-                var baseUrl = 'http://182.92.210.246/note/reset_safe.html'
+                var baseUrl = 'http://47.95.5.207/note/reset_safe.html'
                 this.$.ajax({
                     method: 'post',
                     url: 'mail',

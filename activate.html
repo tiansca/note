@@ -11,7 +11,7 @@
     </div>
 </body>
 
-<script src="http://182.92.210.246/js/jquery-3.2.0.js"></script>
+<script src="http://47.95.5.207/js/jquery-3.2.0.js"></script>
 <script>
     var search = location.search;
     var time = 5;
@@ -29,7 +29,7 @@
         console.log(serchObj)
         if(serchObj && serchObj.user){
             $.ajax({
-                url:'http://182.92.210.246/note/api/activate.php?user=' + serchObj.user,
+                url:'http://47.95.5.207/note/api/activate.php?user=' + serchObj.user,
                 success:function (code) {
                     code = JSON.parse(code)
                     if(code.code == 0){
@@ -51,7 +51,7 @@
 
         if(time == 0){
 //            location.href = "http://107.175.214.24/note"
-            location.href = "http://182.92.210.246/note"
+            location.href = "http://47.95.5.207/note"
         }else {
             time --;
         }
