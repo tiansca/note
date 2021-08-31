@@ -123,7 +123,7 @@
 <script>
     import thisVersion from '../version.js';
     import Clipboard from 'clipboard';
-    import { noteUrl, loginUrl, changepasswordUrl } from "../config"
+    import { noteUrl, versionUrl, loginUrl, changepasswordUrl } from "../config"
     import bus from '@/utils/bus'
   export default{
     name: 'slidePane',
@@ -192,7 +192,7 @@
           isTransition:false,
           slideWidth:0,
           touchTimeStamp:0,
-		  version:thisVersion.version,
+		      version:thisVersion.version,
           hasNewVersion:false,
           latestVersion:'',
           addLabelName:'',
@@ -539,10 +539,14 @@
             console.log(this.version);
             this.$.ajax({
                 method:"GET",
-                url: noteUrl + 'get_version_last.php'
+                url: versionUrl + 'latest',
+                params: {
+                  app_name: 'note',
+                  platform: 'android'
+                }
             }).then((res)=>{
                 console.log(res);
-                if(res.code == 0){
+                if(res.code === 0){
                     this.latestVersion = res.data;
                     console.log(this.latestVersion.version);
                     const btnCopy = new Clipboard('.copybtn');

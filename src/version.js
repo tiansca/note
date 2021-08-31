@@ -1,4 +1,4 @@
 export default{
     name: 'thisVersion',
-    version:'1.1.3'
+    version:'1.0.0'
 }
