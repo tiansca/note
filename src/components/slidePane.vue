@@ -563,8 +563,14 @@
                           return false;
                         })
 
+                    } else if (isClick) {
+                      if(isClick){
+                        this.$toast({
+                          message: '已经是最新版本了',
+                          duration: 3000
+                        });
+                      }
                     }
-
                 }
             })
         },
