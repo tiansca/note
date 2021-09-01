@@ -85,7 +85,7 @@
             <div class="group-item clickItem" @click="checkVersion(true)">
                 <div class="groupItemBox">
                     <img src="../assets/version.png" style="width: 20px; margin: 1px" alt="">
-                    <span>下载APP</span>
+                    <span>检查更新 {{version}}</span>
                     <span class="group-item-num"></span>
                 </div>
             </div>
@@ -548,19 +548,23 @@
                 console.log(res);
                 if(res.code === 0){
                     this.latestVersion = res.data;
-                    console.log(this.latestVersion.version);
-                    const btnCopy = new Clipboard('.copybtn');
-                    this.hasNewVersion = true;
-                    this.$messageBox.confirm('确定要下载吗？<br><span style="color: rgb(13, 135, 148)" class="copybtn clickItem" data-clipboard-action="copy" data-clipboard-text=' + this.latestVersion.link + '>复制链接</span>').then(action => {
-                        if(this.downloadLink){
+                    if (this.latestVersion.version !== this.version) {
+                        console.log(this.latestVersion.version);
+                        const btnCopy = new Clipboard('.copybtn');
+                        this.hasNewVersion = true;
+                        this.$messageBox.confirm('发现新版本, 确定要下载吗？<br><span style="color: rgb(13, 135, 148)" class="copybtn clickItem" data-clipboard-action="copy" data-clipboard-text=' + this.latestVersion.link + '>复制链接</span>').then(action => {
+                          if(this.downloadLink){
                             this.downloadLink = ''
-                        }
-                        setTimeout(()=>{
+                          }
+                          setTimeout(()=>{
                             this.downloadLink = this.latestVersion.link;
-                        },100)
-                    }).catch(action=>{
-                        return false;
-                    })
+                          },100)
+                        }).catch(action=>{
+                          return false;
+                        })
+
+                    }
+
                 }
             })
         },
@@ -639,6 +643,7 @@
         }
     },
     mounted(){
+      this.checkVersion()
       bus.$off('getCount', this.getCount)
       bus.$on('getCount', this.getCount)
       bus.$off('updateLabel', this.downloadLabel)
