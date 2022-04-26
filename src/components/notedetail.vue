@@ -270,7 +270,8 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
           var editor = document.querySelector('.vue-html5-editor .content');
           this.aNote.content = editor.innerHTML;
           console.log(editor.innerText.trim())
-          if (this.openType === 'add' && this.aNote.content.trim() === '' || (editor.innerText.trim() === '') && editor.innerHTML.trim() === '') {
+          // 新建笔记 并且 输入内容为空
+          if (this.openType === 'add' && (this.aNote.content.trim() === '' || (editor.innerText.trim() === '') && editor.innerHTML.trim() === '')) {
             return;
           }
           if (this.oldContent === this.aNote.content) {

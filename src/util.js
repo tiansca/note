@@ -3,6 +3,7 @@
  */
 import axios from 'axios';
 import {baseUrl} from './config'
+import { Toast } from 'mint-ui'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 //基本配置
 const Util = {
@@ -18,6 +19,9 @@ Util.ajax = axios.create({
 
 //添加响应拦截器
 Util.ajax.interceptors.response.use(res => {
+  if(res.data.code !== 0) {
+    Toast(res.data.error || res.data.msg || '操作失败')
+  }
     return res.data;
 });
 
