@@ -10,16 +10,17 @@
         <!--<font-awesome-icon :icon="['fas', 'bars']"></font-awesome-icon>-->
       <!--</span>-->
       </span>
-      <mt-button icon="more" slot="right" style="overflow: visible;" @click="showMore">
+      <mt-button v-show="userId && userId === aNote.user_id" icon="more" slot="right" style="overflow: visible;" @click="showMore">
         <div class="moreList" v-show="isShowMore">
           <div class="moreItem" @click="toggleCollect">{{aNote.collect==1?'取消收藏':'收藏笔记'}}</div>
           <div class="moreItem" @click="toggleLock" style="border-bottom: 0.5px solid rgb(153, 153, 153);padding-bottom: 12px;">{{aNote.islock==1?'取消加密':'加密笔记'}}</div>
+          <div class="moreItem" @click="doShare" style="border-bottom: 0.5px solid rgb(153, 153, 153);padding-bottom: 12px;">分享笔记</div>
           <div class="moreItem" @click="removeNote">删除笔记</div>
         </div>
       </mt-button>
     </mt-header>
     <div class="detail-top">
-      <div style="margin: 2px 14px;float: left" @click="showLabel">
+      <div v-show="userId && userId === aNote.user_id" style="margin: 2px 14px;float: left" @click="showLabel">
         <span style="position: relative;" v-if="aNote.label == 0">
           <font-awesome-icon :icon="['fas', 'bookmark']" style="color: #333;font-size: 18px;position: absolute;top: 0;left: 0"></font-awesome-icon>
           <font-awesome-icon :icon="['fas', 'bookmark']" style="color: #fff;font-size: 15.5px;position: absolute;top: 1px; left: 1px"></font-awesome-icon>
@@ -30,13 +31,20 @@
           <font-awesome-icon :icon="['fas', 'sort-down']" style="color: #333;font-size: 16px;position: absolute;top: 1px;left: 2px"></font-awesome-icon>
         </span>
       </div>
-
-      <span style="float: right;line-height: 20px;color:#999;margin-right: 12px;font-size: 14px;margin-top: 3px;">{{aNote.updateTime | formatDate(1)}}</span>
+      <div v-if="shareUser && shareUser.username && aNote.user_id !== userId" style="margin: 2px 14px;float: left;font-size: 14px;color: #666">
+        <span>{{shareUser.username}}</span>
+        <span>分享的笔记</span>
+      </div>
+      <div v-if="aNote.share && aNote.user_id === userId" style="margin: 2px 14px;float: left;font-size: 14px;color: rgb(13, 135, 148);cursor: pointer" @click="closeShare">取消分享</div>
+      <span v-if="aNote && aNote.updateTime" style="float: right;line-height: 20px;color:#999;margin-right: 12px;font-size: 14px;margin-top: 3px;">{{aNote.updateTime | formatDate(1)}}</span>
 
     </div>
     <!--<textarea v-model="aNote.content" @focus="textFocus" @blur="textBlur" ref="inputVal"></textarea>-->
-      <vue-html5-editor :content="aNote.content" ref="inputVal" :z-index="1000" :auto-height="true" :show-module-name="false" @change="textFocus"></vue-html5-editor>
-
+      <vue-html5-editor v-if="aNote && aNote.id && userId && userId === aNote.user_id" :content="aNote.content" ref="inputVal" :z-index="1000" :auto-height="true" :show-module-name="false" @change="textFocus"></vue-html5-editor>
+      <div class="vue-html5-editor readonly" v-else-if="aNote && aNote.id" v-html="aNote.content"></div>
+    <div v-if="!aNote || !aNote.id" class="empty" style="font-size: 16px; margin: 24px auto;text-align: center;color: #666">
+      <span>笔记不存在</span>
+    </div>
 
     <!--标签弹窗-->
     <mt-popup
@@ -84,6 +92,7 @@
 //  import { Toast } from 'mint-ui';
 import bus from '@/utils/bus'
 import { noteUrl, loginUrl, changepasswordUrl } from "../config"
+import {Toast} from "mint-ui";
   export default{
       name:'noteDetail',
       computed:{
@@ -126,6 +135,12 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
             }
           }
           return id
+        },
+        share() {
+          return this.aNote.share || false
+        },
+        userId() {
+          return this.$store.state.user ? this.$store.state.user.id : ''
         }
       },
       data(){
@@ -149,7 +164,8 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
             oldLabel:'',
             openType:'add',
             oldContent:'',
-            contentEle:null
+            contentEle:null,
+            shareUser: null
           }
       },
       methods:{
@@ -268,6 +284,9 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
         async saveNote() {
           console.log('保存笔记')
           var editor = document.querySelector('.vue-html5-editor .content');
+          if (!editor) {
+            return
+          }
           this.aNote.content = editor.innerHTML;
           console.log(editor.innerText.trim())
           // 新建笔记 并且 输入内容为空
@@ -402,6 +421,9 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
             label: String(res.data.label) || '0'
           }
           this.oldContent = this.aNote.content
+          if (this.aNote.share && this.userId !== this.aNote.user_id) {
+            this.getShareUser()
+          }
         },
         async updateNote() {
           const res = await this.$.ajax({
@@ -412,9 +434,12 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
         },
         initNote() {
           var editor = document.querySelector('.vue-html5-editor .content');
-          editor.onfocus = ()=> {
-            this.textFocus()
+          if (editor) {
+            editor.onfocus = ()=> {
+              this.textFocus()
+            }
           }
+
           if(this.$route.query.id){
             //查找note
             this.openType = 'edit';
@@ -443,7 +468,44 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
             console.log(editor);
 
           }
-        }
+        },
+        doShare(){
+          this.$messageBox.confirm('确定要分享此笔记吗吗<br>分享后可复制链接给他人查看').then(async action => {
+            this.aNote.share = 1;
+            this.aNote.updateTime = (new Date()).valueOf();
+            this.updateNote()
+            this.copy(location.href)
+          }).catch(action=>{
+            return false;
+          })
+        },
+        closeShare(){
+          this.$messageBox.confirm('确定要取消分享吗<br>取消后分享链接将失效').then(async action => {
+            this.aNote.share = 0;
+            this.aNote.updateTime = (new Date()).valueOf();
+            this.updateNote()
+          }).catch(action=>{
+            return false;
+          })
+        },
+        async getShareUser() {
+          const res = await this.$.ajax({
+            url: 'getUserByid',
+            method: 'get',
+            params: {id: this.aNote.user_id}
+          })
+          this.shareUser = res.data[0]
+        },
+        copy(copyTxt) {
+          const createInput = document.createElement('textarea')
+          createInput.value = copyTxt
+          document.body.appendChild(createInput)
+          createInput.select() // 选择对象
+          document.execCommand('Copy') // 执行浏览器复制命令
+          createInput.className = 'createInput'
+          createInput.style.display = 'none'
+          Toast('复制成功！')
+        },
       },
       activated() {
         this.initNote()
@@ -494,6 +556,10 @@ import { noteUrl, loginUrl, changepasswordUrl } from "../config"
     height: calc(100% - 120px);
     overflow: auto;
     color:#464646
+  }
+  .vue-html5-editor.readonly{
+    height: calc(100% - 85px);
+    padding: 0 14px;
   }
   .vue-html5-editor>.content{
       padding-bottom: 26px!important;
