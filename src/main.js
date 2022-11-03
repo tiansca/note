@@ -15,7 +15,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import $ from './util.js';
-import './appback.js';
+// import './appback.js';
 import {baseUrl, noteUrl, uploadUrl} from './config'
 import broadcast from './broadcast' // 引入broadcast
 Vue.use(broadcast)
