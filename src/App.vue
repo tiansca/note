@@ -291,4 +291,7 @@ body,html{
 .vue-html5-editor>.content{
     padding-bottom: 26px!important;
 }
+.mint-msgbox{
+  max-width: 400px;
+}
 </style>
