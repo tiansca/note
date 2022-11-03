@@ -29,7 +29,7 @@ Util.ajax.interceptors.response.use(res => {
         } else {
           Toast(res.data.error || res.data.msg || '操作失败')
         }
-      })
+      }, 50)
       return res.data;
     }
     Toast(res.data.error || res.data.msg || '操作失败')
