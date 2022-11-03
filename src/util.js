@@ -21,8 +21,7 @@ Util.ajax = axios.create({
 //添加响应拦截器
 Util.ajax.interceptors.response.use(res => {
   if(res.data.code !== 0) {
-    console.log(router.history.current, res.config.url)
-    if (res.config.url === '/api/self') {
+    if (res.config.url.indexOf('/api/self') !== -1 ) {
       setTimeout(() => {
         if (location.hash.indexOf('noteDetail') !== -1) {
           // 详情页不要弹登录提示
