@@ -344,7 +344,12 @@ import {Toast} from "mint-ui";
           // this.$router.push({
           //   path: '/noteList'
           // });
-          this.$router.go(-1)
+          if (this.aNote.share && this.aNote.user_id !== this.userId && this.openType === 'edit') {
+            this.$router.push('/noteList')
+          } else {
+            this.$router.go(-1)
+          }
+
         },
         //删除笔记
         removeNote(){
@@ -561,7 +566,7 @@ import {Toast} from "mint-ui";
   }
   .vue-html5-editor.readonly{
     height: calc(100% - 85px);
-    padding: 0 14px;
+    padding: 8px 14px 0;
   }
   .vue-html5-editor>.content{
       padding-bottom: 26px!important;
