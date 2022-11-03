@@ -31,7 +31,7 @@
           <font-awesome-icon :icon="['fas', 'sort-down']" style="color: #333;font-size: 16px;position: absolute;top: 1px;left: 2px"></font-awesome-icon>
         </span>
       </div>
-      <div v-if="shareUser && shareUser.username && aNote.user_id !== userId" style="margin: 2px 14px;float: left;font-size: 14px;color: #666">
+      <div v-if="shareUser && shareUser.username && aNote.user_id !== userId && openType === 'edit'" style="margin: 2px 14px;float: left;font-size: 14px;color: #666">
         <span>{{shareUser.username}}</span>
         <span>分享的笔记</span>
       </div>
