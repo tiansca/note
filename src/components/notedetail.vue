@@ -474,7 +474,7 @@ import {Toast} from "mint-ui";
             this.aNote.share = 1;
             this.aNote.updateTime = (new Date()).valueOf();
             this.updateNote()
-            this.copy(location.href)
+            this.copy(`https://tiansc.top/note/${location.hash}`)
           }).catch(action=>{
             return false;
           })
