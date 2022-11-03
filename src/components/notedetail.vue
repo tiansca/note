@@ -10,7 +10,7 @@
         <!--<font-awesome-icon :icon="['fas', 'bars']"></font-awesome-icon>-->
       <!--</span>-->
       </span>
-      <mt-button v-show="userId && userId === aNote.user_id" icon="more" slot="right" style="overflow: visible;" @click="showMore">
+      <mt-button v-show="openType === 'add' || userId && userId === aNote.user_id" icon="more" slot="right" style="overflow: visible;" @click="showMore">
         <div class="moreList" v-show="isShowMore">
           <div class="moreItem" @click="toggleCollect">{{aNote.collect==1?'取消收藏':'收藏笔记'}}</div>
           <div class="moreItem" @click="toggleLock" style="border-bottom: 0.5px solid rgb(153, 153, 153);padding-bottom: 12px;">{{aNote.islock==1?'取消加密':'加密笔记'}}</div>
@@ -20,7 +20,7 @@
       </mt-button>
     </mt-header>
     <div class="detail-top">
-      <div v-show="userId && userId === aNote.user_id" style="margin: 2px 14px;float: left" @click="showLabel">
+      <div v-show="openType === 'add' || userId && userId === aNote.user_id" style="margin: 2px 14px;float: left" @click="showLabel">
         <span style="position: relative;" v-if="aNote.label == 0">
           <font-awesome-icon :icon="['fas', 'bookmark']" style="color: #333;font-size: 18px;position: absolute;top: 0;left: 0"></font-awesome-icon>
           <font-awesome-icon :icon="['fas', 'bookmark']" style="color: #fff;font-size: 15.5px;position: absolute;top: 1px; left: 1px"></font-awesome-icon>
@@ -35,14 +35,14 @@
         <span>{{shareUser.username}}</span>
         <span>分享的笔记</span>
       </div>
-      <div v-if="aNote.share && aNote.user_id === userId" style="margin: 2px 14px;float: left;font-size: 14px;color: rgb(13, 135, 148);cursor: pointer" @click="closeShare">取消分享</div>
+      <div v-if="aNote.share && (aNote.user_id === userId || openType === 'add')" style="margin: 2px 14px;float: left;font-size: 14px;color: rgb(13, 135, 148);cursor: pointer" @click="closeShare">取消分享</div>
       <span v-if="aNote && aNote.updateTime" style="float: right;line-height: 20px;color:#999;margin-right: 12px;font-size: 14px;margin-top: 3px;">{{aNote.updateTime | formatDate(1)}}</span>
 
     </div>
     <!--<textarea v-model="aNote.content" @focus="textFocus" @blur="textBlur" ref="inputVal"></textarea>-->
-      <vue-html5-editor v-if="aNote && aNote.id && userId && userId === aNote.user_id" :content="aNote.content" ref="inputVal" :z-index="1000" :auto-height="true" :show-module-name="false" @change="textFocus"></vue-html5-editor>
-      <div class="vue-html5-editor readonly" v-else-if="aNote && aNote.id" v-html="aNote.content"></div>
-    <div v-if="!aNote || !aNote.id" class="empty" style="font-size: 16px; margin: 24px auto;text-align: center;color: #666">
+      <vue-html5-editor v-if="openType === 'add' || aNote && aNote.id && userId && userId === aNote.user_id" :content="aNote.content" ref="inputVal" :z-index="1000" :auto-height="true" :show-module-name="false" @change="textFocus"></vue-html5-editor>
+      <div class="vue-html5-editor readonly" v-else-if="openType === 'edit' && aNote && aNote.id" v-html="aNote.content"></div>
+    <div v-if="openType === 'edit' && (!aNote || !aNote.id)" class="empty" style="font-size: 16px; margin: 24px auto;text-align: center;color: #666">
       <span>笔记不存在</span>
     </div>
 
@@ -473,8 +473,10 @@ import {Toast} from "mint-ui";
           this.$messageBox.confirm('确定要分享此笔记吗吗<br>分享后可复制链接给他人查看').then(async action => {
             this.aNote.share = 1;
             this.aNote.updateTime = (new Date()).valueOf();
-            this.updateNote()
-            this.copy(`https://tiansc.top/note/${location.hash}`)
+            if (this.aNote.id) {
+              this.updateNote()
+              this.copy(`https://tiansc.top/note/${location.hash}`)
+            }
           }).catch(action=>{
             return false;
           })
