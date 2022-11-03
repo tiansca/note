@@ -24,7 +24,7 @@ Util.ajax.interceptors.response.use(res => {
     console.log(router.history.current, res.config.url)
     if (res.config.url === '/api/self') {
       setTimeout(() => {
-        if (router.history && router.history.current && router.history.current.name === 'noteDetail') {
+        if (location.hash.indexOf('noteDetail') !== -1) {
           // 详情页不要弹登录提示
         } else {
           Toast(res.data.error || res.data.msg || '操作失败')
