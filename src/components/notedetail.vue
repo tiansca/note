@@ -165,7 +165,8 @@ import {Toast} from "mint-ui";
             openType:'add',
             oldContent:'',
             contentEle:null,
-            shareUser: null
+            shareUser: null,
+            loading: false
           }
       },
       methods:{
@@ -283,6 +284,9 @@ import {Toast} from "mint-ui";
         },
         async saveNote() {
           console.log('保存笔记')
+          if (this.loading) {
+            return
+          }
           var editor = document.querySelector('.vue-html5-editor .content');
           if (!editor) {
             return
@@ -307,32 +311,39 @@ import {Toast} from "mint-ui";
           if (this.aNote.id) {
             isExist = true
           }
-          if (isExist) {
-            // 更新笔记
-            await this.$.ajax({
-              url: noteUrl + 'note/update',
-              method: 'post',
-              data: {...this.aNote}
-            })
-          } else {
-            if (this.filterType == 'lock') {
-              this.aNote.islock = '1'
+          this.loading = true
+          try {
+            if (isExist) {
+              // 更新笔记
+              await this.$.ajax({
+                url: noteUrl + 'note/update',
+                method: 'post',
+                data: {...this.aNote}
+              })
+            } else {
+              if (this.filterType == 'lock') {
+                this.aNote.islock = '1'
+              }
+              // 新建笔记
+              const note = await this.$.ajax({
+                url: noteUrl + 'note/add',
+                method: 'post',
+                data: this.aNote
+              })
+              if (note.code ===0) {
+                this.aNote.id = note.data.id
+              }
+              console.log(note)
             }
-            // 新建笔记
-            const note = await this.$.ajax({
-              url: noteUrl + 'note/add',
-              method: 'post',
-              data: this.aNote
-            })
-            if (note.code ===0) {
-              this.aNote.id = note.data.id
-            }
-            console.log(note)
+            this.title = '笔记';
+            this.oldContent = this.aNote.content
+            bus.$emit('getCount')
+            return Promise.resolve()
+          } catch (e) {
+            Toast('保存失败！')
           }
-          this.title = '笔记';
-          this.oldContent = this.aNote.content
-          bus.$emit('getCount')
-          return Promise.resolve()
+          this.loading = false
+
         },
         async back() {
           // if(this.title == '编辑笔记'){
