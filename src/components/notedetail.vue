@@ -338,7 +338,6 @@ import {Toast} from "mint-ui";
             this.title = '笔记';
             this.oldContent = this.aNote.content
             bus.$emit('getCount')
-            return Promise.resolve()
           } catch (e) {
             Toast('保存失败！')
           }
